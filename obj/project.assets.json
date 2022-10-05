@@ -2231,19 +2231,21 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Visual\\Backend-CarStore\\Backend-CarStore.csproj",
-      "projectName": "Backend-CarStore",
-      "projectPath": "D:\\Visual\\Backend-CarStore\\Backend-CarStore.csproj",
+      "projectUniqueName": "D:\\Visual\\Backend-CarStore\\CarStore.csproj",
+      "projectName": "CarStore",
+      "projectPath": "D:\\Visual\\Backend-CarStore\\CarStore.csproj",
       "packagesPath": "C:\\Users\\leand\\.nuget\\packages\\",
       "outputPath": "D:\\Visual\\Backend-CarStore\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\leand\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\leand\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
