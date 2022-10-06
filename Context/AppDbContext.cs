@@ -7,7 +7,7 @@ namespace Backend_CarStore.Context
 {
     public class AppDbContext : DbContext
     {
-        public DbSet<Car> Cars { get; set; }
+        public DbSet<Cars> Cars { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             IConfiguration configuration = new ConfigurationBuilder()
