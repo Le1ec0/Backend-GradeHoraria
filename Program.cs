@@ -9,7 +9,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<CarsDbContext>(options => options.UseSqlServer("name=SQLConnection"));
+builder.Services.AddDbContext<CarsDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SQLConnection"));
+});
 
 var app = builder.Build();
 
