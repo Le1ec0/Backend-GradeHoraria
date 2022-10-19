@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Backend_CarStore.Models;
+using Backend_CarStore.Repositories;
 
 namespace CarStore.Controllers
 {
@@ -7,11 +8,10 @@ namespace CarStore.Controllers
     [Route("api/[controller]")]
     public class CarsController : ControllerBase
     {
-        private static List<Cars> Car()
+        private readonly ICarsRepository repository;
+        public CarsController(ICarsRepository repository)
         {
-            return new List<Cars>{
-                new Cars {Id = 0, Plate = "GCS-1255", Brand = "Mitsubishi", Model = "Lancer", Color = "Azul", Year = 1995}
-            };
+            _repository = repository;
         }
 
         [HttpGet()]
