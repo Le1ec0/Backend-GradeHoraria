@@ -10,5 +10,7 @@ namespace Backend_CarStore.Repositories
         void UpdateCars(Cars cars);
         void DeleteCars(Cars cars);
 
+        Task<bool> SaveChangesAsync();
+
     }
 }

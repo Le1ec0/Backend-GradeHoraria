@@ -8,27 +8,31 @@ namespace CarStore.Controllers
     [Route("api/[controller]")]
     public class CarsController : ControllerBase
     {
-        private readonly ICarsRepository repository;
+        private readonly ICarsRepository _repository;
         public CarsController(ICarsRepository repository)
         {
-            _repository = repository;
+           _repository = repository;
         }
 
-        [HttpGet()]
-        public IActionResult Get()
+        [HttpGet]
+        public async Task<IActionResult> Get()
         {
-            return Ok(Car());
+            var car = await _repository.SearchCar();
+            return car.Any()
+            ? Ok(car)
+            : NoContent();
         }
 
-        [HttpPost()]
-        public IActionResult Post(Cars cars)
+        [HttpPost]
+        public async Task<IActionResult> Post(Cars cars)
         {
-            var car = Car();
-            car.Add(cars);
-            return Ok(car);
+            _repository.AddCars(cars);
+            return await _repository.SaveChangesAsync()
+            ? Ok("Carro adicionado com sucesso")
+            : BadRequest("Erro ao adicionar carro");
         }
 
-        /*[HttpDelete()]
+        /*[HttpDelete]
         public IActionResult Delete(Cars cars)
         {
             var car = Car();
@@ -36,7 +40,7 @@ namespace CarStore.Controllers
             return Ok(Car());
         }
 
-        [HttpPut()]
+        [HttpPut]
         public IActionResult Put(Cars cars)
         {
             var car = Car();
