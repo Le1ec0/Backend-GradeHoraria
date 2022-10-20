@@ -1,5 +1,5 @@
 using Backend_CarStore.Context;
-using Backend_CarStore.CarsRepositories;
+using Backend_CarStore.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +16,7 @@ builder.Services.AddDbContext<CarsDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SQLConnection"));
 });
 
-builder.Services.AddScoped<ICarsRepository>, CarsRepository();
+builder.Services.AddScoped<ICarsRepository, CarsRepository>();
 
 var app = builder.Build();
 
