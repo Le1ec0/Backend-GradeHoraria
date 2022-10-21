@@ -11,7 +11,7 @@ namespace CarStore.Controllers
         private readonly ICarsRepository _repository;
         public CarsController(ICarsRepository repository)
         {
-           _repository = repository;
+            _repository = repository;
         }
 
         [HttpGet]
@@ -47,13 +47,13 @@ namespace CarStore.Controllers
         public async Task<IActionResult> Put(int id, Cars cars)
         {
             var dbCar = await _repository.SearchCar(id);
-            if(dbCar == null) return NotFound("Carro não encontrado");
+            if (dbCar == null) return NotFound("Carro não encontrado");
 
             dbCar.Plate = cars.Plate ?? dbCar.Plate;
             dbCar.Brand = cars.Brand ?? dbCar.Brand;
             dbCar.Model = cars.Model ?? dbCar.Model;
             dbCar.Color = cars.Color ?? dbCar.Color;
-            //dbCar.Year = cars.Year ?? cars.Year;
+            dbCar.Year = cars.Year ?? cars.Year;
 
             _repository.UpdateCars(dbCar);
 
@@ -66,7 +66,7 @@ namespace CarStore.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var dbCar = await _repository.SearchCar(id);
-            if(dbCar == null) return NotFound("Carro não encontrado");
+            if (dbCar == null) return NotFound("Carro não encontrado");
 
             _repository.DeleteCars(dbCar);
 
