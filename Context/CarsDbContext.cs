@@ -23,6 +23,8 @@ namespace Backend_CarStore.Context
             cars.Property(x => x.Model).HasColumnName("model").IsRequired();
             cars.Property(x => x.Color).HasColumnName("color").IsRequired();
             cars.Property(x => x.Year).HasColumnName("year").IsRequired();
+            cars.Property(x => x.Name).HasColumnName("name").IsRequired();
+            cars.Property(x => x.Phone).HasColumnName("phone").IsRequired();
         }
     }
 }
