@@ -3,17 +3,28 @@ using Backend_CarStore.Models;
 
 namespace Backend_CarStore.Context
 {
-    public class UsersDbContext : DbContext
+    public class DataDbContext : DbContext
     {
-        public UsersDbContext(DbContextOptions<UsersDbContext> options) : base(options)
+        public DataDbContext(DbContextOptions<DataDbContext> options) : base(options)
         {
 
         }
 
+        public DbSet<Cars> Car { get; set; }
         public DbSet<Users> User { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            var cars = modelBuilder.Entity<Cars>();
+            modelBuilder.Entity<Cars>().ToTable("Cars");
+            cars.HasKey(x => x.Id);
+            cars.Property(x => x.Id).HasColumnName("id").ValueGeneratedOnAdd();
+            cars.Property(x => x.Plate).HasColumnName("plate").IsRequired();
+            cars.Property(x => x.Brand).HasColumnName("brand").IsRequired();
+            cars.Property(x => x.Model).HasColumnName("model").IsRequired();
+            cars.Property(x => x.Color).HasColumnName("color").IsRequired();
+            cars.Property(x => x.Year).HasColumnName("year").IsRequired();
+
             var users = modelBuilder.Entity<Users>();
             modelBuilder.Entity<Users>().ToTable("Users");
             users.HasKey(x => x.Id);
