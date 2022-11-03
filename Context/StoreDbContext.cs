@@ -3,9 +3,9 @@ using Backend_CarStore.Models;
 
 namespace Backend_CarStore.Context
 {
-    public class DataDbContext : DbContext
+    public class StoreDbContext : DbContext
     {
-        public DataDbContext(DbContextOptions<DataDbContext> options) : base(options)
+        public StoreDbContext(DbContextOptions<StoreDbContext> options) : base(options)
         {
 
         }
