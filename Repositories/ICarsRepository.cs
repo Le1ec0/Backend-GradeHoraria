@@ -6,9 +6,9 @@ namespace Backend_CarStore.Repositories
     {
         Task<IEnumerable<Cars>> SearchCar();
         Task<Cars> SearchCar(int id);
-        void AddCars(Cars cars);
-        void UpdateCars(Cars cars);
-        void DeleteCars(Cars cars);
+        void AddCar(Cars cars);
+        void UpdateCar(Cars cars);
+        void DeleteCar(Cars cars);
 
         Task<bool> SaveChangesAsync();
 

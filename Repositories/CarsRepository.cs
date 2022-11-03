@@ -19,16 +19,16 @@ namespace Backend_CarStore.Repositories
         {
             return await _context.Car.Where(x => x.Id == id).FirstOrDefaultAsync();
         }
-        public void AddCars(Cars cars)
+        public void AddCar(Cars cars)
         {
             _context.Add(cars);
         }
-        public void UpdateCars(Cars cars)
+        public void UpdateCar(Cars cars)
         {
             _context.Update(cars);
         }
 
-        public void DeleteCars(Cars cars)
+        public void DeleteCar(Cars cars)
         {
             _context.Remove(cars);
         }

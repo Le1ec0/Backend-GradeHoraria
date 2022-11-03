@@ -36,7 +36,7 @@ namespace CarStore.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(Cars cars)
         {
-            _repository.AddCars(cars);
+            _repository.AddCar(cars);
 
             return await _repository.SaveChangesAsync()
             ? Ok("Carro adicionado com sucesso")
@@ -54,10 +54,8 @@ namespace CarStore.Controllers
             dbCar.Model = cars.Model ?? dbCar.Model;
             dbCar.Color = cars.Color ?? dbCar.Color;
             dbCar.Year = cars.Year ?? cars.Year;
-            dbCar.Name = cars.Name ?? dbCar.Name;
-            dbCar.Phone = cars.Phone ?? cars.Phone;
 
-            _repository.UpdateCars(dbCar);
+            _repository.UpdateCar(dbCar);
 
             return await _repository.SaveChangesAsync()
             ? Ok("Carro atualizado com sucesso")
@@ -70,7 +68,7 @@ namespace CarStore.Controllers
             var dbCar = await _repository.SearchCar(id);
             if (dbCar == null) return NotFound("Carro não encontrado");
 
-            _repository.DeleteCars(dbCar);
+            _repository.DeleteCar(dbCar);
 
             return await _repository.SaveChangesAsync()
             ? Ok("Carro removido com sucesso")

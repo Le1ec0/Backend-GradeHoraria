@@ -8,8 +8,6 @@ namespace Backend_CarStore.Models
         public string? Model { get; set; }
         public string? Color { get; set; }
         public int? Year { get; set; }
-        public string? Name { get; set; }
-        public int? Phone { get; set; }
 
     }
 }
