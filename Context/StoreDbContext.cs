@@ -11,7 +11,7 @@ namespace Backend_CarStore.Context
         }
 
         public DbSet<Cars> Car { get; set; }
-        public DbSet<RegisterModel> User { get; set; }
+        public DbSet<Users> User { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,11 +25,11 @@ namespace Backend_CarStore.Context
             cars.Property(x => x.Color).HasColumnName("color").IsRequired();
             cars.Property(x => x.Year).HasColumnName("year").IsRequired();
 
-            var users = modelBuilder.Entity<RegisterModel>();
-            modelBuilder.Entity<RegisterModel>().ToTable("Users");
+            var users = modelBuilder.Entity<Users>();
+            modelBuilder.Entity<Users>().ToTable("Users");
             users.HasKey(x => x.Id);
             users.Property(x => x.Id).HasColumnName("id").ValueGeneratedOnAdd();
-            users.Property(x => x.UserName).HasColumnName("name").IsRequired();
+            users.Property(x => x.Username).HasColumnName("name").IsRequired();
             users.Property(x => x.Password).HasColumnName("password").IsRequired();
             users.Property(x => x.Email).HasColumnName("email").IsRequired();
             users.Property(x => x.Phone).HasColumnName("phone").IsRequired();

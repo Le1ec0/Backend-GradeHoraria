@@ -15,11 +15,11 @@ namespace Backend_CarStore.Repositories
     }
     public interface IUsersRepository
     {
-        Task<IEnumerable<RegisterModel>> SearchUser();
-        Task<RegisterModel> SearchUser(int id);
-        void AddUser(RegisterModel users);
-        void UpdateUser(RegisterModel users);
-        void DeleteUser(RegisterModel users);
+        Task<IEnumerable<Users>> SearchUser();
+        Task<Users> SearchUser(int id);
+        void AddUser(Users users);
+        void UpdateUser(Users users);
+        void DeleteUser(Users users);
 
         Task<bool> SaveChangesAsync();
 

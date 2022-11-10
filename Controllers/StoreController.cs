@@ -112,7 +112,7 @@ namespace CarStore.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Post(RegisterModel users)
+        public async Task<IActionResult> Post(Users users)
         {
             _repository.AddUser(users);
 
@@ -122,12 +122,12 @@ namespace CarStore.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, RegisterModel users)
+        public async Task<IActionResult> Put(int id, Users users)
         {
             var dbUser = await _repository.SearchUser(id);
             if (dbUser == null) return NotFound("Usuário não encontrado");
 
-            dbUser.UserName = users.UserName ?? dbUser.UserName;
+            dbUser.Username = users.Username ?? dbUser.Username;
             dbUser.Password = users.Password ?? dbUser.Password;
             dbUser.Email = users.Email ?? dbUser.Email;
             dbUser.Phone = users.Phone ?? dbUser.Phone;
@@ -203,9 +203,9 @@ namespace CarStore.Controllers
 
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        public async Task<IActionResult> Register([FromBody] Users model)
         {
-            var userExists = await _userManager.FindByNameAsync(model.UserName);
+            var userExists = await _userManager.FindByNameAsync(model.Username);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
 
@@ -213,7 +213,7 @@ namespace CarStore.Controllers
             {
                 Email = model.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.UserName
+                UserName = model.Username
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
@@ -224,9 +224,9 @@ namespace CarStore.Controllers
 
         [HttpPost]
         [Route("register-admin")]
-        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
+        public async Task<IActionResult> RegisterAdmin([FromBody] Users model)
         {
-            var userExists = await _userManager.FindByNameAsync(model.UserName);
+            var userExists = await _userManager.FindByNameAsync(model.Username);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
 
@@ -234,7 +234,7 @@ namespace CarStore.Controllers
             {
                 Email = model.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.UserName
+                UserName = model.Username
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)

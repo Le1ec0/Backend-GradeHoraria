@@ -44,24 +44,24 @@ namespace Backend_CarStore.Repositories
         {
             _context = context;
         }
-        public async Task<IEnumerable<RegisterModel>> SearchUser()
+        public async Task<IEnumerable<Users>> SearchUser()
         {
             return await _context.User.ToListAsync();
         }
-        public async Task<RegisterModel> SearchUser(int id)
+        public async Task<Users> SearchUser(int id)
         {
             return await _context.User.Where(x => x.Id == id).FirstOrDefaultAsync();
         }
-        public void AddUser(RegisterModel users)
+        public void AddUser(Users users)
         {
             _context.Add(users);
         }
-        public void UpdateUser(RegisterModel users)
+        public void UpdateUser(Users users)
         {
             _context.Update(users);
         }
 
-        public void DeleteUser(RegisterModel users)
+        public void DeleteUser(Users users)
         {
             _context.Remove(users);
         }
