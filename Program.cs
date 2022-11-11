@@ -11,6 +11,12 @@ ConfigurationManager configuration = builder.Configuration;
 
 // Add services to the container.
 
+// For Entity Framework
+builder.Services.AddDbContext<StoreDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SQLConnection"));
+});
+
 // For Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<StoreDbContext>()
@@ -21,11 +27,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// For Entity Framework
-builder.Services.AddDbContext<StoreDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SQLConnection"));
-});
 
 // Adding Authentication
 builder.Services.AddAuthentication(options =>
