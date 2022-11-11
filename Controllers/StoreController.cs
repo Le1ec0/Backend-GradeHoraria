@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CarStore.Controllers
 {
@@ -37,7 +38,7 @@ namespace CarStore.Controllers
             : NotFound("Carro não encontrado");
         }
 
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Post(Cars cars)
         {
@@ -48,6 +49,7 @@ namespace CarStore.Controllers
             : BadRequest("Erro ao adicionar carro");
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, Cars cars)
         {
@@ -67,6 +69,7 @@ namespace CarStore.Controllers
             : BadRequest("Erro ao atualizar carro");
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
