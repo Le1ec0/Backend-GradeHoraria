@@ -38,18 +38,17 @@ namespace CarStore.Controllers
             : NotFound("Carro não encontrado");
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
-        public async Task<IActionResult> Post(Cars cars)
+        public async Task<IActionResult> Post([FromForm] Cars cars)
         {
             _repository.AddCar(cars);
-
             return await _repository.SaveChangesAsync()
             ? Ok("Carro adicionado com sucesso")
             : BadRequest("Erro ao adicionar carro");
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, Cars cars)
         {
@@ -69,14 +68,14 @@ namespace CarStore.Controllers
             : BadRequest("Erro ao atualizar carro");
         }
 
-        [Authorize]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var dbCar = await _repository.SearchCar(id);
-            if (dbCar == null) return NotFound("Carro não encontrado");
+            var cars = await _repository.SearchCar(id);
+            if (cars == null) return NotFound("Carro não encontrado");
 
-            _repository.DeleteCar(dbCar);
+            _repository.DeleteCar(cars);
 
             return await _repository.SaveChangesAsync()
             ? Ok("Carro removido com sucesso")
@@ -85,7 +84,7 @@ namespace CarStore.Controllers
 
     }
 
-    [ApiController]
+    /*[ApiController]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
@@ -154,7 +153,7 @@ namespace CarStore.Controllers
             ? Ok("Usuário removido com sucesso")
             : BadRequest("Erro ao remover usuário");
         }
-    }
+    }*/
     [Route("api/[controller]")]
     [ApiController]
     public class AuthenticateController : ControllerBase
