@@ -11,6 +11,6 @@ namespace Backend_CarStore.Models
         public string? Model { get; set; }
         public string? Color { get; set; }
         public int? Year { get; set; }
-        public int? Description { get; set; }
+        public string? Description { get; set; }
     }
 }
