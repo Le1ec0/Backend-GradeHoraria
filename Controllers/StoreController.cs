@@ -43,6 +43,7 @@ namespace CarStore.Controllers
         public async Task<IActionResult> Post([FromForm] Cars cars)
         {
             _repository.AddCar(cars);
+            _repository.UploadImage(cars);
             return await _repository.SaveChangesAsync()
             ? Ok("Carro adicionado com sucesso")
             : BadRequest("Erro ao adicionar carro");
@@ -60,6 +61,7 @@ namespace CarStore.Controllers
             dbCar.Model = cars.Model ?? dbCar.Model;
             dbCar.Color = cars.Color ?? dbCar.Color;
             dbCar.Year = cars.Year ?? cars.Year;
+            dbCar.Description = cars.Description ?? cars.Description;
 
             _repository.UpdateCar(dbCar);
 

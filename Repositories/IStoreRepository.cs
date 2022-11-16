@@ -11,7 +11,7 @@ namespace Backend_CarStore.Repositories
         void DeleteCar(Cars cars);
 
         Task<bool> SaveChangesAsync();
-
+        void UploadImage(Cars cars);
     }
     public interface IUsersRepository
     {
