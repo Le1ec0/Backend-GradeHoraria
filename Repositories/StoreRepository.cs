@@ -36,11 +36,6 @@ namespace Backend_CarStore.Repositories
         {
             return await _context.SaveChangesAsync() > 0;
         }
-
-        public void UploadImage(Cars cars)
-        {
-            throw new NotImplementedException();
-        }
     }
     public class UsersRepository : IUsersRepository
     {

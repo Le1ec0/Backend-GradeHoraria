@@ -9,9 +9,7 @@ namespace Backend_CarStore.Repositories
         void AddCar(Cars cars);
         void UpdateCar(Cars cars);
         void DeleteCar(Cars cars);
-
         Task<bool> SaveChangesAsync();
-        void UploadImage(Cars cars);
     }
     public interface IUsersRepository
     {
