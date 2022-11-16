@@ -37,7 +37,7 @@ namespace Backend_CarStore.Repositories
             return await _context.SaveChangesAsync() > 0;
         }
     }
-    public class UsersRepository : IUsersRepository
+    /*public class UsersRepository : IUsersRepository
     {
         private readonly StoreDbContext _context;
         public UsersRepository(StoreDbContext context)
@@ -69,5 +69,5 @@ namespace Backend_CarStore.Repositories
         {
             return await _context.SaveChangesAsync() > 0;
         }
-    }
+    }*/
 }
