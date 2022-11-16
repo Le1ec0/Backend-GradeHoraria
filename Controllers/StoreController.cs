@@ -40,7 +40,7 @@ namespace CarStore.Controllers
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
-        public async Task<IActionResult> Post([FromForm] Cars cars)
+        public async Task<IActionResult> Post(Cars cars)
         {
             _repository.AddCar(cars);
             return await _repository.SaveChangesAsync()

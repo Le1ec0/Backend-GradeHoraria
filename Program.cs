@@ -77,7 +77,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 builder.Services.AddScoped<ICarsRepository, CarsRepository>();
-builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+//builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 
 var app = builder.Build();
 
