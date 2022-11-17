@@ -43,14 +43,14 @@ builder.Services.AddSwaggerGen(option =>
 });
 
 // For Entity Framework
-builder.Services.AddDbContext<StoreDbContext>(options =>
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("SQLConnection"));
 });
 
 // For Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<StoreDbContext>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
 

@@ -5,21 +5,24 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Backend_CarStore.Context
 {
-    public class StoreDbContext : IdentityDbContext<IdentityUser>
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
-        public StoreDbContext(DbContextOptions<StoreDbContext> options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
         }
 
         public DbSet<Cars> Car { get; set; }
-        //public DbSet<Users> User { get; set; }
+        //public DbSet<ApplicationUser> User { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var cars = modelBuilder.Entity<Cars>();
-            modelBuilder.Entity<Cars>().ToTable("Cars");
-            cars.HasKey(x => x.Id);
-            cars.Property(x => x.Id).HasColumnName("CarId").ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Cars>()
+
+            .ToTable("Cars");
+            cars.HasKey(x => x.CarId);
+            cars.Property(x => x.CarId).HasColumnName("CarId").ValueGeneratedOnAdd();
             cars.Property(x => x.Plate).HasColumnName("Plate").IsRequired();
             cars.Property(x => x.Brand).HasColumnName("Brand").IsRequired();
             cars.Property(x => x.Model).HasColumnName("Model").IsRequired();
@@ -27,15 +30,11 @@ namespace Backend_CarStore.Context
             cars.Property(x => x.Year).HasColumnName("Year").IsRequired();
             cars.Property(x => x.Description).HasColumnName("Description").IsRequired();
 
-            /*cars.HasOne(p => p.Users)
-            .WithMany(b => b.Cars)
-            .HasForeignKey(p => p.Id);*/
-
             /*var users = modelBuilder.Entity<Users>();
             modelBuilder.Entity<Users>().ToTable("Users");
             users.HasKey(x => x.Id);
             users.Property(x => x.Id).HasColumnName("id").ValueGeneratedOnAdd();
-            users.Property(x => x.Username).HasColumnName("name").IsRequired();
+            users.Property(x => x.UserName).HasColumnName("name").IsRequired();
             users.Property(x => x.Password).HasColumnName("password").IsRequired();
             users.Property(x => x.Email).HasColumnName("email").IsRequired();
             users.Property(x => x.Phone).HasColumnName("phone").IsRequired();*/

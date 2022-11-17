@@ -6,8 +6,8 @@ namespace Backend_CarStore.Repositories
 {
     public class CarsRepository : ICarsRepository
     {
-        private readonly StoreDbContext _context;
-        public CarsRepository(StoreDbContext context)
+        private readonly ApplicationDbContext _context;
+        public CarsRepository(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -17,7 +17,7 @@ namespace Backend_CarStore.Repositories
         }
         public async Task<Cars> SearchCar(int id)
         {
-            return await _context.Car.Where(x => x.Id == id).FirstOrDefaultAsync();
+            return await _context.Car.Where(x => x.CarId == id).FirstOrDefaultAsync();
         }
         public void AddCar(Cars cars)
         {
