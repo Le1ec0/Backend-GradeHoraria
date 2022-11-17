@@ -1,9 +1,13 @@
 using System.ComponentModel.DataAnnotations;
+using Backend_CarStore.Models;
 
 namespace JWTAuthentication.Authentication
 {
     public class RegisterModel
     {
+        [Key]
+        public int Id { get; set; }
+
         [Required(ErrorMessage = "User Name is required")]
         public string Username { get; set; }
 
@@ -14,5 +18,7 @@ namespace JWTAuthentication.Authentication
         [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; }
 
+        public int CarsId { get; set; }
+        public Cars Cars { get; set; }
     }
 }

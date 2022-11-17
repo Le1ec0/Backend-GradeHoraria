@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
+using JWTAuthentication.Authentication;
 
 namespace Backend_CarStore.Models
 {
@@ -13,5 +13,6 @@ namespace Backend_CarStore.Models
         public string? Color { get; set; }
         public int? Year { get; set; }
         public string? Description { get; set; }
+        public ICollection<RegisterModel> RegisterModel { get; set; }
     }
 }
