@@ -206,7 +206,7 @@ namespace CarStore.Controllers
 
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> Register([FromBody] Users model)
+        public async Task<IActionResult> Register([FromBody] ApplicationUser model)
         {
             var userExists = await _userManager.FindByNameAsync(model.Username);
             if (userExists != null)
@@ -227,7 +227,7 @@ namespace CarStore.Controllers
 
         [HttpPost]
         [Route("register-admin")]
-        public async Task<IActionResult> RegisterAdmin([FromBody] Users model)
+        public async Task<IActionResult> RegisterAdmin([FromBody] ApplicationUser model)
         {
             var userExists = await _userManager.FindByNameAsync(model.Username);
             if (userExists != null)

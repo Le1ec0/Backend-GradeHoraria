@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Backend_CarStore.Models
 {
-    public class Users
+    public class ApplicationUser
     {
         public int Id { get; set; }
 
