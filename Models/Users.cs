@@ -17,6 +17,7 @@ namespace Backend_CarStore.Models
         [Required(ErrorMessage = "Email is required")]
         public string? Email { get; set; }
         public int? Phone { get; set; }
+        public List<Cars> Cars { get; set; }
 
     }
 }
