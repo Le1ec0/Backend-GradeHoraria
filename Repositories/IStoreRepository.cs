@@ -11,7 +11,7 @@ namespace Backend_CarStore.Repositories
         void DeleteCar(Cars cars);
         Task<bool> SaveChangesAsync();
     }
-    public interface IUsersRepository
+    /*public interface IUsersRepository
     {
         Task<IEnumerable<Users>> SearchUser();
         Task<Users> SearchUser(int id);
@@ -21,5 +21,5 @@ namespace Backend_CarStore.Repositories
 
         Task<bool> SaveChangesAsync();
 
-    }
+    }*/
 }
