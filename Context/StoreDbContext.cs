@@ -13,6 +13,7 @@ namespace Backend_CarStore.Context
         }
 
         public DbSet<Cars> Car { get; set; }
+        //public DbSet<Users> User { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             var cars = builder.Entity<Cars>();
