@@ -6,8 +6,8 @@ namespace Backend_CarStore.Repositories
 {
     public class CarsRepository : ICarsRepository
     {
-        private readonly StoreDbContext _context;
-        public CarsRepository(StoreDbContext context)
+        private readonly ApplicationDbContext _context;
+        public CarsRepository(ApplicationDbContext context)
         {
             _context = context;
         }

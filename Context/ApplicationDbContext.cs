@@ -5,24 +5,22 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Backend_CarStore.Context
 {
-    public class StoreDbContext : IdentityDbContext<IdentityUser>
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
-        public StoreDbContext(DbContextOptions<StoreDbContext> options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
         }
 
         public DbSet<Cars> Car { get; set; }
-        //public DbSet<Users> User { get; set; }
+        //public DbSet<ApplicationUser> User { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ApplicationUser>()
-            .HasOne(x => x.Cars)
-            .WithMany(b => b.ApplicationUsers)
-            .HasForeignKey(x => x.Id);
-
             var cars = modelBuilder.Entity<Cars>();
-            modelBuilder.Entity<Cars>().ToTable("Cars");
+
+            modelBuilder.Entity<Cars>()
+
+            .ToTable("Cars");
             cars.HasKey(x => x.CarId);
             cars.Property(x => x.CarId).HasColumnName("CarId").ValueGeneratedOnAdd();
             cars.Property(x => x.Plate).HasColumnName("Plate").IsRequired();
