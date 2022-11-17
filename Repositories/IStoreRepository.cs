@@ -1,6 +1,6 @@
-using Backend_CarStore.Models;
+using CarStore.Models;
 
-namespace Backend_CarStore.Repositories
+namespace CarStore.Repositories
 {
     public interface ICarsRepository
     {

@@ -1,4 +1,4 @@
-namespace Backend_CarStore.Models
+namespace CarStore.Models
 {
     public static class UserRoles
     {

@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using Backend_CarStore.Models;
+using CarStore.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
-namespace Backend_CarStore.Context
+namespace CarStore.Context
 {
     public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
@@ -13,14 +13,12 @@ namespace Backend_CarStore.Context
         }
 
         public DbSet<Cars> Car { get; set; }
-        //public DbSet<ApplicationUser> User { get; set; }
+        //public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var cars = modelBuilder.Entity<Cars>();
 
-            modelBuilder.Entity<Cars>()
-
-            .ToTable("Cars");
+            modelBuilder.Entity<Cars>().ToTable("Cars");
             cars.HasKey(x => x.CarId);
             cars.Property(x => x.CarId).HasColumnName("CarId").ValueGeneratedOnAdd();
             cars.Property(x => x.Plate).HasColumnName("Plate").IsRequired();
@@ -29,6 +27,13 @@ namespace Backend_CarStore.Context
             cars.Property(x => x.Color).HasColumnName("Color").IsRequired();
             cars.Property(x => x.Year).HasColumnName("Year").IsRequired();
             cars.Property(x => x.Description).HasColumnName("Description").IsRequired();
+
+            /*modelBuilder.Entity<ApplicationUser>()
+            .HasOne(p => p.Cars)
+            .WithMany(b => b.ApplicationUsers)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired()
+            .HasForeignKey(p => p.CarId);*/
 
             /*var users = modelBuilder.Entity<Users>();
             modelBuilder.Entity<Users>().ToTable("Users");

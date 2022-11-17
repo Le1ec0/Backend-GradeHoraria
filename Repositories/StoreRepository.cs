@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Backend_CarStore.Models;
-using Backend_CarStore.Context;
+using CarStore.Models;
+using CarStore.Context;
 
-namespace Backend_CarStore.Repositories
+namespace CarStore.Repositories
 {
     public class CarsRepository : ICarsRepository
     {

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Backend_CarStore.Models;
-using Backend_CarStore.Repositories;
+using CarStore.Models;
+using CarStore.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

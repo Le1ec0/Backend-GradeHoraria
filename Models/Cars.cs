@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Backend_CarStore.Models
+namespace CarStore.Models
 {
     public class Cars
     {
@@ -12,6 +12,6 @@ namespace Backend_CarStore.Models
         public string? Color { get; set; }
         public int? Year { get; set; }
         public string? Description { get; set; }
-        public ICollection<ApplicationUser> ApplicationUser { get; set; }
+        public ICollection<ApplicationUser>? ApplicationUsers { get; set; }
     }
 }
