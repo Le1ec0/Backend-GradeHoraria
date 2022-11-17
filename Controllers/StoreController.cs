@@ -130,7 +130,7 @@ namespace CarStore.Controllers
             var dbUser = await _repository.SearchUser(id);
             if (dbUser == null) return NotFound("Usuário não encontrado");
 
-            dbUser.Username = users.Username ?? dbUser.Username;
+            dbUser.UserName = users.UserName ?? dbUser.UserName;
             dbUser.Password = users.Password ?? dbUser.Password;
             dbUser.Email = users.Email ?? dbUser.Email;
             dbUser.Phone = users.Phone ?? dbUser.Phone;
@@ -177,7 +177,7 @@ namespace CarStore.Controllers
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var user = await _userManager.FindByNameAsync(model.Username);
+            var user = await _userManager.FindByNameAsync(model.UserName);
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
                 var userRoles = await _userManager.GetRolesAsync(user);
@@ -208,7 +208,7 @@ namespace CarStore.Controllers
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] ApplicationUser model)
         {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
+            var userExists = await _userManager.FindByNameAsync(model.UserName);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
 
@@ -216,7 +216,7 @@ namespace CarStore.Controllers
             {
                 Email = model.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username
+                UserName = model.UserName
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
@@ -225,11 +225,11 @@ namespace CarStore.Controllers
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
 
-        [HttpPost]
+        /*[HttpPost]
         [Route("register-admin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] ApplicationUser model)
         {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
+            var userExists = await _userManager.FindByNameAsync(model.UserName);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
 
@@ -237,7 +237,7 @@ namespace CarStore.Controllers
             {
                 Email = model.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username
+                UserName = model.UserName
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
@@ -257,7 +257,7 @@ namespace CarStore.Controllers
                 await _userManager.AddToRoleAsync(user, UserRoles.User);
             }
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
-        }
+        }*/
 
         private JwtSecurityToken GetToken(List<Claim> authClaims)
         {

@@ -31,11 +31,18 @@ namespace Backend_CarStore.Context
             .WithMany(b => b.Cars)
             .HasForeignKey(p => p.Id);*/
 
+            modelBuilder.Entity<ApplicationUser>()
+            .HasOne(p => p.Cars)
+            .WithMany(b => b.ApplicationUsers)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired()
+            .HasForeignKey(p => p.Id);
+
             /*var users = modelBuilder.Entity<Users>();
             modelBuilder.Entity<Users>().ToTable("Users");
             users.HasKey(x => x.Id);
             users.Property(x => x.Id).HasColumnName("id").ValueGeneratedOnAdd();
-            users.Property(x => x.Username).HasColumnName("name").IsRequired();
+            users.Property(x => x.UserName).HasColumnName("name").IsRequired();
             users.Property(x => x.Password).HasColumnName("password").IsRequired();
             users.Property(x => x.Email).HasColumnName("email").IsRequired();
             users.Property(x => x.Phone).HasColumnName("phone").IsRequired();*/
