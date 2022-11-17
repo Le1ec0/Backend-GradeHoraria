@@ -27,9 +27,9 @@ namespace Backend_CarStore.Context
             cars.Property(x => x.Year).HasColumnName("Year").IsRequired();
             cars.Property(x => x.Description).HasColumnName("Description").IsRequired();
 
-            cars.HasOne(p => p.Users)
+            /*cars.HasOne(p => p.Users)
             .WithMany(b => b.Cars)
-            .HasForeignKey(p => p.Id);
+            .HasForeignKey(p => p.Id);*/
 
             /*var users = modelBuilder.Entity<Users>();
             modelBuilder.Entity<Users>().ToTable("Users");
