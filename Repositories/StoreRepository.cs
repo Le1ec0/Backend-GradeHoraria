@@ -17,7 +17,7 @@ namespace Backend_CarStore.Repositories
         }
         public async Task<Cars> SearchCar(int id)
         {
-            return await _context.Car.Where(x => x.Id == id).FirstOrDefaultAsync();
+            return await _context.Car.Where(x => x.CarId == id).FirstOrDefaultAsync();
         }
         public void AddCar(Cars cars)
         {

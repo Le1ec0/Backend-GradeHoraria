@@ -225,7 +225,7 @@ namespace CarStore.Controllers
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
 
-        /*[HttpPost]
+        [HttpPost]
         [Route("register-admin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] ApplicationUser model)
         {
@@ -257,7 +257,7 @@ namespace CarStore.Controllers
                 await _userManager.AddToRoleAsync(user, UserRoles.User);
             }
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
-        }*/
+        }
 
         private JwtSecurityToken GetToken(List<Claim> authClaims)
         {
