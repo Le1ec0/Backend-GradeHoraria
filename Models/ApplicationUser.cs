@@ -6,7 +6,7 @@ namespace CarStore.Models
     {
         public int Password { get; set; }
         public int Phone { get; set; }
-        public int CarId { get; set; }
-        public Cars? Cars { get; set; }
+        /*public int CarId { get; set; }
+        public Cars? Cars { get; set; }*/
     }
 }
