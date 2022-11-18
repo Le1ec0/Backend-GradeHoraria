@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Backend_CarStore.Models;
-using Backend_CarStore.Context;
+using CarStore.Models;
+using CarStore.Context;
 
-namespace Backend_CarStore.Repositories
+namespace CarStore.Repositories
 {
     public class CarsRepository : ICarsRepository
     {
@@ -15,7 +15,7 @@ namespace Backend_CarStore.Repositories
         {
             return await _context.Car.ToListAsync();
         }
-        public async Task<Cars> SearchCar(int id)
+        public async Task<Cars> SearchCar(string id)
         {
             return await _context.Car.Where(x => x.CarId == id).FirstOrDefaultAsync();
         }
