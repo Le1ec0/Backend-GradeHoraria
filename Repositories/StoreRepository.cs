@@ -13,11 +13,11 @@ namespace CarStore.Repositories
         }
         public async Task<IEnumerable<Cars>> SearchCar()
         {
-            return await _context.Car.ToListAsync();
+            return await _context.Cars.ToListAsync();
         }
-        public async Task<Cars> SearchCar(string id)
+        public async Task<Cars> SearchCar(int id)
         {
-            return await _context.Car.Where(x => x.CarId == id).FirstOrDefaultAsync();
+            return await _context.Cars.Where(x => x.CarId == id).FirstOrDefaultAsync();
         }
         public void AddCar(Cars cars)
         {
