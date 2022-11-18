@@ -15,13 +15,18 @@ namespace CarStore.Repositories
         {
             return await _context.Car.ToListAsync();
         }
-        public async Task<Cars> SearchCar(int id)
+        public async Task<Cars> SearchCar(string id)
         {
             return await _context.Car.Where(x => x.CarId == id).FirstOrDefaultAsync();
         }
         public void AddCar(Cars cars)
         {
             _context.Add(cars);
+        }
+
+        public void AddCar(CarsPost carsPost)
+        {
+            _context.Add(carsPost);
         }
         public void UpdateCar(Cars cars)
         {
