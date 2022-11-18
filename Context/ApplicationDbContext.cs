@@ -28,12 +28,21 @@ namespace CarStore.Context
             cars.Property(x => x.Year).HasColumnName("Year").IsRequired();
             cars.Property(x => x.Description).HasColumnName("Description").IsRequired();
 
-            /*modelBuilder.Entity<ApplicationUser>()
+            var users = modelBuilder.Entity<ApplicationUser>();
+            modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
+            users.HasKey(x => x.Id);
+            users.Property(x => x.Id).HasColumnName("id").ValueGeneratedOnAdd();
+            users.Property(x => x.UserName).HasColumnName("username").IsRequired();
+            users.Property(x => x.Password).HasColumnName("password").IsRequired();
+            users.Property(x => x.Email).HasColumnName("email").IsRequired();
+            users.Property(x => x.Phone).HasColumnName("phone").IsRequired();
+
+            modelBuilder.Entity<ApplicationUser>()
             .HasOne(p => p.Cars)
             .WithMany(b => b.ApplicationUsers)
             .OnDelete(DeleteBehavior.Cascade)
             .IsRequired()
-            .HasForeignKey(p => p.CarId);*/
+            .HasForeignKey(p => p.CarId);
 
             /*var users = modelBuilder.Entity<Users>();
             modelBuilder.Entity<Users>().ToTable("Users");
