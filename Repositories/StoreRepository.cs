@@ -23,11 +23,6 @@ namespace CarStore.Repositories
         {
             _context.Add(cars);
         }
-
-        public void AddCar(CarsPost carsPost)
-        {
-            _context.Add(carsPost);
-        }
         public void UpdateCar(Cars cars)
         {
             _context.Update(cars);

@@ -40,9 +40,9 @@ namespace CarStore.Controllers
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
-        public async Task<IActionResult> Post(CarsPost carsPost)
+        public async Task<IActionResult> Post(Cars cars)
         {
-            _repository.AddCar(carsPost);
+            _repository.AddCar(cars);
             return await _repository.SaveChangesAsync()
             ? Ok("Carro adicionado com sucesso")
             : BadRequest("Erro ao adicionar carro");

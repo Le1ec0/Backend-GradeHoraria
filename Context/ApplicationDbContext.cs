@@ -12,10 +12,10 @@ namespace CarStore.Context
         }
 
         public DbSet<Cars> Car { get; set; }
-        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        //public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            var cars = modelBuilder.Entity<Cars>();
+            /*var cars = modelBuilder.Entity<Cars>();
             modelBuilder.Entity<Cars>().ToTable("Cars");
             cars.HasKey(x => x.CarId);
             cars.Property(x => x.CarId).HasColumnName("CarId").ValueGeneratedOnAdd();
@@ -25,18 +25,18 @@ namespace CarStore.Context
             cars.Property(x => x.Color).HasColumnName("Color");
             cars.Property(x => x.Year).HasColumnName("Year");
             cars.Property(x => x.Description).HasColumnName("Description");
-            cars.Property(x => x.UserId).HasColumnName("UserId");
+            cars.Property(x => x.UserId).HasColumnName("UserId");*/
 
-            var users = modelBuilder.Entity<ApplicationUser>();
+            /*var users = modelBuilder.Entity<ApplicationUser>();
             modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
-            users.Property(x => x.CarId).HasColumnName("CarId");
+            users.Property(x => x.CarId).HasColumnName("CarId");*/
 
-            modelBuilder.Entity<Cars>()
+            /*modelBuilder.Entity<Cars>()
             .HasOne(uc => uc.ApplicationUser)
             .WithMany(c => c.Cars)
             //.HasForeignKey(uc => uc.ApplicationUser)
             .OnDelete(DeleteBehavior.Cascade);
-            //.IsRequired()
+            //.IsRequired()*/
 
             /*var users = modelBuilder.Entity<Users>();
             modelBuilder.Entity<Users>().ToTable("Users");

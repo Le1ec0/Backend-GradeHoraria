@@ -10,6 +10,6 @@ namespace CarStore.Models
         public int? Year { get; set; }
         public string Description { get; set; }
         public string UserId { get; set; }
-        public virtual ApplicationUser ApplicationUser { get; set; }
+        /*public virtual ApplicationUser ApplicationUser { get; set; }*/
     }
 }
