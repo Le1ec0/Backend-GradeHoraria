@@ -5,7 +5,7 @@ namespace CarStore.Repositories
     public interface ICarsRepository
     {
         Task<IEnumerable<Cars>> SearchCar();
-        Task<Cars> SearchCar(int id);
+        Task<Cars> SearchCar(string id);
         void AddCar(Cars cars);
         void UpdateCar(Cars cars);
         void DeleteCar(Cars cars);

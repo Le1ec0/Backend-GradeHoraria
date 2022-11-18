@@ -30,7 +30,7 @@ namespace CarStore.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(string id)
         {
             var car = await _repository.SearchCar(id);
             return car != null
@@ -50,7 +50,7 @@ namespace CarStore.Controllers
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Cars cars)
+        public async Task<IActionResult> Put(string id, Cars cars)
         {
             var dbCar = await _repository.SearchCar(id);
             if (dbCar == null) return NotFound("Carro não encontrado");
@@ -59,8 +59,8 @@ namespace CarStore.Controllers
             dbCar.Brand = cars.Brand ?? dbCar.Brand;
             dbCar.Model = cars.Model ?? dbCar.Model;
             dbCar.Color = cars.Color ?? dbCar.Color;
-            dbCar.Year = cars.Year ?? cars.Year;
-            dbCar.Description = cars.Description ?? cars.Description;
+            dbCar.Year = cars.Year ?? dbCar.Year;
+            dbCar.Description = cars.Description ?? dbCar.Description;
 
             _repository.UpdateCar(dbCar);
 
@@ -71,7 +71,7 @@ namespace CarStore.Controllers
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(string id)
         {
             var cars = await _repository.SearchCar(id);
             if (cars == null) return NotFound("Carro não encontrado");
