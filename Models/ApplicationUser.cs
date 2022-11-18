@@ -4,8 +4,8 @@ namespace CarStore.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        public string? UserId { get; set; }
-        public string? CarId { get; set; }
+        public int? UserId { get; set; }
+        public int? CarId { get; set; }
         public Cars? Cars { get; set; }
     }
 }
