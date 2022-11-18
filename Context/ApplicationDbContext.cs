@@ -30,7 +30,6 @@ namespace CarStore.Context
 
             var users = modelBuilder.Entity<ApplicationUser>();
             modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
-            users.HasKey(x => x.Id);
             users.Property(x => x.Id).HasColumnName("id").ValueGeneratedOnAdd();
             users.Property(x => x.UserName).HasColumnName("username").IsRequired();
             users.Property(x => x.Password).HasColumnName("password").IsRequired();
