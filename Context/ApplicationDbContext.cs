@@ -10,8 +10,8 @@ namespace CarStore.Context
         {
         }
 
-        public DbSet<Cars> Car { get; set; }
-        //public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<Cars> Cars { get; set; }
+        //public DbSet<ApplicationUser> ApplicationUser { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             /*var cars = modelBuilder.Entity<Cars>();
