@@ -59,8 +59,8 @@ namespace CarStore.Controllers
             dbCar.Brand = cars.Brand ?? dbCar.Brand;
             dbCar.Model = cars.Model ?? dbCar.Model;
             dbCar.Color = cars.Color ?? dbCar.Color;
-            dbCar.Year = cars.Year ?? cars.Year;
-            dbCar.Description = cars.Description ?? cars.Description;
+            dbCar.Year = cars.Year ?? dbCar.Year;
+            dbCar.Description = cars.Description ?? dbCar.Description;
 
             _repository.UpdateCar(dbCar);
 
