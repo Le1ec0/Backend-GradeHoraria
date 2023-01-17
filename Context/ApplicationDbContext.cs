@@ -18,6 +18,10 @@ namespace GradeHoraria.Context
             modelBuilder.Entity<Cursos>().ToTable("Cursos");
             cursos.HasKey(x => x.CursoId);
 
+            var materias = modelBuilder.Entity<Materias>();
+            modelBuilder.Entity<Materias>().ToTable("Materias");
+            materias.HasKey(x => x.MateriaId);
+
             modelBuilder.Entity<ApplicationUser>()
             .HasOne<Cursos>(c => c.Cursos)
             .WithMany(u => u.ApplicationUsers)
