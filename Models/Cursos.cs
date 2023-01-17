@@ -3,13 +3,14 @@ namespace GradeHoraria.Models
     public class Cursos
     {
         public int? CursoId { get; set; }
-        public string? Plate { get; set; }
-        public string? Brand { get; set; }
-        public string? Model { get; set; }
-        public string? Color { get; set; }
-        public int? Year { get; set; }
-        public string? Description { get; set; }
+        public string? Disciplina { get; set; }
+        public string? Periodo { get; set; }
+        public string? Turno { get; set; }
+        public string? DSemana { get; set; }
+        public string? Sala { get; set; }
+        public string? Professor { get; set; }
         public int? UserId { get; set; }
-        public ICollection<ApplicationUser>? ApplicationUsers { get; set; }
+        public IEnumerable<Materias>? Materias { get; set; }
+        public IEnumerable<ApplicationUser>? ApplicationUsers { get; set; }
     }
 }

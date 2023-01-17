@@ -55,12 +55,12 @@ namespace GradeHoraria.Controllers
             var dbCursos = await _repository.SearchCurso(id);
             if (dbCursos == null) return NotFound("Curso não encontrado.");
 
-            dbCursos.Plate = cursos.Plate ?? dbCursos.Plate;
-            dbCursos.Brand = cursos.Brand ?? dbCursos.Brand;
-            dbCursos.Model = cursos.Model ?? dbCursos.Model;
-            dbCursos.Color = cursos.Color ?? dbCursos.Color;
-            dbCursos.Year = cursos.Year ?? dbCursos.Year;
-            dbCursos.Description = cursos.Description ?? dbCursos.Description;
+            dbCursos.Disciplina = cursos.Disciplina ?? dbCursos.Disciplina;
+            dbCursos.Periodo = cursos.Periodo ?? dbCursos.Periodo;
+            dbCursos.Turno = cursos.Turno ?? dbCursos.Turno;
+            dbCursos.DSemana = cursos.DSemana ?? dbCursos.DSemana;
+            dbCursos.Sala = cursos.Sala ?? dbCursos.Sala;
+            dbCursos.Professor = cursos.Professor ?? dbCursos.Professor;
 
             _repository.UpdateCurso(dbCursos);
 
