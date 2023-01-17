@@ -12,10 +12,10 @@ namespace GradeHoraria.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CarsController : ControllerBase
+    public class GradeController : ControllerBase
     {
         private readonly IGradeRepository _repository;
-        public CarsController(IGradeRepository repository)
+        public GradeController(IGradeRepository repository)
         {
             _repository = repository;
         }
@@ -23,64 +23,64 @@ namespace GradeHoraria.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var car = await _repository.SearchCar();
-            return car.Any()
-            ? Ok(car)
+            var grade = await _repository.SearchCurso();
+            return grade.Any()
+            ? Ok(grade)
             : NoContent();
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var car = await _repository.SearchCar(id);
-            return car != null
-            ? Ok(car)
-            : NotFound("Carro não encontrado");
+            var grade = await _repository.SearchCurso(id);
+            return grade != null
+            ? Ok(grade)
+            : NotFound("Curso não encontrado.");
         }
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
-        public async Task<IActionResult> Post(Cars cars)
+        public async Task<IActionResult> Post(Cursos cursos)
         {
-            _repository.AddCar(cars);
+            _repository.AddCurso(cursos);
             return await _repository.SaveChangesAsync()
-            ? Ok("Carro adicionado com sucesso")
-            : BadRequest("Erro ao adicionar carro");
+            ? Ok("Curso adicionado com sucesso.")
+            : BadRequest("Erro ao adicionar curso.");
         }
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Cars cars)
+        public async Task<IActionResult> Put(int id, Cursos cursos)
         {
-            var dbCar = await _repository.SearchCar(id);
-            if (dbCar == null) return NotFound("Carro não encontrado");
+            var dbCursos = await _repository.SearchCurso(id);
+            if (dbCursos == null) return NotFound("Curso não encontrado.");
 
-            dbCar.Plate = cars.Plate ?? dbCar.Plate;
-            dbCar.Brand = cars.Brand ?? dbCar.Brand;
-            dbCar.Model = cars.Model ?? dbCar.Model;
-            dbCar.Color = cars.Color ?? dbCar.Color;
-            dbCar.Year = cars.Year ?? dbCar.Year;
-            dbCar.Description = cars.Description ?? dbCar.Description;
+            dbCursos.Plate = cursos.Plate ?? dbCursos.Plate;
+            dbCursos.Brand = cursos.Brand ?? dbCursos.Brand;
+            dbCursos.Model = cursos.Model ?? dbCursos.Model;
+            dbCursos.Color = cursos.Color ?? dbCursos.Color;
+            dbCursos.Year = cursos.Year ?? dbCursos.Year;
+            dbCursos.Description = cursos.Description ?? dbCursos.Description;
 
-            _repository.UpdateCar(dbCar);
+            _repository.UpdateCurso(dbCursos);
 
             return await _repository.SaveChangesAsync()
-            ? Ok("Carro atualizado com sucesso")
-            : BadRequest("Erro ao atualizar carro");
+            ? Ok("Curso atualizado com sucesso.")
+            : BadRequest("Erro ao atualizar curso.");
         }
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var cars = await _repository.SearchCar(id);
-            if (cars == null) return NotFound("Carro não encontrado");
+            var cursos = await _repository.SearchCurso(id);
+            if (cursos == null) return NotFound("Curso não encontrado.");
 
-            _repository.DeleteCar(cars);
+            _repository.DeleteCurso(cursos);
 
             return await _repository.SaveChangesAsync()
-            ? Ok("Carro removido com sucesso")
-            : BadRequest("Erro ao remover carro");
+            ? Ok("Curso removido com sucesso.")
+            : BadRequest("Erro ao remover curso.");
         }
 
     }

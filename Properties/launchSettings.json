@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "CarStore": {
+    "GradeHoraria": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
