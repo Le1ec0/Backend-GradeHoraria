@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using CarStore.Models;
-using CarStore.Repositories;
+using GradeHoraria.Models;
+using GradeHoraria.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -8,14 +8,14 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 
-namespace CarStore.Controllers
+namespace GradeHoraria.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class CarsController : ControllerBase
     {
-        private readonly ICarsRepository _repository;
-        public CarsController(ICarsRepository repository)
+        private readonly IGradeRepository _repository;
+        public CarsController(IGradeRepository repository)
         {
             _repository = repository;
         }
@@ -250,8 +250,8 @@ namespace CarStore.Controllers
 
             if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
                 await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-            if (!await roleManager.RoleExistsAsync(UserRoles.User))
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+            if (!await roleManager.RoleExistsAsync(UserRoles.Coordenador))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.Coordenador));
 
             if (await roleManager.RoleExistsAsync(UserRoles.Admin))
             {

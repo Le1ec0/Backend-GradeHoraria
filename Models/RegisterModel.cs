@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace CarStore.Models
+namespace GradeHoraria.Models
 {
     public class RegisterModel
     {

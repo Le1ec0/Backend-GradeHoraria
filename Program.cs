@@ -77,7 +77,7 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
     };
 });
-builder.Services.AddScoped<ICarsRepository, CarsRepository>();
+builder.Services.AddScoped<IGradeRepository, GradeRepository>();
 //builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 
 var app = builder.Build();

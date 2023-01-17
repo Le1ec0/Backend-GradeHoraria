@@ -1,8 +1,8 @@
-namespace CarStore.Models
+namespace GradeHoraria.Models
 {
-    public class Cars
+    public class Cursos
     {
-        public int? CarId { get; set; }
+        public int? CursoId { get; set; }
         public string? Plate { get; set; }
         public string? Brand { get; set; }
         public string? Model { get; set; }

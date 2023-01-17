@@ -1,4 +1,4 @@
-namespace CarStore.Models
+namespace GradeHoraria.Models
 {
     public class Response
     {
