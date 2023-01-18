@@ -1,7 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace GradeHoraria.Models
 {
     public class Materias
     {
+        [Key]
         public int? MateriaId { get; set; }
         public string? Nome { get; set; }
         public string? Periodo { get; set; }
