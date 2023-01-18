@@ -11,11 +11,11 @@ using Microsoft.AspNetCore.Authorization;
 namespace GradeHoraria.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class GradeController : ControllerBase
+    [Route("api/curso/[controller]")]
+    public class CursoController : ControllerBase
     {
         private readonly IGradeRepository _repository;
-        public GradeController(IGradeRepository repository)
+        public CursoController(IGradeRepository repository)
         {
             _repository = repository;
         }
@@ -23,18 +23,18 @@ namespace GradeHoraria.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var grade = await _repository.SearchCurso();
-            return grade.Any()
-            ? Ok(grade)
+            var curso = await _repository.SearchCurso();
+            return curso.Any()
+            ? Ok(curso)
             : NoContent();
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var grade = await _repository.SearchCurso(id);
-            return grade != null
-            ? Ok(grade)
+            var curso = await _repository.SearchCurso(id);
+            return curso != null
+            ? Ok(curso)
             : NotFound("Curso não encontrado.");
         }
 
@@ -50,19 +50,16 @@ namespace GradeHoraria.Controllers
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Materias materias)
+        public async Task<IActionResult> Put(int id, Cursos cursos)
         {
-            var dbMaterias = await _repository.SearchMateria(id);
-            if (dbMaterias == null) return NotFound("Materia não encontrado.");
+            var dbCursos = await _repository.SearchCurso(id);
+            if (dbCursos == null) return NotFound("Curso não encontrado.");
 
-            dbMaterias.Nome = materias.Nome ?? dbMaterias.Nome;
-            dbMaterias.Periodo = materias.Periodo ?? dbMaterias.Periodo;
-            dbMaterias.Turno = materias.Turno ?? dbMaterias.Turno;
-            dbMaterias.DSemana = materias.DSemana ?? dbMaterias.DSemana;
-            dbMaterias.Sala = materias.Sala ?? dbMaterias.Sala;
-            dbMaterias.Professor = materias.Professor ?? dbMaterias.Professor;
+            dbCursos.Nome = cursos.Nome ?? dbCursos.Nome;
+            dbCursos.Disciplina = cursos.Disciplina ?? dbCursos.Disciplina;
+            dbCursos.ApplicationUserId = cursos.ApplicationUserId ?? dbCursos.ApplicationUserId;
 
-            _repository.UpdateCurso(dbMaterias);
+            _repository.UpdateCurso(dbCursos);
 
             return await _repository.SaveChangesAsync()
             ? Ok("Curso atualizado com sucesso.")
@@ -81,6 +78,80 @@ namespace GradeHoraria.Controllers
             return await _repository.SaveChangesAsync()
             ? Ok("Curso removido com sucesso.")
             : BadRequest("Erro ao remover curso.");
+        }
+
+    }
+    [Route("api/[controller]")]
+    public class MateriasController : ControllerBase
+    {
+        private readonly IGradeRepository _repository;
+        public MateriasController(IGradeRepository repository)
+        {
+            _repository = repository;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var materia = await _repository.SearchMateria();
+            return materia.Any()
+            ? Ok(materia)
+            : NoContent();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var materia = await _repository.SearchCurso(id);
+            return materia != null
+            ? Ok(materia)
+            : NotFound("Matéria não encontrada.");
+        }
+
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost]
+        public async Task<IActionResult> Post(Cursos cursos)
+        {
+            _repository.AddCurso(cursos);
+            return await _repository.SaveChangesAsync()
+            ? Ok("Matéria adicionada com sucesso.")
+            : BadRequest("Erro ao adicionar Matéria.");
+        }
+
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, Materias materias)
+        {
+            var dbMaterias = await _repository.SearchMateria(id);
+            if (dbMaterias == null) return NotFound("Matéria não encontrada.");
+
+            dbMaterias.Nome = materias.Nome ?? dbMaterias.Nome;
+            dbMaterias.Periodo = materias.Periodo ?? dbMaterias.Periodo;
+            dbMaterias.Turno = materias.Turno ?? dbMaterias.Turno;
+            dbMaterias.DSemana = materias.DSemana ?? dbMaterias.DSemana;
+            dbMaterias.Sala = materias.Sala ?? dbMaterias.Sala;
+            dbMaterias.Professor = materias.Professor ?? dbMaterias.Professor;
+            dbMaterias.CursoId = materias.CursoId ?? dbMaterias.CursoId;
+
+            _repository.UpdateMateria(dbMaterias);
+
+            return await _repository.SaveChangesAsync()
+            ? Ok("Matéria atualizada com sucesso.")
+            : BadRequest("Erro ao atualizar Matéria.");
+        }
+
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var cursos = await _repository.SearchCurso(id);
+            if (cursos == null) return NotFound("Matéria não encontrada.");
+
+            _repository.DeleteCurso(cursos);
+
+            return await _repository.SaveChangesAsync()
+            ? Ok("Matéria removida com sucesso.")
+            : BadRequest("Erro ao remover Matéria.");
         }
 
     }

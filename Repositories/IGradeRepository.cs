@@ -11,8 +11,8 @@ namespace GradeHoraria.Repositories
         void DeleteCurso(Cursos cursos);
         Task<IEnumerable<Materias>> SearchMateria();
         Task<Materias> SearchMateria(int id);
-        void AddCurso(Materias materias);
-        void UpdateCurso(Materias materias);
+        void AddMateria(Materias materias);
+        void UpdateMateria(Materias materias);
         void DeleteMateria(Materias materias);
         Task<bool> SaveChangesAsync();
     }

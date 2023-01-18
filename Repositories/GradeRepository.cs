@@ -32,6 +32,27 @@ namespace GradeHoraria.Repositories
         {
             _context.Remove(cursos);
         }
+        public async Task<IEnumerable<Materias>> SearchMateria()
+        {
+            return await _context.Materias.ToListAsync();
+        }
+        public async Task<Materias> SearchMateria(int id)
+        {
+            return await _context.Materias.Where(x => x.MateriaId == id).FirstOrDefaultAsync();
+        }
+        public void AddMateria(Materias materias)
+        {
+            _context.Add(materias);
+        }
+        public void UpdateMateria(Materias materias)
+        {
+            _context.Update(materias);
+        }
+
+        public void DeleteMateria(Materias materias)
+        {
+            _context.Remove(materias);
+        }
         public async Task<bool> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync() > 0;
