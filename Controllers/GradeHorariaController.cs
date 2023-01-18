@@ -50,19 +50,19 @@ namespace GradeHoraria.Controllers
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Cursos cursos)
+        public async Task<IActionResult> Put(int id, Materias materias)
         {
-            var dbCursos = await _repository.SearchCurso(id);
-            if (dbCursos == null) return NotFound("Curso não encontrado.");
+            var dbMaterias = await _repository.SearchMateria(id);
+            if (dbMaterias == null) return NotFound("Materia não encontrado.");
 
-            dbCursos.Disciplina = cursos.Disciplina ?? dbCursos.Disciplina;
-            dbCursos.Periodo = cursos.Periodo ?? dbCursos.Periodo;
-            dbCursos.Turno = cursos.Turno ?? dbCursos.Turno;
-            dbCursos.DSemana = cursos.DSemana ?? dbCursos.DSemana;
-            dbCursos.Sala = cursos.Sala ?? dbCursos.Sala;
-            dbCursos.Professor = cursos.Professor ?? dbCursos.Professor;
+            dbMaterias.Nome = materias.Nome ?? dbMaterias.Nome;
+            dbMaterias.Periodo = materias.Periodo ?? dbMaterias.Periodo;
+            dbMaterias.Turno = materias.Turno ?? dbMaterias.Turno;
+            dbMaterias.DSemana = materias.DSemana ?? dbMaterias.DSemana;
+            dbMaterias.Sala = materias.Sala ?? dbMaterias.Sala;
+            dbMaterias.Professor = materias.Professor ?? dbMaterias.Professor;
 
-            _repository.UpdateCurso(dbCursos);
+            _repository.UpdateCurso(dbMaterias);
 
             return await _repository.SaveChangesAsync()
             ? Ok("Curso atualizado com sucesso.")
