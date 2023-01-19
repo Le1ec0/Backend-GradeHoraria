@@ -13,7 +13,7 @@ namespace GradeHoraria.Controllers
     [ApiController]
     [Route("api/curso/[controller]")]
     public class CursoController : ControllerBase
-    {
+    {       
         private readonly IGradeRepository _repository;
         public CursoController(IGradeRepository repository)
         {
@@ -40,9 +40,16 @@ namespace GradeHoraria.Controllers
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
-        public async Task<IActionResult> Post(Cursos cursos)
+        public async Task<IActionResult> Post([FromBody]CursosRequestModel cursosRequestModel)
         {
-            _repository.AddCurso(cursos);
+            var curso = new Cursos
+            {
+            Nome = cursosRequestModel.Nome,
+            Disciplina = cursosRequestModel.Disciplina,
+            ApplicationUserId = cursosRequestModel.ApplicationUserId
+            };
+
+            _repository.AddCurso(curso);
             return await _repository.SaveChangesAsync()
             ? Ok("Curso adicionado com sucesso.")
             : BadRequest("Erro ao adicionar curso.");
@@ -50,14 +57,14 @@ namespace GradeHoraria.Controllers
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Cursos cursos)
+        public async Task<IActionResult> Put(int id, [FromBody]CursosRequestModel cursosRequestModel)
         {
             var dbCursos = await _repository.SearchCurso(id);
             if (dbCursos == null) return NotFound("Curso não encontrado.");
 
-            dbCursos.Nome = cursos.Nome ?? dbCursos.Nome;
-            dbCursos.Disciplina = cursos.Disciplina ?? dbCursos.Disciplina;
-            dbCursos.ApplicationUserId = cursos.ApplicationUserId ?? dbCursos.ApplicationUserId;
+            dbCursos.Nome = cursosRequestModel.Nome ?? dbCursos.Nome;
+            dbCursos.Disciplina = cursosRequestModel.Disciplina ?? dbCursos.Disciplina;
+            dbCursos.ApplicationUserId = cursosRequestModel.ApplicationUserId ?? dbCursos.ApplicationUserId;
 
             _repository.UpdateCurso(dbCursos);
 
@@ -68,7 +75,7 @@ namespace GradeHoraria.Controllers
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromBody]int id)
         {
             var cursos = await _repository.SearchCurso(id);
             if (cursos == null) return NotFound("Curso não encontrado.");
@@ -110,9 +117,19 @@ namespace GradeHoraria.Controllers
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
-        public async Task<IActionResult> Post(Cursos cursos)
+        public async Task<IActionResult> Post([FromBody]MateriasRequestModel materiasRequestModel)
         {
-            _repository.AddCurso(cursos);
+        var materias  = new Materias
+        {
+            Nome = materiasRequestModel.Nome,
+            Periodo = materiasRequestModel.Periodo,
+            Turno = materiasRequestModel.Turno,
+            DSemana = materiasRequestModel.DSemana,
+            Sala = materiasRequestModel.Sala,
+            Professor = materiasRequestModel.Professor,
+            CursoId = materiasRequestModel.CursoId
+        };
+            _repository.AddMateria(materias);
             return await _repository.SaveChangesAsync()
             ? Ok("Matéria adicionada com sucesso.")
             : BadRequest("Erro ao adicionar Matéria.");
@@ -120,18 +137,18 @@ namespace GradeHoraria.Controllers
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Materias materias)
+        public async Task<IActionResult> Put(int id, [FromBody]MateriasRequestModel materiasRequestModel)
         {
             var dbMaterias = await _repository.SearchMateria(id);
             if (dbMaterias == null) return NotFound("Matéria não encontrada.");
 
-            dbMaterias.Nome = materias.Nome ?? dbMaterias.Nome;
-            dbMaterias.Periodo = materias.Periodo ?? dbMaterias.Periodo;
-            dbMaterias.Turno = materias.Turno ?? dbMaterias.Turno;
-            dbMaterias.DSemana = materias.DSemana ?? dbMaterias.DSemana;
-            dbMaterias.Sala = materias.Sala ?? dbMaterias.Sala;
-            dbMaterias.Professor = materias.Professor ?? dbMaterias.Professor;
-            dbMaterias.CursoId = materias.CursoId ?? dbMaterias.CursoId;
+            dbMaterias.Nome = materiasRequestModel.Nome ?? dbMaterias.Nome;
+            dbMaterias.Periodo = materiasRequestModel.Periodo ?? dbMaterias.Periodo;
+            dbMaterias.Turno = materiasRequestModel.Turno ?? dbMaterias.Turno;
+            dbMaterias.DSemana = materiasRequestModel.DSemana ?? dbMaterias.DSemana;
+            dbMaterias.Sala = materiasRequestModel.Sala ?? dbMaterias.Sala;
+            dbMaterias.Professor = materiasRequestModel.Professor ?? dbMaterias.Professor;
+            dbMaterias.CursoId = materiasRequestModel.CursoId != 0 ? materiasRequestModel.CursoId : dbMaterias.CursoId;
 
             _repository.UpdateMateria(dbMaterias);
 
@@ -142,7 +159,7 @@ namespace GradeHoraria.Controllers
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromBody]int id)
         {
             var cursos = await _repository.SearchCurso(id);
             if (cursos == null) return NotFound("Matéria não encontrada.");
@@ -156,7 +173,6 @@ namespace GradeHoraria.Controllers
 
     }
     [Route("api/[controller]")]
-    [ApiController]
     public class AuthenticateController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> userManager;
