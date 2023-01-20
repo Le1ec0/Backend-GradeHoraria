@@ -94,6 +94,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+//Cors Policy
+app.UseCors(options => options.WithOrigins("http://localhost:5500").AllowAnyHeader().AllowAnyMethod());
+builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAllOrigins",
+                builder =>
+                {
+                    builder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+        });
+app.UseCors("AllowAllOrigins");
 
 app.UseHttpsRedirection();
 
