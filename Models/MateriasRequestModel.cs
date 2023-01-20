@@ -2,20 +2,12 @@ using System.ComponentModel.DataAnnotations;
 
 public class MateriasRequestModel
 {
-    [Required]
-    public int CursoId { get; set; }
-    [Required]
-    public string Nome { get; set; }
-    [Required]
-    public string Periodo { get; set; }
-    [Required]
-    public string Turno { get; set; }
-    [Required]
-    public string DSemana { get; set; }
-    [Required]
-    public string Sala { get; set; }
-    [Required]
-    public string Professor { get; set; }
-    [Required]
-    public string ApplicationUserId { get; set; }
+    public int? CursoId { get; set; }
+    public string? Nome { get; set; }
+    public string? Periodo { get; set; }
+    public string? Turno { get; set; }
+    public string? DSemana { get; set; }
+    public string? Sala { get; set; }
+    public string? Professor { get; set; }
+    public string? UserId { get; set; }
 }

@@ -17,12 +17,17 @@ namespace GradeHoraria.Context
             modelBuilder.Entity<ApplicationUser>()
             .HasMany(au => au.Cursos)
             .WithOne(c => c.ApplicationUser)
-            .HasForeignKey(c => c.ApplicationUserId);
+            .HasForeignKey(c => c.UserId);
 
             modelBuilder.Entity<Cursos>()
-                .HasMany(c => c.Materias)
-                .WithOne(m => m.Cursos)
-                .HasForeignKey(m => m.CursoId);
+            .HasMany(c => c.Materias)
+            .WithOne(m => m.Cursos)
+            .HasForeignKey(m => m.MateriaId);
+
+            modelBuilder.Entity<Materias>()
+            .HasOne(c => c.Cursos)
+            .WithMany(m => m.Materias)
+            .HasForeignKey(m => m.CursoId);
 
             base.OnModelCreating(modelBuilder);
         }
