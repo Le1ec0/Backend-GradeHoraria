@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using System.Data.Entity;
 
 namespace GradeHoraria.Controllers
 {
@@ -183,6 +184,25 @@ namespace GradeHoraria.Controllers
             this.userManager = userManager;
             this.roleManager = roleManager;
             _configuration = configuration;
+        }
+
+        [HttpGet]
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var users = await userManager.Users.ToListAsync();
+            return users.Any()
+                ? Ok(users)
+                : NoContent();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(string id)
+        {
+            var user = await userManager.FindByIdAsync(id);
+            return user != null
+                ? Ok(user)
+                : NotFound("User not found.");
         }
 
         [HttpPost]
