@@ -13,6 +13,7 @@ namespace GradeHoraria.Models
         public string Sala { get; set; }
         public string Professor { get; set; }
         public int CursoId { get; set; }
+        public string UserId { get; set; }
         public virtual Cursos Cursos { get; set; }
     }
 }

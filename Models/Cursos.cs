@@ -9,6 +9,8 @@ namespace GradeHoraria.Models
         public string Nome { get; set; }
         public string Disciplina { get; set; }
         public string ApplicationUserId { get; set; }
+        public int MateriaId { get; set; }
+        public string UserId { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
         public virtual ICollection<Materias> Materias { get; set; }
     }
