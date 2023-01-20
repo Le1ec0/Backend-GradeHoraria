@@ -16,4 +16,6 @@ public class MateriasRequestModel
     public string Sala { get; set; }
     [Required]
     public string Professor { get; set; }
+    [Required]
+    public string ApplicationUserId { get; set; }
 }
