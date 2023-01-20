@@ -44,8 +44,8 @@ namespace GradeHoraria.Controllers
         {
             var curso = new Cursos
             {
-                Nome = cursosRequestModel.Nome,
-                UserId = cursosRequestModel.UserId
+                Nome = cursosRequestModel.Nome ?? null,
+                UserId = cursosRequestModel.UserId ?? null
             };
 
             _repository.AddCurso(curso);
@@ -119,14 +119,14 @@ namespace GradeHoraria.Controllers
         {
             var materias = new Materias
             {
-                Nome = materiasRequestModel.Nome,
-                Periodo = materiasRequestModel.Periodo,
-                Turno = materiasRequestModel.Turno,
-                DSemana = materiasRequestModel.DSemana,
-                Sala = materiasRequestModel.Sala,
-                Professor = materiasRequestModel.Professor,
-                CursoId = materiasRequestModel.CursoId,
-                UserId = materiasRequestModel.UserId
+                Nome = materiasRequestModel.Nome ?? null,
+                Periodo = materiasRequestModel.Periodo ?? null,
+                Turno = materiasRequestModel.Turno ?? null,
+                DSemana = materiasRequestModel.DSemana ?? null,
+                Sala = materiasRequestModel.Sala ?? null,
+                Professor = materiasRequestModel.Professor ?? null,
+                CursoId = materiasRequestModel.CursoId ?? null,
+                UserId = materiasRequestModel.UserId ?? null
             };
             _repository.AddMateria(materias);
             return await _repository.SaveChangesAsync()
