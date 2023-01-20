@@ -45,7 +45,6 @@ namespace GradeHoraria.Controllers
             var curso = new Cursos
             {
                 Nome = cursosRequestModel.Nome,
-                Disciplina = cursosRequestModel.Disciplina,
                 UserId = cursosRequestModel.UserId
             };
 
@@ -63,7 +62,6 @@ namespace GradeHoraria.Controllers
             if (dbCursos == null) return NotFound("Curso não encontrado.");
 
             dbCursos.Nome = cursosRequestModel.Nome ?? dbCursos.Nome;
-            dbCursos.Disciplina = cursosRequestModel.Disciplina ?? dbCursos.Disciplina;
             dbCursos.UserId = cursosRequestModel.UserId ?? dbCursos.UserId;
 
             _repository.UpdateCurso(dbCursos);
