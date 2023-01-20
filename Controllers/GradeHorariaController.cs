@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 
 namespace GradeHoraria.Controllers
 {
@@ -172,6 +173,7 @@ namespace GradeHoraria.Controllers
         }
 
     }
+
     [Route("api/[controller]")]
     public class AuthenticateController : ControllerBase
     {
@@ -189,10 +191,23 @@ namespace GradeHoraria.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var users = await userManager.Users.ToListAsync();
-            return users.Any()
-                ? Ok(users)
-                : NoContent();
+            await foreach (var user in userManager.Users.AsAsyncEnumerable())
+            {
+                var users = await userManager.Users.ToListAsync();
+                return users.Any()
+                    ? Ok(users)
+                    : NoContent();
+            }
+            return Ok();
+        }
+
+        [HttpGet("{name}")]
+        public async Task<IActionResult> GetByName(string userName)
+        {
+            var user = await userManager.FindByNameAsync(userName);
+            return user != null
+                ? Ok(user)
+                : NotFound("Usuário não encontrado.");
         }
 
         [HttpGet("{id}")]
@@ -201,7 +216,7 @@ namespace GradeHoraria.Controllers
             var user = await userManager.FindByIdAsync(id);
             return user != null
                 ? Ok(user)
-                : NotFound("User not found.");
+                : NotFound("Usuário não encontrado.");
         }
 
         [HttpPost]
