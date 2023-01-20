@@ -3,6 +3,8 @@
 ```shell
 dotnet tool install --global dotnet-ef
 
+dotnet restore
+
 dotnet ef migrations add InitialMigration
 
 dotnet ef database drop
