@@ -187,7 +187,6 @@ namespace GradeHoraria.Controllers
         }
 
         [HttpGet]
-        [HttpGet]
         public async Task<IActionResult> Get()
         {
             var users = await userManager.Users.ToListAsync();
