@@ -26,12 +26,14 @@ namespace GradeHoraria.Context
             modelBuilder.Entity<Cursos>()
             .HasMany(c => c.Materias)
             .WithOne(m => m.Cursos)
-            .HasForeignKey(m => m.MateriaId);
+            .HasForeignKey(m => m.MateriaId)
+            .IsRequired(false);
 
             modelBuilder.Entity<Materias>()
             .HasOne(c => c.Cursos)
             .WithMany(m => m.Materias)
-            .HasForeignKey(m => m.CursoId);
+            .HasForeignKey(m => m.CursoId)
+            .IsRequired(false);
 
             base.OnModelCreating(modelBuilder);
         }
