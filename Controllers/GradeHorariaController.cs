@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GradeHoraria.Controllers
 {
     [ApiController]
-    [Route("api/curso/[controller]")]
+    [Route("api/[controller]")]
     public class CursoController : ControllerBase
     {
         private readonly IGradeRepository _repository;
