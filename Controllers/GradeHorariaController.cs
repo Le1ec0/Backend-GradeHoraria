@@ -7,7 +7,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
-using System.Data.Entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace GradeHoraria.Controllers
@@ -191,29 +190,16 @@ namespace GradeHoraria.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            await foreach (var user in userManager.Users.AsAsyncEnumerable())
-            {
-                var users = await userManager.Users.ToListAsync();
+            var users = await userManager.Users.ToListAsync();
                 return users.Any()
                     ? Ok(users)
                     : NoContent();
-            }
-            return Ok();
         }
 
         [HttpGet("{name}")]
-        public async Task<IActionResult> GetByName(string userName)
+        public async Task<IActionResult> GetByName(string name)
         {
-            var user = await userManager.FindByNameAsync(userName);
-            return user != null
-                ? Ok(user)
-                : NotFound("Usuário não encontrado.");
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(string id)
-        {
-            var user = await userManager.FindByIdAsync(id);
+            var user = await userManager.FindByNameAsync(name);
             return user != null
                 ? Ok(user)
                 : NotFound("Usuário não encontrado.");
