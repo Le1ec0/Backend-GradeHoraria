@@ -119,7 +119,7 @@ namespace GradeHoraria.Controllers
             : NoContent();
         }
 
-        [HttpGet("/ GetMateriasById /{id}/")]
+        [HttpGet("/GetMateriasById/{id}/")]
         public async Task<IActionResult> GetById(int id)
         {
             var materia = await _context.Materias
