@@ -16,6 +16,9 @@ namespace GradeHoraria.Controllers
     [Route("api/[controller]")]
     public class CursoController : ControllerBase
     {
+        private readonly UserManager<ApplicationUser> userManager;
+        private readonly RoleManager<IdentityRole> roleManager;
+        private readonly IConfiguration _configuration;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
         public CursoController(IGradeRepository repository, ApplicationDbContext context)
@@ -101,6 +104,9 @@ namespace GradeHoraria.Controllers
     [Route("api/[controller]")]
     public class MateriasController : ControllerBase
     {
+        private readonly UserManager<ApplicationUser> userManager;
+        private readonly RoleManager<IdentityRole> roleManager;
+        private readonly IConfiguration _configuration;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
         public MateriasController(IGradeRepository repository, ApplicationDbContext context)
@@ -200,8 +206,8 @@ namespace GradeHoraria.Controllers
         private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IConfiguration _configuration;
+        private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
-
         public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, ApplicationDbContext context)
         {
             this.userManager = userManager;
