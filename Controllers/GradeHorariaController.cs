@@ -200,19 +200,19 @@ namespace GradeHoraria.Controllers
             return Ok();
         }
 
-        [HttpGet("{name}")]
-        public async Task<IActionResult> GetByName(string userName)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(string id)
         {
-            var user = await userManager.FindByNameAsync(userName);
+            var user = await userManager.FindByIdAsync(id);
             return user != null
                 ? Ok(user)
                 : NotFound("Usuário não encontrado.");
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(string id)
+        [HttpGet("{name}")]
+        public async Task<IActionResult> GetByName(string userName)
         {
-            var user = await userManager.FindByIdAsync(id);
+            var user = await userManager.FindByNameAsync(userName);
             return user != null
                 ? Ok(user)
                 : NotFound("Usuário não encontrado.");
