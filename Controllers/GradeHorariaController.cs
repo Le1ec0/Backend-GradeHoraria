@@ -1,13 +1,14 @@
-using Microsoft.AspNetCore.Mvc;
-using GradeHoraria.Models;
-using GradeHoraria.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authorization;
+using GradeHoraria.Models;
+using GradeHoraria.Repositories;
+using GradeHoraria.Context;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
 
 namespace GradeHoraria.Controllers
 {
@@ -179,39 +180,52 @@ namespace GradeHoraria.Controllers
         private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IConfiguration _configuration;
+        private readonly ApplicationDbContext _context;
 
-        public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, ApplicationDbContext context)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
             _configuration = configuration;
+            _context = context;
         }
 
         [HttpGet("/getall/")]
         public async Task<IActionResult> Get()
         {
-            var users = await userManager.Users.ToListAsync();
+            var users = await userManager.Users
+            .Include(u => u.Cursos)
+            .Include(u => u.Materias)
+            .ToListAsync();
+
             return users.Any()
                 ? Ok(users)
                 : NoContent();
-
         }
 
         [HttpGet("/byid/{id}")]
         public async Task<IActionResult> GetById(string id)
         {
-            var user = await userManager.FindByIdAsync(id);
-            return user != null
-                ? Ok(user)
+            var users = await _context.Users
+            .Include(u => u.Cursos)
+            .Include(u => u.Materias)
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+            return users != null
+                ? Ok(users)
                 : NotFound("Usuário não encontrado.");
         }
 
         [HttpGet("/byname/{name}")]
         public async Task<IActionResult> GetByName(string name)
         {
-            var user = await userManager.FindByNameAsync(name);
-            return user != null
-                ? Ok(user)
+            var users = await _context.Users
+            .Include(u => u.Cursos)
+            .Include(u => u.Materias)
+            .FirstOrDefaultAsync(u => u.UserName == name);
+
+            return users != null
+                ? Ok(users)
                 : NotFound("Usuário não encontrado.");
         }
 
