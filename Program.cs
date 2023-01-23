@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using GradeHoraria.Models;
+using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
@@ -26,6 +27,8 @@ builder.Services.AddCors(options =>
                 .AllowAnyHeader();
         });
 });
+
+builder.Services.AddHttpContextAccessor();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -71,19 +74,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-/*var serviceProvider = builder.Services.BuildServiceProvider();
-var roleManager = serviceProvider.GetService<RoleManager<IdentityRole>>();
-await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-await roleManager.CreateAsync(new IdentityRole(UserRoles.Coordenador));
-await roleManager.CreateAsync(new IdentityRole(UserRoles.Professor));
-await roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));*/
-
 // Adding Authentication
-builder.Services.AddAuthentication().AddMicrosoftAccount(options =>
-{
-    options.ClientId = "your_client_id";
-    options.ClientSecret = "your_client_secret";
-});
 
 builder.Services.AddAuthentication(options =>
 {
@@ -101,6 +92,8 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuer = true,
         ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
         ValidAudience = configuration["JWT:ValidAudience"],
         ValidIssuer = configuration["JWT:ValidIssuer"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
@@ -109,7 +102,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddScoped<RoleManager<IdentityRole>>();
 builder.Services.AddScoped<IGradeRepository, GradeRepository>();
-//builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+builder.Services.AddScoped<UserManager<ApplicationUser>>();
 
 var app = builder.Build();
 
