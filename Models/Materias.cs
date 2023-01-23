@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace GradeHoraria.Models
 {
@@ -16,7 +17,9 @@ namespace GradeHoraria.Models
         public string? Professor { get; set; }
         public int? CursoId { get; set; }
         public string? UserId { get; set; }
+        [JsonIgnore]
         public virtual ApplicationUser? ApplicationUser { get; set; }
+        [JsonIgnore]
         public virtual Cursos? Cursos { get; set; }
     }
 }
