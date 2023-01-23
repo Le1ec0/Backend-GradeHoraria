@@ -194,10 +194,10 @@ namespace GradeHoraria.Controllers
         [HttpDelete("/DeleteMateriasById/{id}/")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
-            var cursos = await _repository.SearchCurso(id);
-            if (cursos == null) return NotFound("Matéria não encontrada.");
+            var materias = await _repository.SearchMateria(id);
+            if (materias == null) return NotFound("Matéria não encontrada.");
 
-            _repository.DeleteCurso(cursos);
+            _repository.DeleteMateria(materias);
 
             return await _repository.SaveChangesAsync()
             ? Ok("Matéria removida com sucesso.")
@@ -238,8 +238,16 @@ namespace GradeHoraria.Controllers
         [HttpGet("/GetLoggedUser/")]
         public async Task<IActionResult> GetCurrentUser()
         {
+            if (!HttpContext.User.Identity.IsAuthenticated)
+            {
+                return Unauthorized();
+            }
             var user = await userManager.GetUserAsync(HttpContext.User);
-            return Ok(user);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user.UserName);
         }
 
         [HttpGet("/GetUserById/{id}")]
