@@ -12,7 +12,6 @@ var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
 
 // Add services to the container.
-builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
             options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
         );
@@ -108,6 +107,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddScoped<RoleManager<IdentityRole>>();
+builder.Services.AddScoped<IGradeRepository, GradeRepository>();
+//builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -118,10 +121,6 @@ if (app.Environment.IsDevelopment())
     //Cors Policy
     app.UseCors(options => options.WithOrigins("http://localhost:5500").AllowAnyHeader().AllowAnyMethod());
 }
-
-builder.Services.AddScoped<RoleManager<IdentityRole>>();
-builder.Services.AddScoped<IGradeRepository, GradeRepository>();
-//builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 
 app.UseHttpsRedirection();
 
