@@ -68,6 +68,13 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+var serviceProvider = builder.Services.BuildServiceProvider();
+var roleManager = serviceProvider.GetService<RoleManager<IdentityRole>>();
+await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+await roleManager.CreateAsync(new IdentityRole(UserRoles.Coordenador));
+await roleManager.CreateAsync(new IdentityRole(UserRoles.Professor));
+await roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
+
 // Adding Authentication
 builder.Services.AddAuthentication().AddMicrosoftAccount(options =>
 {
@@ -96,8 +103,6 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
     };
 });
-builder.Services.AddScoped<IGradeRepository, GradeRepository>();
-//builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 
 var app = builder.Build();
 
@@ -109,6 +114,10 @@ if (app.Environment.IsDevelopment())
     //Cors Policy
     app.UseCors(options => options.WithOrigins("http://localhost:5500").AllowAnyHeader().AllowAnyMethod());
 }
+
+builder.Services.AddScoped<RoleManager<IdentityRole>>();
+builder.Services.AddScoped<IGradeRepository, GradeRepository>();
+//builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 
 app.UseHttpsRedirection();
 
