@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GradeHoraria.Controllers
 {
     [ApiController]
-    [Route("api/curso/[controller]")]
+    [Route("api/[controller]")]
     public class CursoController : ControllerBase
     {
         private readonly IGradeRepository _repository;
@@ -190,20 +190,24 @@ namespace GradeHoraria.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var users = await userManager.Users.ToListAsync();
-            return users.Any()
-                ? Ok(users)
-                : NoContent();
+            await foreach (var user in userManager.Users.AsAsyncEnumerable())
+            {
+                var users = await userManager.Users.ToListAsync();
+                return users.Any()
+                    ? Ok(users)
+                    : NoContent();
+            }
+            return Ok();
         }
 
-        /*[HttpGet("{name}")]
+        [HttpGet("{name}")]
         public async Task<IActionResult> GetByName(string userName)
         {
             var user = await userManager.FindByNameAsync(userName);
             return user != null
                 ? Ok(user)
                 : NotFound("Usuário não encontrado.");
-        }*/
+        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
