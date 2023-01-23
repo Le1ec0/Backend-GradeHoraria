@@ -53,6 +53,7 @@ namespace GradeHoraria.Controllers
             : NotFound("Curso não encontrado.");
         }
 
+        [Authorize(Roles = "Admin, Coordenador, Professor")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("/PostCurso/")]
         public async Task<IActionResult> Post([FromBody] CursosRequestModel cursosRequestModel)
@@ -69,6 +70,7 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao adicionar curso.");
         }
 
+        [Authorize(Roles = "Admin, Coordenador, Professor")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("/PutCursoById/{id}/")]
         public async Task<IActionResult> Put(int id, [FromBody] CursosRequestModel cursosRequestModel)
@@ -86,6 +88,7 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao atualizar curso.");
         }
 
+        [Authorize(Roles = "Admin, Coordenador, Professor")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("/DeleteCursoById/{id}/")]
         public async Task<IActionResult> Delete([FromBody] int id)
@@ -141,6 +144,7 @@ namespace GradeHoraria.Controllers
             : NotFound("Matéria não encontrada.");
         }
 
+        [Authorize(Roles = "Admin, Coordenador, Professor")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("/PostMaterias/")]
         public async Task<IActionResult> Post([FromBody] MateriasRequestModel materiasRequestModel)
@@ -162,6 +166,7 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao adicionar Matéria.");
         }
 
+        [Authorize(Roles = "Admin, Coordenador, Professor")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("/PutMateriasById/{id}/")]
         public async Task<IActionResult> Put(int id, [FromBody] MateriasRequestModel materiasRequestModel)
@@ -184,6 +189,7 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao atualizar Matéria.");
         }
 
+        [Authorize(Roles = "Admin, Coordenador, Professor")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("/DeleteMateriasById/{id}/")]
         public async Task<IActionResult> Delete([FromBody] int id)
@@ -312,6 +318,13 @@ namespace GradeHoraria.Controllers
             if (!result.Succeeded)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
 
+            if (!await roleManager.RoleExistsAsync(UserRoles.Usuario))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
+
+            if (await roleManager.RoleExistsAsync(UserRoles.Usuario))
+            {
+                await userManager.AddToRoleAsync(user, UserRoles.Usuario);
+            }
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
 
@@ -335,8 +348,6 @@ namespace GradeHoraria.Controllers
 
             if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
                 await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-            if (!await roleManager.RoleExistsAsync(UserRoles.Coordenador))
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.Coordenador));
 
             if (await roleManager.RoleExistsAsync(UserRoles.Admin))
             {
