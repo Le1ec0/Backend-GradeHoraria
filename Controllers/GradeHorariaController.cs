@@ -187,20 +187,17 @@ namespace GradeHoraria.Controllers
             _configuration = configuration;
         }
 
-        [HttpGet]
+        [HttpGet("/getall/")]
         public async Task<IActionResult> Get()
         {
-            await foreach (var user in userManager.Users.AsAsyncEnumerable())
-            {
-                var users = await userManager.Users.ToListAsync();
-                return users.Any()
-                    ? Ok(users)
-                    : NoContent();
-            }
-            return Ok();
+            var users = await userManager.Users.ToListAsync();
+            return users.Any()
+                ? Ok(users)
+                : NoContent();
+
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("/byid/{id}")]
         public async Task<IActionResult> GetById(string id)
         {
             var user = await userManager.FindByIdAsync(id);
@@ -209,17 +206,17 @@ namespace GradeHoraria.Controllers
                 : NotFound("Usuário não encontrado.");
         }
 
-        [HttpGet("{name}")]
-        public async Task<IActionResult> GetByName(string userName)
+        [HttpGet("/byname/{name}")]
+        public async Task<IActionResult> GetByName(string name)
         {
-            var user = await userManager.FindByNameAsync(userName);
+            var user = await userManager.FindByNameAsync(name);
             return user != null
                 ? Ok(user)
                 : NotFound("Usuário não encontrado.");
         }
 
         [HttpPost]
-        [Route("login")]
+        [Route("/login/")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             var user = await userManager.FindByNameAsync(model.Username);
@@ -258,7 +255,7 @@ namespace GradeHoraria.Controllers
         }
 
         [HttpPost]
-        [Route("register")]
+        [Route("/register/")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
@@ -279,7 +276,7 @@ namespace GradeHoraria.Controllers
         }
 
         [HttpPost]
-        [Route("register-admin")]
+        [Route("/register-admin/")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
