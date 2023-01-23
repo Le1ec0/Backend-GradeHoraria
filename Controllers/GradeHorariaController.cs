@@ -214,12 +214,15 @@ namespace GradeHoraria.Controllers
         private readonly IConfiguration _configuration;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
-        public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, ApplicationDbContext context)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+        IConfiguration configuration, ApplicationDbContext context, IHttpContextAccessor httpContextAccessor)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
             _configuration = configuration;
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpGet("/GetAllUsers/")]
@@ -235,17 +238,14 @@ namespace GradeHoraria.Controllers
                 : NoContent();
         }
 
+        [Authorize]
         [HttpGet("/GetLoggedUser/")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            if (!HttpContext.User.Identity.IsAuthenticated)
-            {
-                return Unauthorized();
-            }
             var user = await userManager.GetUserAsync(HttpContext.User);
             if (user == null)
             {
-                return NotFound();
+                return Unauthorized();
             }
             return Ok(user.UserName);
         }
