@@ -235,6 +235,13 @@ namespace GradeHoraria.Controllers
                 : NoContent();
         }
 
+        [HttpGet("/GetLoggedUser/")]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            var user = await userManager.GetUserAsync(HttpContext.User);
+            return Ok(user);
+        }
+
         [HttpGet("/GetUserById/{id}")]
         public async Task<IActionResult> GetById(string id)
         {
