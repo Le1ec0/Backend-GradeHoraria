@@ -29,6 +29,7 @@ namespace GradeHoraria.Controllers
         {
             var curso = await _context.Cursos
             .Include(u => u.Materias)
+            .Include(u => u.ApplicationUser)
             .ToListAsync();
 
             return curso.Any()
@@ -41,6 +42,7 @@ namespace GradeHoraria.Controllers
         {
             var curso = await _context.Cursos
             .Include(u => u.Materias)
+            .Include(u => u.ApplicationUser)
             .ToListAsync();
 
             return curso != null
@@ -112,6 +114,7 @@ namespace GradeHoraria.Controllers
         {
             var materia = await _context.Materias
             .Include(u => u.Cursos)
+            .Include(u => u.ApplicationUser)
             .ToListAsync();
 
             return materia.Any()
@@ -124,6 +127,7 @@ namespace GradeHoraria.Controllers
         {
             var materia = await _context.Materias
             .Include(u => u.Cursos)
+            .Include(u => u.ApplicationUser)
             .ToListAsync();
 
             return materia != null
