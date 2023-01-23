@@ -71,12 +71,12 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-var serviceProvider = builder.Services.BuildServiceProvider();
+/*var serviceProvider = builder.Services.BuildServiceProvider();
 var roleManager = serviceProvider.GetService<RoleManager<IdentityRole>>();
 await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
 await roleManager.CreateAsync(new IdentityRole(UserRoles.Coordenador));
 await roleManager.CreateAsync(new IdentityRole(UserRoles.Professor));
-await roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
+await roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));*/
 
 // Adding Authentication
 builder.Services.AddAuthentication().AddMicrosoftAccount(options =>
