@@ -60,7 +60,11 @@ builder.Services.AddSwaggerGen(option =>
 // For Entity Framework
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("SQLConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SQLConnection"),
+    sqlServerOptionsAction: sqlOptions =>
+    {
+        sqlOptions.EnableRetryOnFailure();
+    });
 });
 
 // For Identity
