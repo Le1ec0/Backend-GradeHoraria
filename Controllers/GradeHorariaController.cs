@@ -17,31 +17,39 @@ namespace GradeHoraria.Controllers
     public class CursoController : ControllerBase
     {
         private readonly IGradeRepository _repository;
-        public CursoController(IGradeRepository repository)
+        private readonly ApplicationDbContext _context;
+        public CursoController(IGradeRepository repository, ApplicationDbContext context)
         {
             _repository = repository;
+            _context = context;
         }
 
-        [HttpGet]
+        [HttpGet("/GetAllCursos/")]
         public async Task<IActionResult> Get()
         {
-            var curso = await _repository.SearchCurso();
+            var curso = await _context.Cursos
+            .Include(u => u.Materias)
+            .ToListAsync();
+
             return curso.Any()
             ? Ok(curso)
             : NoContent();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("/GetCursoById/{id}/")]
         public async Task<IActionResult> GetById(int id)
         {
-            var curso = await _repository.SearchCurso(id);
+            var curso = await _context.Cursos
+            .Include(u => u.Materias)
+            .ToListAsync();
+
             return curso != null
             ? Ok(curso)
             : NotFound("Curso não encontrado.");
         }
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost]
+        [HttpPost("/PostCurso/")]
         public async Task<IActionResult> Post([FromBody] CursosRequestModel cursosRequestModel)
         {
             var curso = new Cursos
@@ -57,7 +65,7 @@ namespace GradeHoraria.Controllers
         }
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPut("{id}")]
+        [HttpPut("/PutCursoById/{id}/")]
         public async Task<IActionResult> Put(int id, [FromBody] CursosRequestModel cursosRequestModel)
         {
             var dbCursos = await _repository.SearchCurso(id);
@@ -74,7 +82,7 @@ namespace GradeHoraria.Controllers
         }
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpDelete("{id}")]
+        [HttpDelete("/DeleteCursoById/{id}/")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
             var cursos = await _repository.SearchCurso(id);
@@ -92,31 +100,39 @@ namespace GradeHoraria.Controllers
     public class MateriasController : ControllerBase
     {
         private readonly IGradeRepository _repository;
-        public MateriasController(IGradeRepository repository)
+        private readonly ApplicationDbContext _context;
+        public MateriasController(IGradeRepository repository, ApplicationDbContext context)
         {
             _repository = repository;
+            _context = context;
         }
 
-        [HttpGet]
+        [HttpGet("/GetAllMaterias/")]
         public async Task<IActionResult> Get()
         {
-            var materia = await _repository.SearchMateria();
+            var materia = await _context.Materias
+            .Include(u => u.Cursos)
+            .ToListAsync();
+
             return materia.Any()
             ? Ok(materia)
             : NoContent();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("/ GetMateriasById /{id}/")]
         public async Task<IActionResult> GetById(int id)
         {
-            var materia = await _repository.SearchCurso(id);
+            var materia = await _context.Materias
+            .Include(u => u.Cursos)
+            .ToListAsync();
+
             return materia != null
             ? Ok(materia)
             : NotFound("Matéria não encontrada.");
         }
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost]
+        [HttpPost("/PostMaterias/")]
         public async Task<IActionResult> Post([FromBody] MateriasRequestModel materiasRequestModel)
         {
             var materias = new Materias
@@ -137,7 +153,7 @@ namespace GradeHoraria.Controllers
         }
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPut("{id}")]
+        [HttpPut("/PutMateriasById/{id}/")]
         public async Task<IActionResult> Put(int id, [FromBody] MateriasRequestModel materiasRequestModel)
         {
             var dbMaterias = await _repository.SearchMateria(id);
@@ -159,7 +175,7 @@ namespace GradeHoraria.Controllers
         }
 
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpDelete("{id}")]
+        [HttpDelete("/DeleteMateriasById/{id}/")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
             var cursos = await _repository.SearchCurso(id);
@@ -190,7 +206,7 @@ namespace GradeHoraria.Controllers
             _context = context;
         }
 
-        [HttpGet("/getall/")]
+        [HttpGet("/GetAllUsers/")]
         public async Task<IActionResult> Get()
         {
             var users = await userManager.Users
@@ -203,7 +219,7 @@ namespace GradeHoraria.Controllers
                 : NoContent();
         }
 
-        [HttpGet("/byid/{id}")]
+        [HttpGet("/GetUserById/{id}")]
         public async Task<IActionResult> GetById(string id)
         {
             var users = await _context.Users
@@ -216,7 +232,7 @@ namespace GradeHoraria.Controllers
                 : NotFound("Usuário não encontrado.");
         }
 
-        [HttpGet("/byname/{name}")]
+        [HttpGet("/GetUserByName/{name}")]
         public async Task<IActionResult> GetByName(string name)
         {
             var users = await _context.Users
@@ -230,7 +246,7 @@ namespace GradeHoraria.Controllers
         }
 
         [HttpPost]
-        [Route("/login/")]
+        [Route("/UserLogin/")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             var user = await userManager.FindByNameAsync(model.Username);
@@ -269,7 +285,7 @@ namespace GradeHoraria.Controllers
         }
 
         [HttpPost]
-        [Route("/register/")]
+        [Route("/RegisterUser/")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
@@ -290,7 +306,7 @@ namespace GradeHoraria.Controllers
         }
 
         [HttpPost]
-        [Route("/register-admin/")]
+        [Route("/RegisterAdminUser/")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
