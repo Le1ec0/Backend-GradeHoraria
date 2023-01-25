@@ -11,7 +11,7 @@ public class MateriasRequestModel
     [Required]
     public string? Turno { get; set; }
     [Required]
-    public string? DSemana { get; set; }
+    public int? DSemana { get; set; }
     [Required]
     public string? Sala { get; set; }
     [Required]
