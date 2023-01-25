@@ -11,7 +11,6 @@ namespace GradeHoraria.Context
         }
         public DbSet<Cursos> Cursos { get; set; }
         public DbSet<Materias> Materias { get; set; }
-        public DbSet<ApplicationUser> ApplicationUser { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Cursos>()
