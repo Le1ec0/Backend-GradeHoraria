@@ -14,16 +14,6 @@ namespace GradeHoraria.Context
         public DbSet<ApplicationUser> ApplicationUser { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // modelBuilder.Entity<ApplicationUser>()
-            // .HasMany(au => au.Cursos)
-            // .WithOne(c => c.ApplicationUser)
-            // .HasForeignKey(c => c.UserId);
-
-            // modelBuilder.Entity<ApplicationUser>()
-            // .HasMany(au => au.Materias)
-            // .WithOne(c => c.ApplicationUser)
-            // .HasForeignKey(c => c.UserId);
-
             modelBuilder.Entity<Cursos>()
             .HasMany(c => c.Materias)
             .WithOne(m => m.Cursos)
