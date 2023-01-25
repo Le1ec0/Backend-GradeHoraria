@@ -61,7 +61,8 @@ namespace GradeHoraria.Controllers
             var curso = new Cursos
             {
                 Nome = cursosRequestModel.Nome ?? null,
-                UserId = cursosRequestModel.UserId ?? null
+                UserId = cursosRequestModel.UserId ?? null,
+                Periodo = cursosRequestModel.Periodo ?? null,
             };
 
             _repository.AddCurso(curso);
@@ -80,6 +81,7 @@ namespace GradeHoraria.Controllers
 
             dbCursos.Nome = cursosRequestModel.Nome ?? dbCursos.Nome;
             dbCursos.UserId = cursosRequestModel.UserId ?? dbCursos.UserId;
+            dbCursos.Periodo = cursosRequestModel.Periodo ?? dbCursos.Periodo;
 
             _repository.UpdateCurso(dbCursos);
 
@@ -152,7 +154,6 @@ namespace GradeHoraria.Controllers
             var materias = new Materias
             {
                 Nome = materiasRequestModel.Nome ?? null,
-                Periodo = materiasRequestModel.Periodo ?? null,
                 Turno = materiasRequestModel.Turno ?? null,
                 DSemana = materiasRequestModel.DSemana ?? null,
                 Sala = materiasRequestModel.Sala ?? null,
@@ -175,7 +176,6 @@ namespace GradeHoraria.Controllers
             if (dbMaterias == null) return NotFound("Matéria não encontrada.");
 
             dbMaterias.Nome = materiasRequestModel.Nome ?? dbMaterias.Nome;
-            dbMaterias.Periodo = materiasRequestModel.Periodo ?? dbMaterias.Periodo;
             dbMaterias.Turno = materiasRequestModel.Turno ?? dbMaterias.Turno;
             dbMaterias.DSemana = materiasRequestModel.DSemana ?? dbMaterias.DSemana;
             dbMaterias.Sala = materiasRequestModel.Sala ?? dbMaterias.Sala;

@@ -10,6 +10,7 @@ namespace GradeHoraria.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? CursoId { get; set; }
         public string? Nome { get; set; }
+        public int? Periodo { get; set; }
         public string? UserId { get; set; }
 
         [JsonIgnore]

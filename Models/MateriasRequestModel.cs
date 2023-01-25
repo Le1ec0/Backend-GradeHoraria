@@ -7,8 +7,6 @@ public class MateriasRequestModel
     [Required]
     public string? Nome { get; set; }
     [Required]
-    public string? Periodo { get; set; }
-    [Required]
     public string? Turno { get; set; }
     [Required]
     public string? DSemana { get; set; }
