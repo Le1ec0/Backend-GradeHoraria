@@ -225,7 +225,7 @@ namespace GradeHoraria.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-        [HttpGet("/GetAllUsers/")]
+        [HttpGet("/Authorize/GetAllUsers")]
         public async Task<IActionResult> Get()
         {
             var users = await userManager.Users
@@ -238,8 +238,8 @@ namespace GradeHoraria.Controllers
                 : NoContent();
         }
 
-        [Authorize]
-        [HttpGet("/GetLoggedUser/")]
+        [Authorize(Roles = "Admin, Coordenador, Professor, Usuario")]
+        [HttpGet("/Authorize/GetLoggedUser")]
         public async Task<IActionResult> GetCurrentUser()
         {
             var user = await userManager.GetUserAsync(HttpContext.User);
@@ -250,7 +250,7 @@ namespace GradeHoraria.Controllers
             return Ok(user.UserName);
         }
 
-        [HttpGet("/GetUserById")]
+        [HttpGet("/Authorize/GetUserById")]
         public async Task<IActionResult> GetById(string id = null)
         {
             if (id == null)
@@ -268,7 +268,7 @@ namespace GradeHoraria.Controllers
             : NotFound("Usuário não encontrado.");
         }
 
-        [HttpGet("/GetUserByName")]
+        [HttpGet("/Authorize/GetUserByName")]
         public async Task<IActionResult> GetByName(string name = null)
         {
             if (name == null)
@@ -287,7 +287,7 @@ namespace GradeHoraria.Controllers
         }
 
         [HttpPost]
-        [Route("/UserLogin")]
+        [Route("/Authorize/UserLogin")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             var user = await userManager.FindByNameAsync(model.Username);
@@ -326,8 +326,122 @@ namespace GradeHoraria.Controllers
         }
 
         [HttpPost]
-        [Route("/RegisterUser/")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        [Route("/Authorize/RegisterAdminMaster/")]
+        public async Task<IActionResult> RegisterAdminMaster([FromBody] RegisterModel model)
+        {
+            var userExists = await userManager.FindByNameAsync(model.Username);
+            if (userExists != null)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "AdminMaster already exists!" });
+
+            ApplicationUser user = new ApplicationUser()
+            {
+                Email = model.Email,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                UserName = model.Username
+            };
+            var result = await userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "AdminMaster creation failed! Please check user details and try again." });
+
+            if (!await roleManager.RoleExistsAsync(UserRoles.AdminMaster))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.AdminMaster));
+
+            if (await roleManager.RoleExistsAsync(UserRoles.AdminMaster))
+            {
+                await userManager.AddToRoleAsync(user, UserRoles.AdminMaster);
+            }
+
+            return Ok(new Response { Status = "Success", Message = "AdminMaster created successfully!" });
+        }
+
+        [HttpPost]
+        [Route("/Authorize/RegisterAdmin/")]
+        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
+        {
+            var userExists = await userManager.FindByNameAsync(model.Username);
+            if (userExists != null)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Admin already exists!" });
+
+            ApplicationUser user = new ApplicationUser()
+            {
+                Email = model.Email,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                UserName = model.Username
+            };
+            var result = await userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Admin creation failed! Please check user details and try again." });
+
+            if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+
+            if (await roleManager.RoleExistsAsync(UserRoles.Admin))
+            {
+                await userManager.AddToRoleAsync(user, UserRoles.Admin);
+            }
+
+            return Ok(new Response { Status = "Success", Message = "Admin created successfully!" });
+        }
+
+        [HttpPost]
+        [Route("/Authorize/RegisterCoordenador")]
+        public async Task<IActionResult> RegisterCoordenador([FromBody] RegisterModel model)
+        {
+            var userExists = await userManager.FindByNameAsync(model.Username);
+            if (userExists != null)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Coordenador already exists!" });
+
+            ApplicationUser user = new ApplicationUser()
+            {
+                Email = model.Email,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                UserName = model.Username
+            };
+            var result = await userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Coordenador creation failed! Please check user details and try again." });
+
+            if (!await roleManager.RoleExistsAsync(UserRoles.Coordenador))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.Coordenador));
+
+            if (await roleManager.RoleExistsAsync(UserRoles.Coordenador))
+            {
+                await userManager.AddToRoleAsync(user, UserRoles.Coordenador);
+            }
+            return Ok(new Response { Status = "Success", Message = "Coordenador created successfully!" });
+        }
+
+        [HttpPost]
+        [Route("/Authorize/RegisterProfessor")]
+        public async Task<IActionResult> RegisterProfessor([FromBody] RegisterModel model)
+        {
+            var userExists = await userManager.FindByNameAsync(model.Username);
+            if (userExists != null)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Professor already exists!" });
+
+            ApplicationUser user = new ApplicationUser()
+            {
+                Email = model.Email,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                UserName = model.Username
+            };
+            var result = await userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Professor creation failed! Please check user details and try again." });
+
+            if (!await roleManager.RoleExistsAsync(UserRoles.Professor))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.Professor));
+
+            if (await roleManager.RoleExistsAsync(UserRoles.Professor))
+            {
+                await userManager.AddToRoleAsync(user, UserRoles.Professor);
+            }
+            return Ok(new Response { Status = "Success", Message = "Professor created successfully!" });
+        }
+
+        [HttpPost]
+        [Route("/Authorize/RegisterUser")]
+        public async Task<IActionResult> RegisterUser([FromBody] RegisterModel model)
         {
             var userExists = await userManager.FindByNameAsync(model.Username);
             if (userExists != null)
@@ -353,34 +467,6 @@ namespace GradeHoraria.Controllers
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
 
-        [HttpPost]
-        [Route("/RegisterAdminUser/")]
-        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
-        {
-            var userExists = await userManager.FindByNameAsync(model.Username);
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
-
-            ApplicationUser user = new ApplicationUser()
-            {
-                Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username
-            };
-            var result = await userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
-
-            if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-
-            if (await roleManager.RoleExistsAsync(UserRoles.Admin))
-            {
-                await userManager.AddToRoleAsync(user, UserRoles.Admin);
-            }
-
-            return Ok(new Response { Status = "Success", Message = "User created successfully!" });
-        }
         private JwtSecurityToken GetToken(List<Claim> authClaims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
