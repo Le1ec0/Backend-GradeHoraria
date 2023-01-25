@@ -27,7 +27,7 @@ namespace GradeHoraria.Controllers
             _context = context;
         }
 
-        [HttpGet("/Cursos/GetAllCursos/")]
+        [HttpGet("/Cursos/GetAllCursos")]
         public async Task<IActionResult> Get()
         {
             var curso = await _context.Cursos
@@ -40,7 +40,7 @@ namespace GradeHoraria.Controllers
             : NoContent();
         }
 
-        [HttpGet("/Cursos//GetCursoById/{id}/")]
+        [HttpGet("/Cursos/GetCursoById/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var curso = await _context.Cursos
@@ -55,7 +55,7 @@ namespace GradeHoraria.Controllers
 
         [Authorize(Roles = "AdminMaster, Admin")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost("/Cursos//PostCurso/")]
+        [HttpPost("/Cursos/PostCurso")]
         public async Task<IActionResult> Post([FromBody] CursosRequestModel cursosRequestModel)
         {
             var curso = new Cursos
@@ -72,7 +72,7 @@ namespace GradeHoraria.Controllers
 
         [Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPut("/Cursos/PutCursoById/{id}/")]
+        [HttpPut("/Cursos/PutCursoById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CursosRequestModel cursosRequestModel)
         {
             var dbCursos = await _repository.SearchCurso(id);
@@ -90,7 +90,7 @@ namespace GradeHoraria.Controllers
 
         [Authorize(Roles = "AdminMaster")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpDelete("/Cursos//DeleteCursoById/{id}/")]
+        [HttpDelete("/Cursos/DeleteCursoById/{id}")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
             var cursos = await _repository.SearchCurso(id);
@@ -118,7 +118,7 @@ namespace GradeHoraria.Controllers
             _context = context;
         }
 
-        [HttpGet("/Materias/GetAllMaterias/")]
+        [HttpGet("/Materias/GetAllMaterias")]
         public async Task<IActionResult> Get()
         {
             var materia = await _context.Materias
@@ -131,7 +131,7 @@ namespace GradeHoraria.Controllers
             : NoContent();
         }
 
-        [HttpGet("/Materias/GetMateriasById/{id}/")]
+        [HttpGet("/Materias/GetMateriasById/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var materia = await _context.Materias
@@ -146,7 +146,7 @@ namespace GradeHoraria.Controllers
 
         [Authorize(Roles = "AdminMaster, Admin")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost("/Materias/PostMaterias/")]
+        [HttpPost("/Materias/PostMaterias")]
         public async Task<IActionResult> Post([FromBody] MateriasRequestModel materiasRequestModel)
         {
             var materias = new Materias
@@ -168,7 +168,7 @@ namespace GradeHoraria.Controllers
 
         [Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
         [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPut("/Materias/PutMateriasById/{id}/")]
+        [HttpPut("/Materias/PutMateriasById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] MateriasRequestModel materiasRequestModel)
         {
             var dbMaterias = await _repository.SearchMateria(id);
@@ -239,6 +239,7 @@ namespace GradeHoraria.Controllers
         }
 
         [Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor, Usuario")]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("/Authorize/GetLoggedUser")]
         public async Task<IActionResult> GetCurrentUser()
         {
@@ -253,6 +254,7 @@ namespace GradeHoraria.Controllers
         [HttpGet("/Authorize/GetUserById")]
         public async Task<IActionResult> GetById(string id = null)
         {
+            id = Request.Query["id"];
             if (id == null)
             {
                 return NotFound("Usuário não informado.");
@@ -261,7 +263,7 @@ namespace GradeHoraria.Controllers
             var users = await _context.Users
             .Include(u => u.Cursos)
             .Include(u => u.Materias)
-            .FirstOrDefaultAsync(u => u.UserName == id);
+            .FirstOrDefaultAsync(u => u.Id == id);
 
             return users != null
             ? Ok(users)
@@ -271,6 +273,7 @@ namespace GradeHoraria.Controllers
         [HttpGet("/Authorize/GetUserByName")]
         public async Task<IActionResult> GetByName(string name = null)
         {
+            name = Request.Query["name"];
             if (name == null)
             {
                 return NotFound("Usuário não informado.");
