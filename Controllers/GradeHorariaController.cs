@@ -177,7 +177,7 @@ namespace GradeHoraria.Controllers
             dbMaterias.Nome = materiasRequestModel.Nome ?? dbMaterias.Nome;
             dbMaterias.Periodo = materiasRequestModel.Periodo ?? dbMaterias.Periodo;
             dbMaterias.Turno = materiasRequestModel.Turno ?? dbMaterias.Turno;
-            dbMaterias.DSemana = materiasRequestModel.DSemana ?? dbMaterias.DSemana;
+            dbMaterias.DSemana = materiasRequestModel.DSemana != 0 ? materiasRequestModel.DSemana : dbMaterias.DSemana;
             dbMaterias.Sala = materiasRequestModel.Sala ?? dbMaterias.Sala;
             dbMaterias.Professor = materiasRequestModel.Professor ?? dbMaterias.Professor;
             dbMaterias.CursoId = materiasRequestModel.CursoId != 0 ? materiasRequestModel.CursoId : dbMaterias.CursoId;
@@ -250,34 +250,44 @@ namespace GradeHoraria.Controllers
             return Ok(user.UserName);
         }
 
-        [HttpGet("/GetUserById/{id}")]
-        public async Task<IActionResult> GetById(string id)
+        [HttpGet("/GetUserById")]
+        public async Task<IActionResult> GetById(string id = null)
         {
+            if (id == null)
+            {
+                return NotFound("Usuário não informado.");
+            }
+            //id = Request.Query["id"];
             var users = await _context.Users
             .Include(u => u.Cursos)
             .Include(u => u.Materias)
-            .FirstOrDefaultAsync(u => u.Id == id);
+            .FirstOrDefaultAsync(u => u.UserName == id);
 
             return users != null
-                ? Ok(users)
-                : NotFound("Usuário não encontrado.");
+            ? Ok(users)
+            : NotFound("Usuário não encontrado.");
         }
 
-        [HttpGet("/GetUserByName/{name}")]
-        public async Task<IActionResult> GetByName(string name)
+        [HttpGet("/GetUserByName")]
+        public async Task<IActionResult> GetByName(string name = null)
         {
+            if (name == null)
+            {
+                return NotFound("Usuário não informado.");
+            }
+            //name = Request.Query["name"];
             var users = await _context.Users
             .Include(u => u.Cursos)
             .Include(u => u.Materias)
             .FirstOrDefaultAsync(u => u.UserName == name);
 
             return users != null
-                ? Ok(users)
-                : NotFound("Usuário não encontrado.");
+            ? Ok(users)
+            : NotFound("Usuário não encontrado.");
         }
 
         [HttpPost]
-        [Route("/UserLogin/")]
+        [Route("/UserLogin")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             var user = await userManager.FindByNameAsync(model.Username);
