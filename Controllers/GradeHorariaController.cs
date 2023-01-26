@@ -16,7 +16,6 @@ namespace GradeHoraria.Controllers
     [Route("api/[controller]")]
     public class CursoController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IConfiguration _configuration;
         private readonly IGradeRepository _repository;
@@ -32,7 +31,6 @@ namespace GradeHoraria.Controllers
         {
             var curso = await _context.Cursos
             .Include(u => u.Materias)
-            .Include(u => u.ApplicationUser)
             .ToListAsync();
 
             return curso.Any()
@@ -45,7 +43,6 @@ namespace GradeHoraria.Controllers
         {
             var curso = await _context.Cursos
             .Include(u => u.Materias)
-            .Include(u => u.ApplicationUser)
             .ToListAsync();
 
             return curso != null
@@ -107,7 +104,6 @@ namespace GradeHoraria.Controllers
     [Route("api/[controller]")]
     public class MateriasController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IConfiguration _configuration;
         private readonly IGradeRepository _repository;
@@ -123,7 +119,6 @@ namespace GradeHoraria.Controllers
         {
             var materia = await _context.Materias
             .Include(u => u.Cursos)
-            .Include(u => u.ApplicationUser)
             .ToListAsync();
 
             return materia.Any()
@@ -136,7 +131,6 @@ namespace GradeHoraria.Controllers
         {
             var materia = await _context.Materias
             .Include(u => u.Cursos)
-            .Include(u => u.ApplicationUser)
             .ToListAsync();
 
             return materia != null
@@ -203,16 +197,14 @@ namespace GradeHoraria.Controllers
     [Route("api/[controller]")]
     public class AuthenticateController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+        public AuthenticateController(RoleManager<IdentityRole> roleManager,
         IConfiguration configuration, ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, IServiceProvider serviceProvider)
         {
-            _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
             _context = context;
