@@ -332,12 +332,22 @@ namespace GradeHoraria.Controllers
             var curso = new Curso
             {
                 Nome = cursosRequestModel.Nome ?? null,
-                Periodo_Id = cursosRequestModel.Periodo_Id ?? null,
                 Turno = cursosRequestModel.Turno ?? null,
                 Sala = cursosRequestModel.Sala ?? null,
                 Professor = cursosRequestModel.Professor ?? null,
             };
 
+            var cursoPeriodos = new List<CursoPeriodo>();
+            foreach (var periodoId in cursosRequestModel.Periodo_Id)
+            {
+                cursoPeriodos.Add(new CursoPeriodo
+                {
+                    Curso = curso,
+                    Periodo_Id = periodoId
+                });
+            }
+
+            curso.CursoPeriodos = cursoPeriodos;
             _repository.AddCurso(curso);
             return await _repository.SaveChangesAsync()
             ? Ok("Curso adicionado com sucesso.")
@@ -444,7 +454,7 @@ namespace GradeHoraria.Controllers
             dbMaterias.Nome = materiasRequestModel.Nome ?? dbMaterias.Nome;
             dbMaterias.DSemana = materiasRequestModel.DSemana ?? dbMaterias.DSemana;
             dbMaterias.Professor = materiasRequestModel.Professor ?? dbMaterias.Professor;
-            dbMaterias.Periodo_Id = materiasRequestModel.Periodo_Id.HasValue ? materiasRequestModel.Periodo_Id.Value : dbMaterias.Periodo_Id;
+            dbMaterias.Periodo_Id = materiasRequestModel.Periodo_Id ?? dbMaterias.Periodo_Id;
 
             _repository.UpdateMateria(dbMaterias);
 

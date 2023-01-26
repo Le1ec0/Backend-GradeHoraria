@@ -10,6 +10,7 @@ namespace GradeHoraria.Context
         public DbSet<Curso> Cursos { get; set; }
         public DbSet<Materia> Materias { get; set; }
         public DbSet<Periodo> Periodos { get; set; }
+        public DbSet<CursoPeriodo> CursoPeriodos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,6 +23,20 @@ namespace GradeHoraria.Context
                 .HasMany(p => p.Materias)
                 .WithOne(m => m.Periodos)
                 .HasForeignKey(m => m.Periodo_Id);
+
+            modelBuilder.Entity<CursoPeriodo>()
+                .HasKey(cp => new { cp.Curso_Id, cp.Periodo_Id });
+
+            modelBuilder.Entity<CursoPeriodo>()
+                .HasOne(cp => cp.Curso)
+                .WithMany(c => c.CursoPeriodos)
+                .HasForeignKey(cp => cp.Curso_Id);
+
+            modelBuilder.Entity<CursoPeriodo>()
+                .HasOne(cp => cp.Periodo)
+                .WithMany(p => p.CursoPeriodos)
+                .HasForeignKey(cp => cp.Periodo_Id);
         }
+
     }
 }
