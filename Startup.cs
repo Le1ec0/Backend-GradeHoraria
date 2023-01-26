@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using GradeHoraria.Models;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
+using Microsoft.AspNetCore.Authentication;
 
 public class Startup
 {
@@ -106,6 +107,9 @@ public class Startup
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
             };
         });
+
+        services.AddAuthentication(AzureADDefaults.AuthenticationScheme)
+                .AddAzureAD(options => Configuration.Bind("AzureAd", options));
 
         services.AddScoped<RoleManager<IdentityRole>>();
         services.AddScoped<IGradeRepository, GradeRepository>();

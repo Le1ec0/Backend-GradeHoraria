@@ -1,11 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 
-public class CursosRequestModel
+namespace GradeHoraria.Models
 {
-    [Required]
-    public string? Nome { get; set; }
-    [Required]
-    public int? Periodo { get; set; }
-    [Required]
-    public string? UserId { get; set; }
+    public class CursosRequestModel
+    {
+        [Required]
+        public string? Nome { get; set; }
+        [Required]
+        public int? Periodo { get; set; }
+        [Required]
+        public string? UserId { get; set; }
+    }
 }

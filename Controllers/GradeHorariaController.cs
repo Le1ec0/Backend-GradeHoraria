@@ -58,11 +58,10 @@ namespace GradeHoraria.Controllers
         [HttpPost("/Cursos/PostCurso")]
         public async Task<IActionResult> Post([FromBody] CursosRequestModel cursosRequestModel)
         {
-            var curso = new Cursos
+            var curso = new Curso
             {
                 Nome = cursosRequestModel.Nome ?? null,
                 UserId = cursosRequestModel.UserId ?? null,
-                Periodo = cursosRequestModel.Periodo ?? null,
             };
 
             _repository.AddCurso(curso);
@@ -81,7 +80,6 @@ namespace GradeHoraria.Controllers
 
             dbCursos.Nome = cursosRequestModel.Nome ?? dbCursos.Nome;
             dbCursos.UserId = cursosRequestModel.UserId ?? dbCursos.UserId;
-            dbCursos.Periodo = cursosRequestModel.Periodo ?? dbCursos.Periodo;
 
             _repository.UpdateCurso(dbCursos);
 
@@ -151,12 +149,10 @@ namespace GradeHoraria.Controllers
         [HttpPost("/Materias/PostMaterias")]
         public async Task<IActionResult> Post([FromBody] MateriasRequestModel materiasRequestModel)
         {
-            var materias = new Materias
+            var materias = new Materia
             {
                 Nome = materiasRequestModel.Nome ?? null,
-                Turno = materiasRequestModel.Turno ?? null,
                 DSemana = materiasRequestModel.DSemana ?? null,
-                Sala = materiasRequestModel.Sala ?? null,
                 Professor = materiasRequestModel.Professor ?? null,
                 CursoId = materiasRequestModel.CursoId ?? null,
                 UserId = materiasRequestModel.UserId ?? null
@@ -176,9 +172,7 @@ namespace GradeHoraria.Controllers
             if (dbMaterias == null) return NotFound("Matéria não encontrada.");
 
             dbMaterias.Nome = materiasRequestModel.Nome ?? dbMaterias.Nome;
-            dbMaterias.Turno = materiasRequestModel.Turno ?? dbMaterias.Turno;
             dbMaterias.DSemana = materiasRequestModel.DSemana ?? dbMaterias.DSemana;
-            dbMaterias.Sala = materiasRequestModel.Sala ?? dbMaterias.Sala;
             dbMaterias.Professor = materiasRequestModel.Professor ?? dbMaterias.Professor;
             dbMaterias.CursoId = materiasRequestModel.CursoId != 0 ? materiasRequestModel.CursoId : dbMaterias.CursoId;
 
@@ -225,7 +219,7 @@ namespace GradeHoraria.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-        [HttpGet("/Authorize/GetAllUsers")]
+        /*[HttpGet("/Authorize/GetAllUsers")]
         public async Task<IActionResult> Get()
         {
             var users = await _userManager.Users
@@ -247,7 +241,7 @@ namespace GradeHoraria.Controllers
             {
                 return Unauthorized("Usuário não logado.");
             }
-            return Ok(user.UserName);
+            return Ok(user.DisplayName);
         }
 
         [HttpGet("/Authorize/GetUserById")]
@@ -467,7 +461,7 @@ namespace GradeHoraria.Controllers
                 await _userManager.AddToRoleAsync(user, UserRoles.Usuario);
             }
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
-        }
+        }*/
 
         private JwtSecurityToken GetToken(List<Claim> authClaims)
         {

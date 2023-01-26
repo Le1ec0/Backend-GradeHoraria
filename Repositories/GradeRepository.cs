@@ -11,45 +11,45 @@ namespace GradeHoraria.Repositories
         {
             _context = context;
         }
-        public async Task<IEnumerable<Cursos>> SearchCurso()
+        public async Task<IEnumerable<Curso>> SearchCurso()
         {
             return await _context.Cursos.ToListAsync();
         }
-        public async Task<Cursos> SearchCurso(int id)
+        public async Task<Curso> SearchCurso(int id)
         {
             return await _context.Cursos.Where(x => x.CursoId == id).FirstOrDefaultAsync();
         }
-        public void AddCurso(Cursos cursos)
+        public void AddCurso(Curso cursos)
         {
             _context.Add(cursos);
         }
-        public void UpdateCurso(Cursos cursos)
+        public void UpdateCurso(Curso cursos)
         {
             _context.Update(cursos);
         }
 
-        public void DeleteCurso(Cursos cursos)
+        public void DeleteCurso(Curso cursos)
         {
             _context.Remove(cursos);
         }
-        public async Task<IEnumerable<Materias>> SearchMateria()
+        public async Task<IEnumerable<Materia>> SearchMateria()
         {
             return await _context.Materias.ToListAsync();
         }
-        public async Task<Materias> SearchMateria(int id)
+        public async Task<Materia> SearchMateria(int id)
         {
             return await _context.Materias.Where(x => x.MateriaId == id).FirstOrDefaultAsync();
         }
-        public void AddMateria(Materias materias)
+        public void AddMateria(Materia materias)
         {
             _context.Add(materias);
         }
-        public void UpdateMateria(Materias materias)
+        public void UpdateMateria(Materia materias)
         {
             _context.Update(materias);
         }
 
-        public void DeleteMateria(Materias materias)
+        public void DeleteMateria(Materia materias)
         {
             _context.Remove(materias);
         }
