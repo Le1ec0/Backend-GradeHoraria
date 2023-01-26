@@ -15,8 +15,6 @@ namespace GradeHoraria.Models
         public string? Sala { get; set; }
         public string? UserId { get; set; }
         [JsonIgnore]
-        public virtual ApplicationUser? ApplicationUser { get; set; }
-        [JsonIgnore]
         public virtual ICollection<Materia>? Materias { get; set; }
         [JsonIgnore]
         public virtual ICollection<Periodo>? Periodos { get; set; }

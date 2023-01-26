@@ -77,11 +77,6 @@ public class Startup
             });
         });
 
-        // For Identity
-        services.AddIdentity<ApplicationUser, IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddDefaultTokenProviders();
-
         // Adding Authentication
 
         services.AddAuthentication(options =>
@@ -113,7 +108,6 @@ public class Startup
 
         services.AddScoped<RoleManager<IdentityRole>>();
         services.AddScoped<IGradeRepository, GradeRepository>();
-        services.AddScoped<UserManager<ApplicationUser>>();
     }
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
@@ -133,7 +127,6 @@ public class Startup
         app.UseRouting();
         app.UseHttpsRedirection();
         app.UseCors("AllowAllOrigins");
-        app.UseAuthentication();
         app.UseAuthorization();
         app.UseEndpoints(endpoints =>
         {

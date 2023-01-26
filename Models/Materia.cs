@@ -17,8 +17,6 @@ namespace GradeHoraria.Models
         public string? Semestre { get; set; }
         public virtual Periodo? Periodos { get; set; }
         [JsonIgnore]
-        public virtual ApplicationUser? ApplicationUser { get; set; }
-        [JsonIgnore]
         public virtual Curso? Cursos { get; set; }
     }
 }
