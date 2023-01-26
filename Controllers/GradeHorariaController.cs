@@ -331,7 +331,6 @@ namespace GradeHoraria.Controllers
         {
             var curso = new Curso
             {
-                //Id = cursosRequestModel.Id ?? null,
                 Nome = cursosRequestModel.Nome ?? null,
                 Periodo_Id = cursosRequestModel.Periodo_Id ?? null,
                 Turno = cursosRequestModel.Turno ?? null,
