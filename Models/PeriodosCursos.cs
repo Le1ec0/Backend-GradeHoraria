@@ -7,11 +7,11 @@ namespace GradeHoraria.Models
     public class PeriodosCursos
     {
         public int CursoId { get; set; }
-        public Curso Cursos { get; set; }
+        public Curso? Cursos { get; set; }
 
         public int PeriodoId { get; set; }
-        public Periodo Periodos { get; set; }
+        public Periodo? Periodos { get; set; }
 
-        public ICollection<MateriasPeriodos> Materias { get; set; }
+        public ICollection<MateriasPeriodos>? Materias { get; set; }
     }
 }
