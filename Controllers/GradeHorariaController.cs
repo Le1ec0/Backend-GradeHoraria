@@ -306,7 +306,6 @@ namespace GradeHoraria.Controllers
         public async Task<IActionResult> Get()
         {
             var curso = await _context.Cursos
-            .Include(u => u.Materias)
             .ToListAsync();
 
             return curso.Any()
@@ -318,7 +317,6 @@ namespace GradeHoraria.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var curso = await _context.Cursos
-            .Include(u => u.Materias)
             .ToListAsync();
 
             return curso != null
@@ -326,16 +324,16 @@ namespace GradeHoraria.Controllers
             : NotFound("Curso não encontrado.");
         }
 
-        [Authorize(Roles = "AdminMaster, Admin")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(Roles = "AdminMaster, Admin")]
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("/Cursos/PostCurso")]
         public async Task<IActionResult> Post([FromBody] CursosRequestModel cursosRequestModel)
         {
             var curso = new Curso
             {
-                Id = cursosRequestModel.Id ?? null,
+                //Id = cursosRequestModel.Id ?? null,
                 Nome = cursosRequestModel.Nome ?? null,
-                Periodo = cursosRequestModel.Periodo ?? null,
+                Periodo_Id = cursosRequestModel.Periodo_Id ?? null,
                 Turno = cursosRequestModel.Turno ?? null,
                 Sala = cursosRequestModel.Sala ?? null,
                 Professor = cursosRequestModel.Professor ?? null,
@@ -347,8 +345,8 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao adicionar curso.");
         }
 
-        [Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("/Cursos/PutCursoById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CursosRequestModel cursosRequestModel)
         {
@@ -356,7 +354,7 @@ namespace GradeHoraria.Controllers
             if (dbCursos == null) return NotFound("Curso não encontrado.");
 
             dbCursos.Nome = cursosRequestModel.Nome ?? dbCursos.Nome;
-            dbCursos.Id = cursosRequestModel.Id ?? dbCursos.Id;
+            //dbCursos.Id = cursosRequestModel.Id ?? dbCursos.Id;
 
             _repository.UpdateCurso(dbCursos);
 
@@ -365,8 +363,8 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao atualizar curso.");
         }
 
-        [Authorize(Roles = "AdminMaster")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(Roles = "AdminMaster")]
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("/Cursos/DeleteCursoById/{id}")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
@@ -399,7 +397,6 @@ namespace GradeHoraria.Controllers
         public async Task<IActionResult> Get()
         {
             var materia = await _context.Materias
-            .Include(u => u.Cursos)
             .ToListAsync();
 
             return materia.Any()
@@ -411,7 +408,6 @@ namespace GradeHoraria.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var materia = await _context.Materias
-            .Include(u => u.Cursos)
             .ToListAsync();
 
             return materia != null
@@ -419,19 +415,18 @@ namespace GradeHoraria.Controllers
             : NotFound("Matéria não encontrada.");
         }
 
-        [Authorize(Roles = "AdminMaster, Admin")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(Roles = "AdminMaster, Admin")]
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("/Materias/PostMaterias")]
         public async Task<IActionResult> Post([FromBody] MateriasRequestModel materiasRequestModel)
         {
             var materias = new Materia
             {
-                Id = materiasRequestModel.Id ?? null,
+                //Id = materiasRequestModel.Id ?? null,
                 Nome = materiasRequestModel.Nome ?? null,
                 DSemana = materiasRequestModel.DSemana ?? null,
                 Professor = materiasRequestModel.Professor ?? null,
-                Cursos_Id = materiasRequestModel.Cursos_Id ?? null,
-                Semestre = materiasRequestModel.Semestre ?? null
+                Periodo_Id = materiasRequestModel.Periodo_Id ?? null
             };
             _repository.AddMateria(materias);
             return await _repository.SaveChangesAsync()
@@ -439,8 +434,8 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao adicionar Matéria.");
         }
 
-        [Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("/Materias/PutMateriasById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] MateriasRequestModel materiasRequestModel)
         {
@@ -450,8 +445,7 @@ namespace GradeHoraria.Controllers
             dbMaterias.Nome = materiasRequestModel.Nome ?? dbMaterias.Nome;
             dbMaterias.DSemana = materiasRequestModel.DSemana ?? dbMaterias.DSemana;
             dbMaterias.Professor = materiasRequestModel.Professor ?? dbMaterias.Professor;
-            dbMaterias.Cursos_Id = materiasRequestModel.Cursos_Id != 0 ? materiasRequestModel.Cursos_Id : dbMaterias.Cursos_Id;
-            dbMaterias.Semestre = materiasRequestModel.Semestre ?? dbMaterias.Semestre;
+            dbMaterias.Periodo_Id = materiasRequestModel.Periodo_Id.HasValue ? materiasRequestModel.Periodo_Id.Value : dbMaterias.Periodo_Id;
 
             _repository.UpdateMateria(dbMaterias);
 
@@ -460,8 +454,8 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao atualizar Matéria.");
         }
 
-        [Authorize(Roles = "AdminMaster")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(Roles = "AdminMaster")]
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("/Materias/DeleteMateriasById/{id}/")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
