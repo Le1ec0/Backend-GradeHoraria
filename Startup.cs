@@ -1,14 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using GradeHoraria.Context;
 using GradeHoraria.Repositories;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using System.Text;
-using GradeHoraria.Models;
-using Microsoft.AspNetCore.Authentication.AzureAD.UI;
-using Microsoft.AspNetCore.Authentication;
+
 
 public class Startup
 {
@@ -48,7 +44,6 @@ public class Startup
                 Description = "Please enter a valid token",
                 Name = "Authorization",
                 Type = SecuritySchemeType.Http,
-                BearerFormat = "JWT",
                 Scheme = "Bearer"
             });
             option.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -67,7 +62,7 @@ public class Startup
             });
         });
 
-        // For Entity Framework
+        // For entities Framework
         services.AddDbContext<ApplicationDbContext>(options =>
         {
             options.UseSqlServer(Configuration.GetConnectionString("SQLConnection"),
@@ -79,32 +74,11 @@ public class Startup
 
         // Adding Authentication
 
-        services.AddAuthentication(options =>
+        services.AddAuthentication(AzureADDefaults.BearerAuthenticationScheme)
+        .AddMicrosoftWebApiAuthentication(options =>
         {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-
-        // Adding Jwt Bearer
-        .AddJwtBearer(options =>
-        {
-            options.SaveToken = true;
-            options.RequireHttpsMetadata = false;
-            options.TokenValidationParameters = new TokenValidationParameters()
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidAudience = Configuration["JWT:ValidAudience"],
-                ValidIssuer = Configuration["JWT:ValidIssuer"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
-            };
+            Configuration.Bind("AzureAd", options);
         });
-
-        services.AddAuthentication(AzureADDefaults.AuthenticationScheme)
-                .AddAzureAD(options => Configuration.Bind("AzureAd", options));
 
         services.AddScoped<RoleManager<IdentityRole>>();
         services.AddScoped<IGradeRepository, GradeRepository>();
@@ -128,10 +102,10 @@ public class Startup
         app.UseHttpsRedirection();
         app.UseCors("AllowAllOrigins");
         app.UseAuthorization();
+        app.UseAuthentication();
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
         });
     }
-
 }
