@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using GradeHoraria.Context;
 using GradeHoraria.Repositories;
-
+using Microsoft.Identity.Web;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 public class Startup
 {
@@ -72,13 +72,9 @@ public class Startup
             });
         });
 
-        // Adding Authentication
-
-        services.AddAuthentication(AzureADDefaults.BearerAuthenticationScheme)
-        .AddMicrosoftWebApiAuthentication(options =>
-        {
-            Configuration.Bind("AzureAd", options);
-        });
+        // Add Azure Active Directory Authentication
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
 
         services.AddScoped<RoleManager<IdentityRole>>();
         services.AddScoped<IGradeRepository, GradeRepository>();
