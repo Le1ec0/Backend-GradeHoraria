@@ -8,12 +8,12 @@ namespace GradeHoraria.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int? CursoId { get; set; }
+        public int? Id { get; set; }
         public string? Nome { get; set; }
-        public string? Periodo { get; set; }
+        public int? Periodo { get; set; }
         public string? Turno { get; set; }
         public string? Sala { get; set; }
-        public string? UserId { get; set; }
+        public string? Professor { get; set; }
         [JsonIgnore]
         public virtual ICollection<Materia>? Materias { get; set; }
         [JsonIgnore]

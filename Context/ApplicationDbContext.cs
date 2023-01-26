@@ -17,7 +17,7 @@ namespace GradeHoraria.Context
             modelBuilder.Entity<Curso>()
                 .HasMany(p => p.Periodos)
                 .WithOne(c => c.Cursos)
-                .HasForeignKey(i => i.CursoId);
+                .HasForeignKey(i => i.Cursos_Id);
 
             modelBuilder.Entity<Periodo>()
                 .HasMany(m => m.Materias)

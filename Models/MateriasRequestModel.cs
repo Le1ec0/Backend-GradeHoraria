@@ -5,18 +5,11 @@ namespace GradeHoraria.Models
     public class MateriasRequestModel
     {
         [Required]
-        public int? CursoId { get; set; }
-        [Required]
+        public int? Id { get; set; }
         public string? Nome { get; set; }
-        [Required]
-        public string? Turno { get; set; }
-        [Required]
         public string? DSemana { get; set; }
-        [Required]
-        public string? Sala { get; set; }
-        [Required]
         public string? Professor { get; set; }
-        [Required]
-        public string? UserId { get; set; }
+        public int? Cursos_Id { get; set; }
+        public string? Semestre { get; set; }
     }
 }

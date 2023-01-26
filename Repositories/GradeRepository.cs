@@ -17,7 +17,7 @@ namespace GradeHoraria.Repositories
         }
         public async Task<Curso> SearchCurso(int id)
         {
-            return await _context.Cursos.Where(x => x.CursoId == id).FirstOrDefaultAsync();
+            return await _context.Cursos.Where(x => x.Id == id).FirstOrDefaultAsync();
         }
         public void AddCurso(Curso cursos)
         {
@@ -38,7 +38,7 @@ namespace GradeHoraria.Repositories
         }
         public async Task<Materia> SearchMateria(int id)
         {
-            return await _context.Materias.Where(x => x.MateriaId == id).FirstOrDefaultAsync();
+            return await _context.Materias.Where(x => x.Id == id).FirstOrDefaultAsync();
         }
         public void AddMateria(Materia materias)
         {

@@ -12,189 +12,7 @@ using System.Text;
 
 namespace GradeHoraria.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class CursoController : ControllerBase
-    {
-        private readonly RoleManager<IdentityRole> roleManager;
-        private readonly IConfiguration _configuration;
-        private readonly IGradeRepository _repository;
-        private readonly ApplicationDbContext _context;
-        public CursoController(IGradeRepository repository, ApplicationDbContext context)
-        {
-            _repository = repository;
-            _context = context;
-        }
-
-        [HttpGet("/Cursos/GetAllCursos")]
-        public async Task<IActionResult> Get()
-        {
-            var curso = await _context.Cursos
-            .Include(u => u.Materias)
-            .ToListAsync();
-
-            return curso.Any()
-            ? Ok(curso)
-            : NoContent();
-        }
-
-        [HttpGet("/Cursos/GetCursoById/{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var curso = await _context.Cursos
-            .Include(u => u.Materias)
-            .ToListAsync();
-
-            return curso != null
-            ? Ok(curso)
-            : NotFound("Curso não encontrado.");
-        }
-
-        [Authorize(Roles = "AdminMaster, Admin")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost("/Cursos/PostCurso")]
-        public async Task<IActionResult> Post([FromBody] CursosRequestModel cursosRequestModel)
-        {
-            var curso = new Curso
-            {
-                Nome = cursosRequestModel.Nome ?? null,
-                UserId = cursosRequestModel.UserId ?? null,
-            };
-
-            _repository.AddCurso(curso);
-            return await _repository.SaveChangesAsync()
-            ? Ok("Curso adicionado com sucesso.")
-            : BadRequest("Erro ao adicionar curso.");
-        }
-
-        [Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPut("/Cursos/PutCursoById/{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] CursosRequestModel cursosRequestModel)
-        {
-            var dbCursos = await _repository.SearchCurso(id);
-            if (dbCursos == null) return NotFound("Curso não encontrado.");
-
-            dbCursos.Nome = cursosRequestModel.Nome ?? dbCursos.Nome;
-            dbCursos.UserId = cursosRequestModel.UserId ?? dbCursos.UserId;
-
-            _repository.UpdateCurso(dbCursos);
-
-            return await _repository.SaveChangesAsync()
-            ? Ok("Curso atualizado com sucesso.")
-            : BadRequest("Erro ao atualizar curso.");
-        }
-
-        [Authorize(Roles = "AdminMaster")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpDelete("/Cursos/DeleteCursoById/{id}")]
-        public async Task<IActionResult> Delete([FromBody] int id)
-        {
-            var cursos = await _repository.SearchCurso(id);
-            if (cursos == null) return NotFound("Curso não encontrado.");
-
-            _repository.DeleteCurso(cursos);
-
-            return await _repository.SaveChangesAsync()
-            ? Ok("Curso removido com sucesso.")
-            : BadRequest("Erro ao remover curso.");
-        }
-
-    }
-    [Route("api/[controller]")]
-    public class MateriasController : ControllerBase
-    {
-        private readonly RoleManager<IdentityRole> roleManager;
-        private readonly IConfiguration _configuration;
-        private readonly IGradeRepository _repository;
-        private readonly ApplicationDbContext _context;
-        public MateriasController(IGradeRepository repository, ApplicationDbContext context)
-        {
-            _repository = repository;
-            _context = context;
-        }
-
-        [HttpGet("/Materias/GetAllMaterias")]
-        public async Task<IActionResult> Get()
-        {
-            var materia = await _context.Materias
-            .Include(u => u.Cursos)
-            .ToListAsync();
-
-            return materia.Any()
-            ? Ok(materia)
-            : NoContent();
-        }
-
-        [HttpGet("/Materias/GetMateriasById/{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var materia = await _context.Materias
-            .Include(u => u.Cursos)
-            .ToListAsync();
-
-            return materia != null
-            ? Ok(materia)
-            : NotFound("Matéria não encontrada.");
-        }
-
-        [Authorize(Roles = "AdminMaster, Admin")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost("/Materias/PostMaterias")]
-        public async Task<IActionResult> Post([FromBody] MateriasRequestModel materiasRequestModel)
-        {
-            var materias = new Materia
-            {
-                Nome = materiasRequestModel.Nome ?? null,
-                DSemana = materiasRequestModel.DSemana ?? null,
-                Professor = materiasRequestModel.Professor ?? null,
-                CursoId = materiasRequestModel.CursoId ?? null,
-                UserId = materiasRequestModel.UserId ?? null
-            };
-            _repository.AddMateria(materias);
-            return await _repository.SaveChangesAsync()
-            ? Ok("Matéria adicionada com sucesso.")
-            : BadRequest("Erro ao adicionar Matéria.");
-        }
-
-        [Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPut("/Materias/PutMateriasById/{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] MateriasRequestModel materiasRequestModel)
-        {
-            var dbMaterias = await _repository.SearchMateria(id);
-            if (dbMaterias == null) return NotFound("Matéria não encontrada.");
-
-            dbMaterias.Nome = materiasRequestModel.Nome ?? dbMaterias.Nome;
-            dbMaterias.DSemana = materiasRequestModel.DSemana ?? dbMaterias.DSemana;
-            dbMaterias.Professor = materiasRequestModel.Professor ?? dbMaterias.Professor;
-            dbMaterias.CursoId = materiasRequestModel.CursoId != 0 ? materiasRequestModel.CursoId : dbMaterias.CursoId;
-
-            _repository.UpdateMateria(dbMaterias);
-
-            return await _repository.SaveChangesAsync()
-            ? Ok("Matéria atualizada com sucesso.")
-            : BadRequest("Erro ao atualizar Matéria.");
-        }
-
-        [Authorize(Roles = "AdminMaster")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpDelete("/Materias/DeleteMateriasById/{id}/")]
-        public async Task<IActionResult> Delete([FromBody] int id)
-        {
-            var materias = await _repository.SearchMateria(id);
-            if (materias == null) return NotFound("Matéria não encontrada.");
-
-            _repository.DeleteMateria(materias);
-
-            return await _repository.SaveChangesAsync()
-            ? Ok("Matéria removida com sucesso.")
-            : BadRequest("Erro ao remover Matéria.");
-        }
-
-    }
-
-    [Route("api/[controller]")]
+    /*[Route("api/[controller]")]
     public class AuthenticateController : ControllerBase
     {
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -211,7 +29,7 @@ namespace GradeHoraria.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-        /*[HttpGet("/Authorize/GetAllUsers")]
+        [HttpGet("/Authorize/GetAllUsers")]
         public async Task<IActionResult> Get()
         {
             var users = await _userManager.Users
@@ -453,8 +271,7 @@ namespace GradeHoraria.Controllers
                 await _userManager.AddToRoleAsync(user, UserRoles.Usuario);
             }
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
-        }*/
-
+        }
         private JwtSecurityToken GetToken(List<Claim> authClaims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
@@ -469,5 +286,194 @@ namespace GradeHoraria.Controllers
 
             return token;
         }
+    }*/
+
+    [ApiController]
+    [Route("api/[controller]")]
+    public class CursoController : ControllerBase
+    {
+        private readonly RoleManager<IdentityRole> roleManager;
+        private readonly IConfiguration _configuration;
+        private readonly IGradeRepository _repository;
+        private readonly ApplicationDbContext _context;
+        public CursoController(IGradeRepository repository, ApplicationDbContext context)
+        {
+            _repository = repository;
+            _context = context;
+        }
+
+        [HttpGet("/Cursos/GetAllCursos")]
+        public async Task<IActionResult> Get()
+        {
+            var curso = await _context.Cursos
+            .Include(u => u.Materias)
+            .ToListAsync();
+
+            return curso.Any()
+            ? Ok(curso)
+            : NoContent();
+        }
+
+        [HttpGet("/Cursos/GetCursoById/{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var curso = await _context.Cursos
+            .Include(u => u.Materias)
+            .ToListAsync();
+
+            return curso != null
+            ? Ok(curso)
+            : NotFound("Curso não encontrado.");
+        }
+
+        [Authorize(Roles = "AdminMaster, Admin")]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost("/Cursos/PostCurso")]
+        public async Task<IActionResult> Post([FromBody] CursosRequestModel cursosRequestModel)
+        {
+            var curso = new Curso
+            {
+                Id = cursosRequestModel.Id ?? null,
+                Nome = cursosRequestModel.Nome ?? null,
+                Periodo = cursosRequestModel.Periodo ?? null,
+                Turno = cursosRequestModel.Turno ?? null,
+                Sala = cursosRequestModel.Sala ?? null,
+                Professor = cursosRequestModel.Professor ?? null,
+            };
+
+            _repository.AddCurso(curso);
+            return await _repository.SaveChangesAsync()
+            ? Ok("Curso adicionado com sucesso.")
+            : BadRequest("Erro ao adicionar curso.");
+        }
+
+        [Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPut("/Cursos/PutCursoById/{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody] CursosRequestModel cursosRequestModel)
+        {
+            var dbCursos = await _repository.SearchCurso(id);
+            if (dbCursos == null) return NotFound("Curso não encontrado.");
+
+            dbCursos.Nome = cursosRequestModel.Nome ?? dbCursos.Nome;
+            dbCursos.Id = cursosRequestModel.Id ?? dbCursos.Id;
+
+            _repository.UpdateCurso(dbCursos);
+
+            return await _repository.SaveChangesAsync()
+            ? Ok("Curso atualizado com sucesso.")
+            : BadRequest("Erro ao atualizar curso.");
+        }
+
+        [Authorize(Roles = "AdminMaster")]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [HttpDelete("/Cursos/DeleteCursoById/{id}")]
+        public async Task<IActionResult> Delete([FromBody] int id)
+        {
+            var cursos = await _repository.SearchCurso(id);
+            if (cursos == null) return NotFound("Curso não encontrado.");
+
+            _repository.DeleteCurso(cursos);
+
+            return await _repository.SaveChangesAsync()
+            ? Ok("Curso removido com sucesso.")
+            : BadRequest("Erro ao remover curso.");
+        }
+
+    }
+
+    [Route("api/[controller]")]
+    public class MateriasController : ControllerBase
+    {
+        private readonly RoleManager<IdentityRole> roleManager;
+        private readonly IConfiguration _configuration;
+        private readonly IGradeRepository _repository;
+        private readonly ApplicationDbContext _context;
+        public MateriasController(IGradeRepository repository, ApplicationDbContext context)
+        {
+            _repository = repository;
+            _context = context;
+        }
+
+        [HttpGet("/Materias/GetAllMaterias")]
+        public async Task<IActionResult> Get()
+        {
+            var materia = await _context.Materias
+            .Include(u => u.Cursos)
+            .ToListAsync();
+
+            return materia.Any()
+            ? Ok(materia)
+            : NoContent();
+        }
+
+        [HttpGet("/Materias/GetMateriasById/{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var materia = await _context.Materias
+            .Include(u => u.Cursos)
+            .ToListAsync();
+
+            return materia != null
+            ? Ok(materia)
+            : NotFound("Matéria não encontrada.");
+        }
+
+        [Authorize(Roles = "AdminMaster, Admin")]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPost("/Materias/PostMaterias")]
+        public async Task<IActionResult> Post([FromBody] MateriasRequestModel materiasRequestModel)
+        {
+            var materias = new Materia
+            {
+                Id = materiasRequestModel.Id ?? null,
+                Nome = materiasRequestModel.Nome ?? null,
+                DSemana = materiasRequestModel.DSemana ?? null,
+                Professor = materiasRequestModel.Professor ?? null,
+                Cursos_Id = materiasRequestModel.Cursos_Id ?? null,
+                Semestre = materiasRequestModel.Semestre ?? null
+            };
+            _repository.AddMateria(materias);
+            return await _repository.SaveChangesAsync()
+            ? Ok("Matéria adicionada com sucesso.")
+            : BadRequest("Erro ao adicionar Matéria.");
+        }
+
+        [Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [HttpPut("/Materias/PutMateriasById/{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody] MateriasRequestModel materiasRequestModel)
+        {
+            var dbMaterias = await _repository.SearchMateria(id);
+            if (dbMaterias == null) return NotFound("Matéria não encontrada.");
+
+            dbMaterias.Nome = materiasRequestModel.Nome ?? dbMaterias.Nome;
+            dbMaterias.DSemana = materiasRequestModel.DSemana ?? dbMaterias.DSemana;
+            dbMaterias.Professor = materiasRequestModel.Professor ?? dbMaterias.Professor;
+            dbMaterias.Cursos_Id = materiasRequestModel.Cursos_Id != 0 ? materiasRequestModel.Cursos_Id : dbMaterias.Cursos_Id;
+            dbMaterias.Semestre = materiasRequestModel.Semestre ?? dbMaterias.Semestre;
+
+            _repository.UpdateMateria(dbMaterias);
+
+            return await _repository.SaveChangesAsync()
+            ? Ok("Matéria atualizada com sucesso.")
+            : BadRequest("Erro ao atualizar Matéria.");
+        }
+
+        [Authorize(Roles = "AdminMaster")]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [HttpDelete("/Materias/DeleteMateriasById/{id}/")]
+        public async Task<IActionResult> Delete([FromBody] int id)
+        {
+            var materias = await _repository.SearchMateria(id);
+            if (materias == null) return NotFound("Matéria não encontrada.");
+
+            _repository.DeleteMateria(materias);
+
+            return await _repository.SaveChangesAsync()
+            ? Ok("Matéria removida com sucesso.")
+            : BadRequest("Erro ao remover Matéria.");
+        }
+
     }
 }
