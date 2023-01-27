@@ -13,15 +13,18 @@ namespace GradeHoraria.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Curso>()
-                .HasMany(c => c.Periodos)
-                .WithOne(p => p.Curso)
-                .HasForeignKey(p => p.Curso_Id);
+            modelBuilder.Entity<CursoPeriodo>()
+                .HasKey(bc => new { bc.Curso_Id, bc.Periodo_Id });
 
-            modelBuilder.Entity<Periodo>()
-                .HasMany(p => p.Materias)
-                .WithOne(m => m.Periodo)
-                .HasForeignKey(m => m.Periodo_Id);
+            modelBuilder.Entity<CursoPeriodo>()
+                .HasOne(bc => bc.Curso)
+                .WithMany(b => b.CursoPeriodos)
+                .HasForeignKey(bc => bc.Curso_Id);
+
+            modelBuilder.Entity<CursoPeriodo>()
+                .HasOne(bc => bc.Periodo)
+                .WithMany(c => c.CursoPeriodos)
+                .HasForeignKey(bc => bc.Periodo_Id);
         }
 
     }

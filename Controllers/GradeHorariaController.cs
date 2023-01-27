@@ -327,26 +327,31 @@ namespace GradeHoraria.Controllers
         //[Authorize(Roles = "AdminMaster, Admin")]
         //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("/Cursos/PostCurso")]
-        public async Task<IActionResult> Post([FromBody] CursosRequestModel cursosRequestModel)
+        public async Task<IActionResult> Post([FromBody] CursosRequestModel request)
         {
+            // Create new Curso object and set its properties
             var curso = new Curso
             {
-                Nome = cursosRequestModel.Nome ?? null,
-                Turno = cursosRequestModel.Turno ?? null,
-                Sala = cursosRequestModel.Sala ?? null,
-                Professor = cursosRequestModel.Professor ?? null,
+                Nome = request.Nome,
+                Turno = request.Turno,
+                Sala = request.Sala,
+                Professor = request.Professor
             };
 
-            curso.Periodos = new List<Periodo>();
-            curso.Periodos.Add(new Periodo
+            // Create a list of Periodo objects to associate with the Curso
+            var periodos = new List<Periodo>();
+            foreach (var periodoId in request.Periodo_Id)
             {
-                Periodo_Id = cursosRequestModel.Periodo_Id,
-                Curso_Id = curso.Curso_Id
-            });
+                var periodo = new Periodo { Periodo_Id = periodoId };
+                periodos.Add(periodo);
+            }
+            curso.Periodos = periodos;
+
+            // Add the new Curso to the repository and save changes
             _repository.AddCurso(curso);
             return await _repository.SaveChangesAsync()
-            ? Ok("Curso e Periodo adicionado com sucesso.")
-            : BadRequest("Erro ao adicionar curso e periodo.");
+                ? Ok("Curso and Periodos added successfully.")
+                : BadRequest("Error adding Curso and Periodos.");
         }
 
         //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
@@ -430,7 +435,6 @@ namespace GradeHoraria.Controllers
                 Nome = materiasRequestModel.Nome ?? null,
                 DSemana = materiasRequestModel.DSemana ?? null,
                 Professor = materiasRequestModel.Professor ?? null,
-                Periodo_Id = materiasRequestModel.Periodo_Id ?? null
             };
             _repository.AddMateria(materias);
             return await _repository.SaveChangesAsync()
@@ -449,7 +453,6 @@ namespace GradeHoraria.Controllers
             dbMaterias.Nome = materiasRequestModel.Nome ?? dbMaterias.Nome;
             dbMaterias.DSemana = materiasRequestModel.DSemana ?? dbMaterias.DSemana;
             dbMaterias.Professor = materiasRequestModel.Professor ?? dbMaterias.Professor;
-            dbMaterias.Periodo_Id = materiasRequestModel.Periodo_Id ?? dbMaterias.Periodo_Id;
 
             _repository.UpdateMateria(dbMaterias);
 

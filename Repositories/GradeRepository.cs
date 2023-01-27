@@ -21,7 +21,8 @@ namespace GradeHoraria.Repositories
         }
         public void AddCurso(Curso cursos)
         {
-            _context.Add(cursos);
+            _context.Cursos.Add(cursos);
+            _context.Periodos.AddRange(cursos.Periodos);
         }
         public void UpdateCurso(Curso cursos)
         {
@@ -43,7 +44,7 @@ namespace GradeHoraria.Repositories
         public void UpdatePeriodo(Periodo periodo)
         {
             _context.Periodos.Attach(periodo);
-            _context.Entry(periodo).Reference(p => p.Curso).IsModified = true;
+            _context.Entry(periodo).Reference(p => p.CursoPeriodos).IsModified = true;
             _context.SaveChanges();
         }
         public async Task<IEnumerable<Materia>> GetMateria()
