@@ -345,7 +345,7 @@ namespace GradeHoraria.Controllers
                 var periodo = new Periodo { Periodo_Id = periodoId };
                 periodos.Add(periodo);
             }
-            curso.Periodos = periodos;
+            //curso.Periodos = periodos;
 
             // Add the new Curso to the repository and save changes
             _repository.AddCurso(curso);

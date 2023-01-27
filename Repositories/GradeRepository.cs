@@ -22,7 +22,6 @@ namespace GradeHoraria.Repositories
         public void AddCurso(Curso cursos)
         {
             _context.Cursos.Add(cursos);
-            _context.Periodos.AddRange(cursos.Periodos);
         }
         public void UpdateCurso(Curso cursos)
         {

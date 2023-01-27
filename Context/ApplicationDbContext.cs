@@ -10,27 +10,36 @@ namespace GradeHoraria.Context
         public DbSet<Curso> Cursos { get; set; }
         public DbSet<Periodo> Periodos { get; set; }
         public DbSet<Materia> Materias { get; set; }
+        public DbSet<CursoPeriodo> CursoPeriodos { get; set; }
+        public DbSet<PeriodoMateria> PeriodoMaterias { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CursoPeriodo>()
-            .HasKey(bc => new { bc.Curso_Id, bc.Periodo_Id, bc.Materia_Id });
+                .HasKey(cp => new { cp.Curso_Id, cp.Periodo_Id });
 
             modelBuilder.Entity<CursoPeriodo>()
-                .HasOne(bc => bc.Curso)
-                .WithMany(b => b.CursoPeriodos)
-                .HasForeignKey(bc => bc.Curso_Id);
-
-            modelBuilder.Entity<CursoPeriodo>()
-                .HasOne(bc => bc.Periodo)
+                .HasOne(cp => cp.Curso)
                 .WithMany(c => c.CursoPeriodos)
-                .HasForeignKey(bc => bc.Periodo_Id);
+                .HasForeignKey(cp => cp.Curso_Id);
 
             modelBuilder.Entity<CursoPeriodo>()
-                .HasOne(bc => bc.Materia)
-                .WithMany(c => c.CursoPeriodos)
-                .HasForeignKey(bc => bc.Materia_Id);
+                .HasOne(cp => cp.Periodo)
+                .WithMany(p => p.CursoPeriodos)
+                .HasForeignKey(cp => cp.Periodo_Id);
+
+            modelBuilder.Entity<PeriodoMateria>()
+            .HasKey(pm => new { pm.Materia_Id, pm.Periodo_Id });
+
+            modelBuilder.Entity<PeriodoMateria>()
+            .HasOne(pm => pm.Materia)
+                .WithMany(m => m.PeriodoMaterias)
+                .HasForeignKey(pm => pm.Materia_Id);
+
+            modelBuilder.Entity<PeriodoMateria>()
+                .HasOne(pm => pm.Periodo)
+                .WithMany(p => p.PeriodoMaterias)
+                .HasForeignKey(pm => pm.Periodo_Id);
         }
-
     }
 }

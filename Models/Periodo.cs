@@ -1,6 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace GradeHoraria.Models
 {
@@ -8,7 +6,7 @@ namespace GradeHoraria.Models
     {
         [Key]
         public int Periodo_Id { get; set; }
-        public virtual ICollection<Materia> Materias { get; set; }
         public ICollection<CursoPeriodo> CursoPeriodos { get; set; }
+        public ICollection<PeriodoMateria> PeriodoMaterias { get; set; }
     }
 }
