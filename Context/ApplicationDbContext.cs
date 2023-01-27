@@ -40,6 +40,11 @@ namespace GradeHoraria.Context
                 .HasOne(pm => pm.Periodo)
                 .WithMany(p => p.PeriodoMaterias)
                 .HasForeignKey(pm => pm.Periodo_Id);
+
+            modelBuilder.Entity<Materia>()
+                .HasOne(m => m.CursoPeriodo)
+                .WithMany(cp => cp.Materias)
+                .HasForeignKey(m => new { m.Cursos_Id, m.Periodo_Id });
         }
     }
 }
