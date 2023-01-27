@@ -337,21 +337,16 @@ namespace GradeHoraria.Controllers
                 Professor = cursosRequestModel.Professor ?? null,
             };
 
-            var cursoPeriodos = new List<CursoPeriodo>();
-            foreach (var periodoId in cursosRequestModel.Periodo_Id)
+            curso.Periodos = new List<Periodo>();
+            curso.Periodos.Add(new Periodo
             {
-                cursoPeriodos.Add(new CursoPeriodo
-                {
-                    Curso = curso,
-                    Periodo_Id = periodoId
-                });
-            }
-
-            curso.CursoPeriodos = cursoPeriodos;
+                Id = cursosRequestModel.Periodo_Id,
+                Curso_Id = curso.Id
+            });
             _repository.AddCurso(curso);
             return await _repository.SaveChangesAsync()
-            ? Ok("Curso adicionado com sucesso.")
-            : BadRequest("Erro ao adicionar curso.");
+            ? Ok("Curso e Periodo adicionado com sucesso.")
+            : BadRequest("Erro ao adicionar curso e periodo.");
         }
 
         //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
@@ -359,7 +354,7 @@ namespace GradeHoraria.Controllers
         [HttpPut("/Cursos/PutCursoById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CursosRequestModel cursosRequestModel)
         {
-            var dbCursos = await _repository.SearchCurso(id);
+            var dbCursos = await _repository.GetCurso(id);
             if (dbCursos == null) return NotFound("Curso não encontrado.");
 
             dbCursos.Nome = cursosRequestModel.Nome ?? dbCursos.Nome;
@@ -377,7 +372,7 @@ namespace GradeHoraria.Controllers
         [HttpDelete("/Cursos/DeleteCursoById/{id}")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
-            var cursos = await _repository.SearchCurso(id);
+            var cursos = await _repository.GetCurso(id);
             if (cursos == null) return NotFound("Curso não encontrado.");
 
             _repository.DeleteCurso(cursos);
@@ -448,7 +443,7 @@ namespace GradeHoraria.Controllers
         [HttpPut("/Materias/PutMateriasById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] MateriasRequestModel materiasRequestModel)
         {
-            var dbMaterias = await _repository.SearchMateria(id);
+            var dbMaterias = await _repository.GetMateria(id);
             if (dbMaterias == null) return NotFound("Matéria não encontrada.");
 
             dbMaterias.Nome = materiasRequestModel.Nome ?? dbMaterias.Nome;
@@ -468,7 +463,7 @@ namespace GradeHoraria.Controllers
         [HttpDelete("/Materias/DeleteMateriasById/{id}/")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
-            var materias = await _repository.SearchMateria(id);
+            var materias = await _repository.GetMateria(id);
             if (materias == null) return NotFound("Matéria não encontrada.");
 
             _repository.DeleteMateria(materias);

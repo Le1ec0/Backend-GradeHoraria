@@ -4,13 +4,15 @@ namespace GradeHoraria.Repositories
 {
     public interface IGradeRepository
     {
-        Task<IEnumerable<Curso>> SearchCurso();
-        Task<Curso> SearchCurso(int id);
+        Task<IEnumerable<Curso>> GetCurso();
+        Task<Curso> GetCurso(int id);
         void AddCurso(Curso cursos);
         void UpdateCurso(Curso cursos);
         void DeleteCurso(Curso cursos);
-        Task<IEnumerable<Materia>> SearchMateria();
-        Task<Materia> SearchMateria(int id);
+        Task<Periodo> GetPeriodo(int id);
+        void UpdatePeriodo(Periodo periodos);
+        Task<IEnumerable<Materia>> GetMateria();
+        Task<Materia> GetMateria(int id);
         void AddMateria(Materia materias);
         void UpdateMateria(Materia materias);
         void DeleteMateria(Materia materias);

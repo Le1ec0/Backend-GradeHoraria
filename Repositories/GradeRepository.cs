@@ -11,11 +11,11 @@ namespace GradeHoraria.Repositories
         {
             _context = context;
         }
-        public async Task<IEnumerable<Curso>> SearchCurso()
+        public async Task<IEnumerable<Curso>> GetCurso()
         {
             return await _context.Cursos.ToListAsync();
         }
-        public async Task<Curso> SearchCurso(int id)
+        public async Task<Curso> GetCurso(int id)
         {
             return await _context.Cursos.Where(x => x.Id == id).FirstOrDefaultAsync();
         }
@@ -32,11 +32,25 @@ namespace GradeHoraria.Repositories
         {
             _context.Remove(cursos);
         }
-        public async Task<IEnumerable<Materia>> SearchMateria()
+        public async Task<Periodo> GetPeriodo(int id)
+        {
+            return await _context.Periodos.FirstOrDefaultAsync(p => p.Id == id);
+        }
+        public void AddPeriodo(Periodo periodos)
+        {
+            _context.Add(periodos);
+        }
+        public void UpdatePeriodo(Periodo periodo)
+        {
+            _context.Periodos.Attach(periodo);
+            _context.Entry(periodo).Reference(p => p.Curso).IsModified = true;
+            _context.SaveChanges();
+        }
+        public async Task<IEnumerable<Materia>> GetMateria()
         {
             return await _context.Materias.ToListAsync();
         }
-        public async Task<Materia> SearchMateria(int id)
+        public async Task<Materia> GetMateria(int id)
         {
             return await _context.Materias.Where(x => x.Id == id).FirstOrDefaultAsync();
         }
