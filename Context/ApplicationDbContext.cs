@@ -26,7 +26,7 @@ namespace GradeHoraria.Context
             modelBuilder.Entity<CursoPeriodo>()
             .HasOne(cp => cp.Periodos)
             .WithMany(p => p.CursoPeriodos)
-            .HasForeignKey(cp => cp.PeriodoId);
+            .HasForeignKey(cp => cp.PeriodoId)
             .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<PeriodoMateria>()
