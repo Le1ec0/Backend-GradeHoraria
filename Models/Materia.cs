@@ -11,8 +11,10 @@ namespace GradeHoraria.Models
         public string Nome { get; set; }
         public string DSemana { get; set; }
         public string Professor { get; set; }
-        public int Curso { get; set; }
-        public int Periodo { get; set; }
+        public int CursoId { get; set; }
+        public Curso Curso { get; set; }
+        public int PeriodoId { get; set; }
+        public Periodo Periodo { get; set; }
         public ICollection<PeriodoMateria> PeriodoMaterias { get; set; }
     }
 }
