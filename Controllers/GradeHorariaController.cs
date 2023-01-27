@@ -340,8 +340,8 @@ namespace GradeHoraria.Controllers
             curso.Periodos = new List<Periodo>();
             curso.Periodos.Add(new Periodo
             {
-                Id = cursosRequestModel.Periodo_Id,
-                Curso_Id = curso.Id
+                Periodo_Id = cursosRequestModel.Periodo_Id,
+                Curso_Id = curso.Curso_Id
             });
             _repository.AddCurso(curso);
             return await _repository.SaveChangesAsync()

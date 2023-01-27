@@ -5,7 +5,7 @@ namespace GradeHoraria.Models
 {
     public class Materia
     {
-        public int? Id { get; set; }
+        public int? Materia_Id { get; set; }
         public string? Nome { get; set; }
         public string? DSemana { get; set; }
         public string? Professor { get; set; }
