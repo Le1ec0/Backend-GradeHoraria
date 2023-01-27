@@ -8,6 +8,6 @@ namespace GradeHoraria.Models
         public string? DSemana { get; set; }
         public string? Professor { get; set; }
         public int? Cursos_Id { get; set; }
-        public int[]? Periodo_Id { get; set; }
+        public int? Periodo_Id { get; set; }
     }
 }

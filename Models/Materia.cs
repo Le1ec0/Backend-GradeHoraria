@@ -11,11 +11,10 @@ namespace GradeHoraria.Models
         public string? Nome { get; set; }
         public string? DSemana { get; set; }
         public string? Professor { get; set; }
-        [ForeignKey("Periodos")]
-        public ICollection<int>? Periodo_Id { get; set; }
-        [ForeignKey("Cursos")]
-        public int? Curso_Id { get; set; }
+
+        [ForeignKey("Periodo")]
+        public int? Periodo_Id { get; set; }
         public virtual Periodo? Periodos { get; set; }
-        public virtual Curso? Cursos { get; set; }
+        public virtual ICollection<PeriodoMateria>? PeriodoMaterias { get; set; }
     }
 }
