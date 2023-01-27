@@ -21,12 +21,12 @@ namespace GradeHoraria.Context
             modelBuilder.Entity<CursoPeriodo>()
             .HasOne(cp => cp.Cursos)
             .WithMany(c => c.CursoPeriodos)
-            .HasForeignKey(cp => cp.CursoId);
+            .HasForeignKey(cp => cp.Cursos);
 
             modelBuilder.Entity<CursoPeriodo>()
             .HasOne(cp => cp.Periodos)
             .WithMany(p => p.CursoPeriodos)
-            .HasForeignKey(cp => cp.PeriodoId);
+            .HasForeignKey(cp => cp.Periodos);
 
             modelBuilder.Entity<PeriodoMateria>()
             .HasKey(pm => new { pm.Materias, pm.Periodos });
@@ -34,12 +34,12 @@ namespace GradeHoraria.Context
             modelBuilder.Entity<PeriodoMateria>()
             .HasOne(pm => pm.Materias)
             .WithMany(m => m.PeriodoMaterias)
-            .HasForeignKey(pm => pm.MateriaId);
+            .HasForeignKey(pm => pm.Materias);
 
             modelBuilder.Entity<PeriodoMateria>()
             .HasOne(pm => pm.Periodos)
             .WithMany(p => p.PeriodoMaterias)
-            .HasForeignKey(pm => pm.PeriodoId);
+            .HasForeignKey(pm => pm.Periodos);
         }
     }
 }

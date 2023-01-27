@@ -13,7 +13,6 @@ namespace GradeHoraria.Models
         public string Professor { get; set; }
         public int Curso { get; set; }
         public int Periodo { get; set; }
-        public CursoPeriodo CursoPeriodos { get; set; }
-        public virtual ICollection<PeriodoMateria> PeriodoMaterias { get; set; }
+        public ICollection<PeriodoMateria> PeriodoMaterias { get; set; }
     }
 }
