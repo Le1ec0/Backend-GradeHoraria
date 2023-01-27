@@ -1,4 +1,5 @@
 using GradeHoraria.Models;
+using GradeHoraria.Context;
 
 namespace GradeHoraria.Repositories
 {
@@ -9,13 +10,12 @@ namespace GradeHoraria.Repositories
         void AddCurso(Curso cursos);
         void UpdateCurso(Curso cursos);
         void DeleteCurso(Curso cursos);
-        Task<Periodo> GetPeriodo(int id);
-        void UpdatePeriodo(Periodo periodos);
         Task<IEnumerable<Materia>> GetMateria();
         Task<Materia> GetMateria(int id);
         void AddMateria(Materia materias);
         void UpdateMateria(Materia materias);
         void DeleteMateria(Materia materias);
+        ApplicationDbContext GetContext();
         void AddCursoPeriodos(IEnumerable<CursoPeriodo> cursoPeriodos);
         Task<bool> SaveChangesAsync();
     }

@@ -32,20 +32,6 @@ namespace GradeHoraria.Repositories
         {
             _context.Remove(cursos);
         }
-        public async Task<Periodo> GetPeriodo(int id)
-        {
-            return await _context.Periodos.FirstOrDefaultAsync(p => p.Id == id);
-        }
-        public void AddPeriodo(Periodo periodos)
-        {
-            _context.Add(periodos);
-        }
-        public void UpdatePeriodo(Periodo periodo)
-        {
-            _context.Periodos.Attach(periodo);
-            _context.Entry(periodo).Reference(p => p.CursoPeriodos).IsModified = true;
-            _context.SaveChanges();
-        }
         public async Task<IEnumerable<Materia>> GetMateria()
         {
             return await _context.Materias.ToListAsync();
@@ -69,8 +55,12 @@ namespace GradeHoraria.Repositories
         }
         public async void AddCursoPeriodos(IEnumerable<CursoPeriodo> cursoPeriodos)
         {
-            await _context.CursoPeriodos.AddRangeAsync(cursoPeriodos);
+            await _context.CursoPeriodo.AddRangeAsync(cursoPeriodos);
             await _context.SaveChangesAsync();
+        }
+        public ApplicationDbContext GetContext()
+        {
+            return _context;
         }
         public async Task<bool> SaveChangesAsync()
         {

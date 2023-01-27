@@ -1,14 +1,12 @@
-using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GradeHoraria.Models
 {
     public class PeriodoMateria
     {
-        [Key]
-        public int Id { get; set; }
-        public int Materia_Id { get; set; }
-        public Materia Materia { get; set; }
-        public int Periodo_Id { get; set; }
-        public Periodo Periodo { get; set; }
+        public int MateriaId { get; set; }
+        public Materia Materias { get; set; }
+        public int PeriodoId { get; set; }
+        public Periodo Periodos { get; set; }
     }
 }

@@ -1,14 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authorization;
 using GradeHoraria.Models;
 using GradeHoraria.Repositories;
 using GradeHoraria.Context;
-using System.Security.Claims;
-using System.Text;
 
 namespace GradeHoraria.Controllers
 {
@@ -326,61 +321,24 @@ namespace GradeHoraria.Controllers
 
         //[Authorize(Roles = "AdminMaster, Admin")]
         //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost("/Cursos/PostCurso")]
+        [HttpPost("/Cursos/PostCursos")]
         public async Task<IActionResult> Post([FromBody] CursosRequestModel request)
         {
-            // Create new Curso object and set its properties
+            // Create new Materia object and set its properties
             var curso = new Curso
             {
                 Nome = request.Nome,
                 Turno = request.Turno,
-                Sala = request.Sala,
-                Professor = request.Professor
+                Professor = request.Professor,
+                Periodo = request.Periodo
             };
 
-            // Create a list of Periodo objects to associate with the Curso
-            var periodos = new List<Periodo>();
-            foreach (var periodoId in request.Periodo_Id)
-            {
-                var periodo = new Periodo { Id = periodoId };
-                periodos.Add(periodo);
-            }
-            curso.Periodos = periodos;
-
-            // Add the new Curso to the repository and save changes
-            _repository.AddCurso(curso);
-            var savedChanges = await _repository.SaveChangesAsync();
-
-            if (!savedChanges)
-            {
-                return BadRequest("Error adding Curso and Periodos.");
-            }
-
-            // Create a new CursoPeriodo object for each Periodo
-            var cursoPeriodos = new List<CursoPeriodo>();
-            foreach (var periodoId in request.Periodo_Id)
-            {
-                var cursoPeriodo = new CursoPeriodo { Curso_Id = curso.Id, Periodo_Id = periodoId };
-                cursoPeriodos.Add(cursoPeriodo);
-            }
-
-            // Add each CursoPeriodo to the repository and save changes
-            _repository.AddCursoPeriodos(cursoPeriodos);
-            savedChanges = await _repository.SaveChangesAsync();
-
-            if (!savedChanges)
-            {
-                return BadRequest("Error adding CursoPeriodos.");
-            }
-
-            // Retrieve Curso_Id and Periodo_Id for adding Materias to the PeriodoMateria table
-            var cursoId = curso.Id;
-            var periodoIds = periodos.Select(p => p.Id);
+            // Add the new Curso to the context
+            _context.Cursos.Add(curso);
 
             return await _repository.SaveChangesAsync()
-            ? Ok(new { cursoId, periodoIds })
-            //"Curso criado com sucesso."
-            : BadRequest("Erro ao criar curso.");
+            ? Ok("Curso criado com sucesso!")
+            : BadRequest("Erro ao criar Matéria.");
         }
 
         //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
@@ -468,15 +426,6 @@ namespace GradeHoraria.Controllers
 
             // Add the new Materia to the context
             _context.Materias.Add(materia);
-
-            // Find the CursoPeriodo that matches the Cursos_Id and Periodo_Id of the request
-            var cursoPeriodo = _context.CursoPeriodos.FirstOrDefault(cp => cp.Curso_Id == request.Cursos_Id && cp.Periodo_Id == request.Periodo_Id);
-
-            // If a matching CursoPeriodo is found, add the Materia to the CursoPeriodo's Materias navigation property
-            if (cursoPeriodo != null)
-            {
-                cursoPeriodo.Materias.Add(materia);
-            }
 
             // Save changes to the database
             await _context.SaveChangesAsync();
