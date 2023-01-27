@@ -5,8 +5,8 @@ namespace GradeHoraria.Models
     public class Periodo
     {
         [Key]
-        public int Periodo_Id { get; set; }
-        public ICollection<CursoPeriodo> CursoPeriodos { get; set; }
-        public ICollection<PeriodoMateria> PeriodoMaterias { get; set; }
+        public int Id { get; set; }
+        public virtual ICollection<CursoPeriodo> CursoPeriodos { get; set; }
+        public virtual ICollection<PeriodoMateria> PeriodoMaterias { get; set; }
     }
 }
