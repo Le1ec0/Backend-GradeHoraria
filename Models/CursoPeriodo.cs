@@ -13,5 +13,9 @@ namespace GradeHoraria.Models
         [ForeignKey("Periodo")]
         public int Periodo_Id { get; set; }
         public Periodo Periodo { get; set; }
+        [Key]
+        [ForeignKey("Materia")]
+        public int Materia_Id { get; set; }
+        public Materia Materia { get; set; }
     }
 }
