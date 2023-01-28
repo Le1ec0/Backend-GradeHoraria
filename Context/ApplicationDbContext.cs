@@ -16,17 +16,20 @@ namespace GradeHoraria.Context
             modelBuilder.Entity<Curso>()
                 .HasMany(c => c.Periodos)
                 .WithOne(p => p.Curso)
-                .HasForeignKey(p => p.CursoId);
+                .HasForeignKey(p => p.CursoId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Periodo>()
                 .HasMany(p => p.Materias)
                 .WithOne(m => m.Periodo)
-                .HasForeignKey(m => m.PeriodoId);
+                .HasForeignKey(m => m.PeriodoId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Materia>()
                 .HasOne(m => m.Curso)
                 .WithMany(c => c.Materias)
-                .HasForeignKey(m => m.CursoId);
+                .HasForeignKey(m => m.CursoId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }
