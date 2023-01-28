@@ -340,7 +340,7 @@ namespace GradeHoraria.Controllers
             // Create new Periodo object and set its properties
             var periodo = new Periodo
             {
-                Id = request.Periodo,
+                PeriodoId = request.Periodo,
                 CursoId = curso.Id
             };
 
