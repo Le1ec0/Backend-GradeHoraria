@@ -324,7 +324,7 @@ namespace GradeHoraria.Controllers
         [HttpPost("/Cursos/PostCursos")]
         public async Task<IActionResult> Post([FromBody] CursosRequestModel request)
         {
-            // Create new Materia object and set its properties
+            // Create new Curso object and set its properties
             var curso = new Curso
             {
                 Nome = request.Nome,
@@ -338,7 +338,7 @@ namespace GradeHoraria.Controllers
 
             return await _repository.SaveChangesAsync()
             ? Ok("Curso criado com sucesso!")
-            : BadRequest("Erro ao criar Matéria.");
+            : BadRequest("Erro ao criar curso.");
         }
 
         //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
@@ -426,9 +426,6 @@ namespace GradeHoraria.Controllers
 
             // Add the new Materia to the context
             _context.Materias.Add(materia);
-
-            // Save changes to the database
-            await _context.SaveChangesAsync();
 
             // Return the created Materia
             return await _repository.SaveChangesAsync()

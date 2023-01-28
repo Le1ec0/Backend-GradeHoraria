@@ -15,8 +15,6 @@ namespace GradeHoraria.Repositories
         void AddMateria(Materia materias);
         void UpdateMateria(Materia materias);
         void DeleteMateria(Materia materias);
-        ApplicationDbContext GetContext();
-        void AddCursoPeriodos(IEnumerable<CursoPeriodo> cursoPeriodos);
         Task<bool> SaveChangesAsync();
     }
 }

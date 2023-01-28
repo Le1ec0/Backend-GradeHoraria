@@ -53,15 +53,6 @@ namespace GradeHoraria.Repositories
         {
             _context.Remove(materias);
         }
-        public async void AddCursoPeriodos(IEnumerable<CursoPeriodo> cursoPeriodos)
-        {
-            await _context.CursoPeriodo.AddRangeAsync(cursoPeriodos);
-            await _context.SaveChangesAsync();
-        }
-        public ApplicationDbContext GetContext()
-        {
-            return _context;
-        }
         public async Task<bool> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync() > 0;
