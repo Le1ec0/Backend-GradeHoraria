@@ -336,6 +336,16 @@ namespace GradeHoraria.Controllers
             // Add the new Curso to the context
             _context.Cursos.Add(curso);
 
+            // Create new Periodo object and set its properties
+            var periodo = new Periodo
+            {
+                Id = request.Periodo,
+                CursoId = curso.Id
+            };
+
+            // Add the new Periodo to the context
+            _context.Periodos.Add(periodo);
+
             return await _repository.SaveChangesAsync()
             ? Ok("Curso criado com sucesso!")
             : BadRequest("Erro ao criar curso.");
@@ -422,8 +432,11 @@ namespace GradeHoraria.Controllers
                 Nome = request.Nome,
                 DSemana = request.DSemana,
                 Sala = request.Sala,
-                Professor = request.Professor,
+                Professor = request.Professor
             };
+
+            materia.CursoId = request.CursoId;
+            materia.PeriodoId = request.PeriodoId;
 
             // Add the new Materia to the context
             _context.Materias.Add(materia);
