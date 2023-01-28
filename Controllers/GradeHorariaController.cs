@@ -421,6 +421,7 @@ namespace GradeHoraria.Controllers
             {
                 Nome = request.Nome,
                 DSemana = request.DSemana,
+                Sala = request.Sala,
                 Professor = request.Professor,
             };
 
