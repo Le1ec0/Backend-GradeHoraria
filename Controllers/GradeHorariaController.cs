@@ -330,11 +330,12 @@ namespace GradeHoraria.Controllers
                 Nome = request.Nome,
                 Turno = request.Turno,
                 Professor = request.Professor,
-                Periodo = request.Periodo
+                Periodo = request.Periodo,
+                Periodos = new List<Periodo>()
             };
 
-            // Add the new Curso to the context
-            _context.Cursos.Add(curso);
+            // Add the new Curso to the context using the AddCurso method
+            _repository.AddCurso(curso);
 
             // Create new Periodo object and set its properties
             var periodo = new Periodo
@@ -342,6 +343,11 @@ namespace GradeHoraria.Controllers
                 Id = request.Periodo,
                 CursoId = curso.Id
             };
+
+            curso.Periodos.Add(periodo);
+
+            // Add the new Curso to the context
+            _context.Cursos.Add(curso);
 
             // Add the new Periodo to the context
             _context.Periodos.Add(periodo);
@@ -438,8 +444,11 @@ namespace GradeHoraria.Controllers
             materia.CursoId = request.CursoId;
             materia.PeriodoId = request.PeriodoId;
 
-            // Add the new Materia to the context
-            _context.Materias.Add(materia);
+            materia.Cursos = _context.Cursos.Find(request.CursoId);
+            materia.Periodos = _context.Periodos.Find(request.PeriodoId);
+
+            // Add the new Materia to the context using the AddMateria method
+            _repository.AddMateria(materia);
 
             // Return the created Materia
             return await _repository.SaveChangesAsync()
