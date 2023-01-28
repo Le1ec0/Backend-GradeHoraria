@@ -42,24 +42,5 @@ namespace GradeHoraria.Context
                 .HasForeignKey(m => m.CursoId)
                 .OnDelete(DeleteBehavior.NoAction);
         }
-        public override int SaveChanges()
-        {
-            var addedCursoEntities = ChangeTracker.Entries<Curso>()
-                .Where(e => e.State == EntityState.Added)
-                .Select(e => e.Entity);
-
-            foreach (var addedCurso in addedCursoEntities)
-            {
-                var periodo = new Periodo
-                {
-                    CursoId = addedCurso.Id,
-                    Curso = addedCurso,
-                    Id = addedCurso.Periodo
-                };
-                Periodos.Add(periodo);
-            }
-
-            return base.SaveChanges();
-        }
     }
 }

@@ -9,6 +9,6 @@ namespace GradeHoraria.Models
         public int Id { get; set; }
         public int CursoId { get; set; }
         public Curso Curso { get; set; }
-        public List<Materia> Materias { get; set; }
+        public ICollection<Materia> Materias { get; set; }
     }
 }
