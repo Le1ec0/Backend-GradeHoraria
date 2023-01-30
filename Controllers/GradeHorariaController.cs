@@ -95,40 +95,9 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/UserLogin")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            // Acquire an access token for the user using MSAL with PKCE
-            var app = ConfidentialClientApplicationBuilder.Create(clientId)
-                .WithAuthorizationCodeFlow(redirectUri, scopes)
-                .WithClientSecret(clientSecret)
-                .Build();
-            var result = await app.AcquireTokenByAuthorizationCode(scopes, authorizationCode).ExecuteAsync();
-            var accessToken = result.AccessToken;
-
-            // Use the access token to authenticate the user against AAD
-            var userInfo = await _msalClient.GetAccountByAccessToken(accessToken);
-
-            // Get the user's roles from AAD
-            var roles = await _msalClient.GetRolesByAccessToken(accessToken);
-
-            var authClaims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, userInfo.Username),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-    };
-
-            // Add the roles to the claims
-            foreach (var role in roles)
-            {
-                authClaims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            // Generate the JWT token using MSAL
-            var token = await _msalClient.GenerateToken(authClaims);
-
-            return Ok(new
-            {
-                token = token,
-                expiration = token.ValidTo
-            });
+            return model != null
+            ? Ok(model)
+            : NotFound("Usuário não encontrado.");
         }
 
         [HttpPost]
@@ -142,19 +111,19 @@ namespace GradeHoraria.Controllers
             AzureTableStorageUser user = new AzureTableStorageUser()
             {
                 Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                Nome = model.Nome
+                //SecurityStamp = Guid.NewGuid().ToString(),
+                //Nome = model.Nome
             };
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "AdminMaster creation failed! Please check user details and try again." });
+            //var result = await _userManager.CreateAsync(user, model.Password);
+            //if (!result.Succeeded)
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "AdminMaster creation failed! Please check user details and try again." });
 
             if (!await _roleManager.RoleExistsAsync(UserRoles.AdminMaster))
                 await _roleManager.CreateAsync(new IdentityRole(UserRoles.AdminMaster));
 
             if (await _roleManager.RoleExistsAsync(UserRoles.AdminMaster))
             {
-                await _userManager.AddToRoleAsync(user, UserRoles.AdminMaster);
+                //await _userManager.AddToRoleAsync(user, UserRoles.AdminMaster);
             }
 
             return Ok(new Response { Status = "Success", Message = "AdminMaster created successfully!" });
@@ -171,19 +140,19 @@ namespace GradeHoraria.Controllers
             AzureTableStorageUser user = new AzureTableStorageUser()
             {
                 Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username
+                //SecurityStamp = Guid.NewGuid().ToString(),
+                //UserName = model.Username
             };
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Admin creation failed! Please check user details and try again." });
+            //var result = await _userManager.CreateAsync(user, model.Password);
+            //if (!result.Succeeded)
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Admin creation failed! Please check user details and try again." });
 
             if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
                 await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
 
             if (await _roleManager.RoleExistsAsync(UserRoles.Admin))
             {
-                await _userManager.AddToRoleAsync(user, UserRoles.Admin);
+                //await _userManager.AddToRoleAsync(user, UserRoles.Admin);
             }
 
             return Ok(new Response { Status = "Success", Message = "Admin created successfully!" });
@@ -200,19 +169,19 @@ namespace GradeHoraria.Controllers
             AzureTableStorageUser user = new AzureTableStorageUser()
             {
                 Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username
+                //SecurityStamp = Guid.NewGuid().ToString(),
+                //UserName = model.Username
             };
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Coordenador creation failed! Please check user details and try again." });
+            //var result = await _userManager.CreateAsync(user, model.Password);
+            //if (!result.Succeeded)
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Coordenador creation failed! Please check user details and try again." });
 
             if (!await _roleManager.RoleExistsAsync(UserRoles.Coordenador))
                 await _roleManager.CreateAsync(new IdentityRole(UserRoles.Coordenador));
 
             if (await _roleManager.RoleExistsAsync(UserRoles.Coordenador))
             {
-                await _userManager.AddToRoleAsync(user, UserRoles.Coordenador);
+                //await _userManager.AddToRoleAsync(user, UserRoles.Coordenador);
             }
             return Ok(new Response { Status = "Success", Message = "Coordenador created successfully!" });
         }
@@ -228,19 +197,19 @@ namespace GradeHoraria.Controllers
             AzureTableStorageUser user = new AzureTableStorageUser()
             {
                 Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username
+                //SecurityStamp = Guid.NewGuid().ToString(),
+                //UserName = model.Username
             };
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Professor creation failed! Please check user details and try again." });
+            //var result = await _userManager.CreateAsync(user, model.Password);
+            //if (!result.Succeeded)
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Professor creation failed! Please check user details and try again." });
 
             if (!await _roleManager.RoleExistsAsync(UserRoles.Professor))
                 await _roleManager.CreateAsync(new IdentityRole(UserRoles.Professor));
 
             if (await _roleManager.RoleExistsAsync(UserRoles.Professor))
             {
-                await _userManager.AddToRoleAsync(user, UserRoles.Professor);
+                //await _userManager.AddToRoleAsync(user, UserRoles.Professor);
             }
             return Ok(new Response { Status = "Success", Message = "Professor created successfully!" });
         }
@@ -256,19 +225,19 @@ namespace GradeHoraria.Controllers
             AzureTableStorageUser user = new AzureTableStorageUser()
             {
                 Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username
+                //SecurityStamp = Guid.NewGuid().ToString(),
+                //UserName = model.Username
             };
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+            //var result = await _userManager.CreateAsync(user, model.Password);
+            //if (!result.Succeeded)
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
 
             if (!await _roleManager.RoleExistsAsync(UserRoles.Usuario))
                 await _roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
 
             if (await _roleManager.RoleExistsAsync(UserRoles.Usuario))
             {
-                await _userManager.AddToRoleAsync(user, UserRoles.Usuario);
+                //await _userManager.AddToRoleAsync(user, UserRoles.Usuario);
             }
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }

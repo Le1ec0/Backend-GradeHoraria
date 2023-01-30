@@ -88,10 +88,7 @@ public class Startup
                 });
 
         // Add Azure Active Directory Authentication
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
-
-        services.AddSingleton<MsalClient>(new MsalClient("client_id", "client_secret", "tenant_id", Configuration));
+        services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
 
         services.AddScoped<RoleManager<IdentityRole>>();
@@ -112,11 +109,12 @@ public class Startup
             app.UseHsts();
         }
 
+        app.UseAuthentication();
+        app.UseAuthorization();
+
         app.UseRouting();
         app.UseHttpsRedirection();
         app.UseCors("AllowAllOrigins");
-        app.UseAuthorization();
-        app.UseAuthentication();
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
