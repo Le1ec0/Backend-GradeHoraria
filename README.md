@@ -31,11 +31,11 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 dotnet build
 ```
 
-Após o comando acima vai ser gerado os arquivos para públicar, abaixo o caminho:
+Após o comando acima vão ser gerados os arquivos para publicação no seguinte caminho:
 
-    bin\Debug\net6.0
+    bin\Debug\net7.0
 
-Copie o conteúdo da pasta acima para a pasta do IIS
+Copie o conteúdo da pasta acima para a pasta do IIS:
 
     C:\inetpub\wwwroot
 
