@@ -1,17 +1,28 @@
 using Microsoft.EntityFrameworkCore;
 using GradeHoraria.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace GradeHoraria.Context
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-        { }
+        {
+        }
         public DbSet<Curso> Cursos { get; set; }
         public DbSet<Periodo> Periodos { get; set; }
         public DbSet<Materia> Materias { get; set; }
+        public DbSet<IdentityUser> IdentityUsers { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<IdentityUserLogin<string>>()
+            .HasNoKey();
+            modelBuilder.Entity<IdentityUserRole<string>>()
+            .HasNoKey();
+            modelBuilder.Entity<IdentityUserToken<string>>()
+            .HasNoKey();
+
             modelBuilder.Entity<Curso>()
                 .HasMany(c => c.Periodos)
                 .WithOne(p => p.Cursos)

@@ -1,15 +1,13 @@
 using GradeHoraria.Context;
 using GradeHoraria.Models;
 using GradeHoraria.Repositories;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.Text;
+using Microsoft.Graph;
 using Microsoft.Identity.Client;
+using System.Net.Http.Headers;
 
 namespace GradeHoraria.Controllers
 {
@@ -37,7 +35,28 @@ namespace GradeHoraria.Controllers
         [HttpGet("/Authorize/GetAllUsers")]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = await _userManager.Users.ToListAsync();
+            var scopes = new string[] { "https://graph.microsoft.com/.default" };
+            var confidentialClient = ConfidentialClientApplicationBuilder
+                .Create("common")
+                .WithAuthority($"https://login.microsoftonline.com/$tenantId/v2.0")
+                .WithClientSecret("OLx8Q~HyDv2YIsI2F4puTokyn7TLYLq9rRNQrarY")
+                .Build();
+
+            GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
+            {
+
+                // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
+                var authResult = await confidentialClient.AcquireTokenForClient(scopes).ExecuteAsync();
+
+                // Add the access token in the Authorization header of the API
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+
+            }));
+
+            // Make a Microsoft Graph API query
+            var users = await graphServiceClient.Users
+            .Request()
+            .GetAsync();
             return Ok(users);
         }
 
@@ -204,20 +223,6 @@ namespace GradeHoraria.Controllers
             }
             return Ok(new Response { Status = "Success", Message = "User created successfully!" });
         }
-        private JwtSecurityToken GetToken(List<Claim> authClaims)
-        {
-            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["JWT:ValidIssuer"],
-                audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddHours(3),
-                claims: authClaims,
-                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-                );
-
-            return token;
-        }
     }
 
     [ApiController]
@@ -248,6 +253,18 @@ namespace GradeHoraria.Controllers
 
         [HttpGet("/Cursos/GetCursoById/{id}")]
         public async Task<IActionResult> GetById(int id)
+        {
+            var curso = await _context.Cursos
+            .Include(m => m.Materias)
+            .ToListAsync();
+
+            return curso != null
+            ? Ok(curso)
+            : NotFound("Curso não encontrado.");
+        }
+
+        [HttpGet("/Cursos/GetCursoByName/{name}")]
+        public async Task<IActionResult> GetByName(string name)
         {
             var curso = await _context.Cursos
             .Include(m => m.Materias)
@@ -304,8 +321,7 @@ namespace GradeHoraria.Controllers
             var dbCursos = await _repository.GetCurso(id);
             if (dbCursos == null) return NotFound("Curso não encontrado.");
 
-            dbCursos.Nome = cursosRequestModel.Nome ?? dbCursos.Nome;
-            //dbCursos.Id = cursosRequestModel.Id ?? dbCursos.Id;
+            dbCursos.Professor = cursosRequestModel.Professor ?? dbCursos.Professor;
 
             _repository.UpdateCurso(dbCursos);
 
@@ -368,6 +384,18 @@ namespace GradeHoraria.Controllers
             : NotFound("Matéria não encontrada.");
         }
 
+        [HttpGet("/Materias/GetMateriasByName/{name}")]
+        public async Task<IActionResult> GetByName(string name)
+        {
+            var materia = await _context.Materias
+            .Include(m => m.Cursos)
+            .ToListAsync();
+
+            return materia != null
+            ? Ok(materia)
+            : NotFound("Matéria não encontrada.");
+        }
+
         //[Authorize(Roles = "AdminMaster, Admin")]
         //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("/Materias/PostMateria")]
@@ -407,6 +435,7 @@ namespace GradeHoraria.Controllers
 
             dbMaterias.Nome = materiasRequestModel.Nome ?? dbMaterias.Nome;
             dbMaterias.DSemana = materiasRequestModel.DSemana ?? dbMaterias.DSemana;
+            dbMaterias.Sala = materiasRequestModel.Sala ?? dbMaterias.Sala;
             dbMaterias.Professor = materiasRequestModel.Professor ?? dbMaterias.Professor;
 
             _repository.UpdateMateria(dbMaterias);
