@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using GradeHoraria.Context;
 using GradeHoraria.Repositories;
 using Microsoft.Identity.Web;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 
 public class Startup
 {
@@ -76,6 +74,10 @@ public class Startup
         // Add Azure Active Directory Authentication
         services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
+        services.AddIdentity<IdentityUser, IdentityRole>()
+        .AddUserManager<UserManager<IdentityUser>>()
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();
 
         services.AddScoped<RoleManager<IdentityRole>>();
         services.AddScoped<IGradeRepository, GradeRepository>();
