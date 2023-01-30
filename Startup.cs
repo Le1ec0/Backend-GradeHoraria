@@ -5,8 +5,6 @@ using GradeHoraria.Context;
 using GradeHoraria.Repositories;
 using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication.AzureAD.UI;
-using Microsoft.AspNetCore.Authentication;
 
 public class Startup
 {
