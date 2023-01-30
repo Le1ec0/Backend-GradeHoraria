@@ -1,25 +1,39 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+using GradeHoraria.Context;
 using GradeHoraria.Models;
 using GradeHoraria.Repositories;
-using GradeHoraria.Context;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.Identity.Client;
 
 namespace GradeHoraria.Controllers
 {
-    /*[Route("api/[controller]")]
+    [Route("api/[controller]")]
     public class AuthenticateController : ControllerBase
     {
+        private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly AzureTableStorageUser _azureTableStorageUser;
         private readonly IConfiguration _configuration;
         private readonly IGradeRepository _repository;
+        private readonly MsalClient _msalClient;
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public AuthenticateController(RoleManager<IdentityRole> roleManager,
-        IConfiguration configuration, ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, IServiceProvider serviceProvider)
+        public AuthenticateController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, AzureTableStorageUser azureTableStorageUser,
+        IConfiguration configuration, IGradeRepository repository, MsalClient msalClient, ApplicationDbContext context, IHttpContextAccessor httpContextAccessor,
+        IServiceProvider serviceProvider)
         {
+            _userManager = userManager;
             _roleManager = roleManager;
+            _azureTableStorageUser = azureTableStorageUser;
             _configuration = configuration;
+            _repository = repository;
+            _msalClient = msalClient;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
         }
@@ -28,8 +42,6 @@ namespace GradeHoraria.Controllers
         public async Task<IActionResult> Get()
         {
             var users = await _userManager.Users
-            .Include(u => u.Cursos)
-            .Include(u => u.Materias)
             .ToListAsync();
 
             return users.Any()
@@ -46,7 +58,7 @@ namespace GradeHoraria.Controllers
             {
                 return Unauthorized("Usuário não logado.");
             }
-            return Ok(user.DisplayName);
+            return Ok(user.UserName);
         }
 
         [HttpGet("/Authorize/GetUserById")]
@@ -57,15 +69,11 @@ namespace GradeHoraria.Controllers
             {
                 return NotFound("Usuário não informado.");
             }
-            //id = Request.Query["id"];
-            var users = await _context.Users
-            .Include(u => u.Cursos)
-            .Include(u => u.Materias)
-            .FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _userManager.FindByIdAsync(id);
 
-            return users != null
-            ? Ok(users)
-            : NotFound("Usuário não encontrado.");
+            return user != null
+                ? Ok(user)
+                : NotFound("Usuário não encontrado.");
         }
 
         [HttpGet("/Authorize/GetUserByName")]
@@ -76,14 +84,10 @@ namespace GradeHoraria.Controllers
             {
                 return NotFound("Usuário não informado.");
             }
-            //name = Request.Query["name"];
-            var users = await _context.Users
-            .Include(u => u.Cursos)
-            .Include(u => u.Materias)
-            .FirstOrDefaultAsync(u => u.UserName == name);
+            var user = await _userManager.FindByNameAsync(name);
 
-            return users != null
-            ? Ok(users)
+            return user != null
+            ? Ok(user)
             : NotFound("Usuário não encontrado.");
         }
 
@@ -91,39 +95,40 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/UserLogin")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var user = await _userManager.FindByNameAsync(model.Username);
-            if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+            // Acquire an access token for the user using MSAL with PKCE
+            var app = ConfidentialClientApplicationBuilder.Create(clientId)
+                .WithAuthorizationCodeFlow(redirectUri, scopes)
+                .WithClientSecret(clientSecret)
+                .Build();
+            var result = await app.AcquireTokenByAuthorizationCode(scopes, authorizationCode).ExecuteAsync();
+            var accessToken = result.AccessToken;
+
+            // Use the access token to authenticate the user against AAD
+            var userInfo = await _msalClient.GetAccountByAccessToken(accessToken);
+
+            // Get the user's roles from AAD
+            var roles = await _msalClient.GetRolesByAccessToken(accessToken);
+
+            var authClaims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, userInfo.Username),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+    };
+
+            // Add the roles to the claims
+            foreach (var role in roles)
             {
-                var userRoles = await _userManager.GetRolesAsync(user);
-
-                var authClaims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                };
-
-                foreach (var userRole in userRoles)
-                {
-                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-                }
-
-                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
-
-                var token = new JwtSecurityToken(
-                    issuer: _configuration["JWT:ValidIssuer"],
-                    audience: _configuration["JWT:ValidAudience"],
-                    expires: DateTime.Now.AddHours(3),
-                    claims: authClaims,
-                    signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-                    );
-
-                return Ok(new
-                {
-                    token = new JwtSecurityTokenHandler().WriteToken(token),
-                    expiration = token.ValidTo
-                });
+                authClaims.Add(new Claim(ClaimTypes.Role, role));
             }
-            return Unauthorized();
+
+            // Generate the JWT token using MSAL
+            var token = await _msalClient.GenerateToken(authClaims);
+
+            return Ok(new
+            {
+                token = token,
+                expiration = token.ValidTo
+            });
         }
 
         [HttpPost]
@@ -134,11 +139,11 @@ namespace GradeHoraria.Controllers
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "AdminMaster already exists!" });
 
-            ApplicationUser user = new ApplicationUser()
+            AzureTableStorageUser user = new AzureTableStorageUser()
             {
                 Email = model.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username
+                Nome = model.Nome
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
@@ -163,7 +168,7 @@ namespace GradeHoraria.Controllers
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Admin already exists!" });
 
-            ApplicationUser user = new ApplicationUser()
+            AzureTableStorageUser user = new AzureTableStorageUser()
             {
                 Email = model.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
@@ -192,7 +197,7 @@ namespace GradeHoraria.Controllers
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Coordenador already exists!" });
 
-            ApplicationUser user = new ApplicationUser()
+            AzureTableStorageUser user = new AzureTableStorageUser()
             {
                 Email = model.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
@@ -220,7 +225,7 @@ namespace GradeHoraria.Controllers
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Professor already exists!" });
 
-            ApplicationUser user = new ApplicationUser()
+            AzureTableStorageUser user = new AzureTableStorageUser()
             {
                 Email = model.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
@@ -248,7 +253,7 @@ namespace GradeHoraria.Controllers
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
 
-            ApplicationUser user = new ApplicationUser()
+            AzureTableStorageUser user = new AzureTableStorageUser()
             {
                 Email = model.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
@@ -281,7 +286,7 @@ namespace GradeHoraria.Controllers
 
             return token;
         }
-    }*/
+    }
 
     [ApiController]
     [Route("api/[controller]")]
