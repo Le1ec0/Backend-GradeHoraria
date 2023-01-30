@@ -285,6 +285,7 @@ namespace GradeHoraria.Controllers
             {
                 Nome = request.Nome,
                 Turno = request.Turno,
+                Sala = request.Sala,
                 Professor = request.Professor,
                 Periodo = request.Periodo,
                 Periodos = new List<Periodo>()
@@ -321,6 +322,7 @@ namespace GradeHoraria.Controllers
             var dbCursos = await _repository.GetCurso(id);
             if (dbCursos == null) return NotFound("Curso não encontrado.");
 
+            dbCursos.Sala = cursosRequestModel.Sala ?? dbCursos.Sala;
             dbCursos.Professor = cursosRequestModel.Professor ?? dbCursos.Professor;
 
             _repository.UpdateCurso(dbCursos);
@@ -406,7 +408,6 @@ namespace GradeHoraria.Controllers
             {
                 Nome = request.Nome,
                 DSemana = request.DSemana,
-                Sala = request.Sala,
                 Professor = request.Professor
             };
 
@@ -435,7 +436,6 @@ namespace GradeHoraria.Controllers
 
             dbMaterias.Nome = materiasRequestModel.Nome ?? dbMaterias.Nome;
             dbMaterias.DSemana = materiasRequestModel.DSemana ?? dbMaterias.DSemana;
-            dbMaterias.Sala = materiasRequestModel.Sala ?? dbMaterias.Sala;
             dbMaterias.Professor = materiasRequestModel.Professor ?? dbMaterias.Professor;
 
             _repository.UpdateMateria(dbMaterias);
