@@ -18,35 +18,27 @@ namespace GradeHoraria.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly AzureTableStorageUser _azureTableStorageUser;
         private readonly IConfiguration _configuration;
         private readonly IGradeRepository _repository;
-        private readonly MsalClient _msalClient;
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public AuthenticateController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, AzureTableStorageUser azureTableStorageUser,
-        IConfiguration configuration, IGradeRepository repository, MsalClient msalClient, ApplicationDbContext context, IHttpContextAccessor httpContextAccessor,
+        public AuthenticateController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration,
+        IGradeRepository repository, ApplicationDbContext context, IHttpContextAccessor httpContextAccessor,
         IServiceProvider serviceProvider)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            _azureTableStorageUser = azureTableStorageUser;
             _configuration = configuration;
             _repository = repository;
-            _msalClient = msalClient;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
         }
 
         [HttpGet("/Authorize/GetAllUsers")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAllUsers()
         {
-            var users = await _userManager.Users
-            .ToListAsync();
-
-            return users.Any()
-                ? Ok(users)
-                : NoContent();
+            var users = await _userManager.Users.ToListAsync();
+            return Ok(users);
         }
 
         [Authorize]
@@ -108,12 +100,6 @@ namespace GradeHoraria.Controllers
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "AdminMaster already exists!" });
 
-            AzureTableStorageUser user = new AzureTableStorageUser()
-            {
-                Email = model.Email,
-                //SecurityStamp = Guid.NewGuid().ToString(),
-                //Nome = model.Nome
-            };
             //var result = await _userManager.CreateAsync(user, model.Password);
             //if (!result.Succeeded)
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "AdminMaster creation failed! Please check user details and try again." });
@@ -137,12 +123,6 @@ namespace GradeHoraria.Controllers
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Admin already exists!" });
 
-            AzureTableStorageUser user = new AzureTableStorageUser()
-            {
-                Email = model.Email,
-                //SecurityStamp = Guid.NewGuid().ToString(),
-                //UserName = model.Username
-            };
             //var result = await _userManager.CreateAsync(user, model.Password);
             //if (!result.Succeeded)
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Admin creation failed! Please check user details and try again." });
@@ -166,12 +146,6 @@ namespace GradeHoraria.Controllers
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Coordenador already exists!" });
 
-            AzureTableStorageUser user = new AzureTableStorageUser()
-            {
-                Email = model.Email,
-                //SecurityStamp = Guid.NewGuid().ToString(),
-                //UserName = model.Username
-            };
             //var result = await _userManager.CreateAsync(user, model.Password);
             //if (!result.Succeeded)
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Coordenador creation failed! Please check user details and try again." });
@@ -194,12 +168,6 @@ namespace GradeHoraria.Controllers
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Professor already exists!" });
 
-            AzureTableStorageUser user = new AzureTableStorageUser()
-            {
-                Email = model.Email,
-                //SecurityStamp = Guid.NewGuid().ToString(),
-                //UserName = model.Username
-            };
             //var result = await _userManager.CreateAsync(user, model.Password);
             //if (!result.Succeeded)
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Professor creation failed! Please check user details and try again." });
@@ -222,12 +190,7 @@ namespace GradeHoraria.Controllers
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
 
-            AzureTableStorageUser user = new AzureTableStorageUser()
-            {
-                Email = model.Email,
-                //SecurityStamp = Guid.NewGuid().ToString(),
-                //UserName = model.Username
-            };
+
             //var result = await _userManager.CreateAsync(user, model.Password);
             //if (!result.Succeeded)
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
@@ -275,6 +238,7 @@ namespace GradeHoraria.Controllers
         public async Task<IActionResult> Get()
         {
             var curso = await _context.Cursos
+            .Include(m => m.Materias)
             .ToListAsync();
 
             return curso.Any()
@@ -286,6 +250,7 @@ namespace GradeHoraria.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var curso = await _context.Cursos
+            .Include(m => m.Materias)
             .ToListAsync();
 
             return curso != null
@@ -383,6 +348,7 @@ namespace GradeHoraria.Controllers
         public async Task<IActionResult> Get()
         {
             var materia = await _context.Materias
+            .Include(m => m.Cursos)
             .ToListAsync();
 
             return materia.Any()
@@ -394,6 +360,7 @@ namespace GradeHoraria.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var materia = await _context.Materias
+            .Include(m => m.Cursos)
             .ToListAsync();
 
             return materia != null
