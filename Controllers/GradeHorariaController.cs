@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using System.Net.Http.Headers;
+using Microsoft.Identity.Web;
 
 namespace GradeHoraria.Controllers
 {
@@ -17,16 +18,18 @@ namespace GradeHoraria.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
+        private readonly ITokenAcquisition _tokenAcquisition;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         public AuthenticateController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration,
-        IGradeRepository repository, ApplicationDbContext context, IHttpContextAccessor httpContextAccessor,
+        ITokenAcquisition tokenAcquisition, IGradeRepository repository, ApplicationDbContext context, IHttpContextAccessor httpContextAccessor,
         IServiceProvider serviceProvider)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
+            _tokenAcquisition = tokenAcquisition;
             _repository = repository;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
@@ -111,9 +114,29 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/UserLogin")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            return model != null
-            ? Ok(model)
-            : NotFound("Usuário não encontrado.");
+            var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+            // Acquire the access token.
+            var scopes = new string[] { configuration.GetValue<string>("AzureAd:GraphPath") };
+
+            var redirectUri = Url.Action(nameof(Login), "Authorize", null, Request.Scheme);
+
+            var confidentialClient = ConfidentialClientApplicationBuilder
+            .Create(configuration.GetValue<string>("AzureAd:ClientId"))
+            .WithAuthority($"{configuration.GetValue<string>("AzureAd:Instance")}{configuration.GetValue<string>("AzureAd:TenantId")}/v2.0")
+            .WithRedirectUri(redirectUri)
+            .Build();
+
+            var result = await confidentialClient.AcquireTokenForClient(scopes)
+            .WithAuthority(model.Username, model.Password)
+            .ExecuteAsync();
+
+            var accessToken = result.AccessToken;
+
+            // Do something with the access token, such as calling Microsoft Graph API
+            return Ok(accessToken);
         }
 
         [HttpPost]
