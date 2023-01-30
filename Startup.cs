@@ -73,20 +73,6 @@ public class Startup
             });
         });
 
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.Authority = "https://login.microsoftonline.com/e182f34b-6958-474c-9143-88349addfba9";
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidIssuer = "https://sts.windows.net/e182f34b-6958-474c-9143-88349addfba9/",
-                        ValidateAudience = true,
-                        ValidAudience = "c2df1602-9406-4fb8-9c53-0cfda2e0e6c8",
-                        ValidateLifetime = true
-                    };
-                });
-
         // Add Azure Active Directory Authentication
         services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
