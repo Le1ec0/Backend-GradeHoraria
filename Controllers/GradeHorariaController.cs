@@ -35,12 +35,17 @@ namespace GradeHoraria.Controllers
         [HttpGet("/Authorize/GetAllUsers")]
         public async Task<IActionResult> GetAllUsers()
         {
-            var scopes = new string[] { "https://graph.microsoft.com/.default" };
+            var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+            var scopes = new string[] { configuration.GetValue<string>("AzureAd:GraphPath") };
+
             var confidentialClient = ConfidentialClientApplicationBuilder
-                .Create("common")
-                .WithAuthority($"https://login.microsoftonline.com/$tenantId/v2.0")
-                .WithClientSecret("OLx8Q~HyDv2YIsI2F4puTokyn7TLYLq9rRNQrarY")
-                .Build();
+            .Create(configuration.GetValue<string>("AzureAd:ClientId"))
+            .WithAuthority($"{configuration.GetValue<string>("AzureAd:Instance")}{configuration.GetValue<string>("AzureAd:TenantId")}/v2.0")
+            .WithClientSecret(configuration.GetValue<string>("AzureAd:ClientSecret"))
+            .Build();
 
             GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
             {
