@@ -117,10 +117,9 @@ public class Startup
             app.UseHsts();
         }
 
+        app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
-
-        app.UseRouting();
         app.UseHttpsRedirection();
         app.UseCors("AllowAllOrigins");
         app.UseEndpoints(endpoints =>
