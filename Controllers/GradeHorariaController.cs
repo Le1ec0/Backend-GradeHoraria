@@ -77,19 +77,42 @@ namespace GradeHoraria.Controllers
             return Ok(users);
         }
 
-        [Authorize]
-        [HttpGet("/Authorize/GetLoggedUser")]
-        public async Task<IActionResult> GetCurrentUser()
+        [HttpPost("/Authorize/GetLoggedUser")]
+        public async Task<IActionResult> GetCurrentUser([FromBody] LoginModel model)
         {
-            var user = await _userManager.GetUserAsync(HttpContext.User);
-            if (user == null)
+            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
+
+            var redirectUri = Url.Action(nameof(Login), "Authorize", null, Request.Scheme);
+
+            var confidentialClient = PublicClientApplicationBuilder
+            .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
+            .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}")
+            .WithRedirectUri(redirectUri)
+            .Build();
+
+            GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
             {
-                return Unauthorized("Usuário não logado.");
-            }
-            return Ok(user.UserName);
+
+                // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
+                var authResult = await confidentialClient
+                .AcquireTokenByUsernamePassword(scopes, model.Username, model.Password)
+                .ExecuteAsync();
+
+                // Add the access token in the Authorization header of the API
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+
+                var accessToken = authResult.AccessToken;
+
+            }));
+
+            // Make a Microsoft Graph API query
+            var user = await graphServiceClient.Me
+            .Request()
+            .GetAsync();
+            return Ok(user);
         }
 
-        [HttpGet("/Authorize/GetUserById")]
+        /*[HttpGet("/Authorize/GetUserById")]
         public async Task<IActionResult> GetById(string id = null)
         {
             id = Request.Query["id"];
@@ -117,13 +140,12 @@ namespace GradeHoraria.Controllers
             return user != null
             ? Ok(user)
             : NotFound("Usuário não encontrado.");
-        }
+        }*/
 
         [HttpPost]
         [Route("/Authorize/UserLogin")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            // Acquire the access token.
             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
 
             var redirectUri = Url.Action(nameof(Login), "Authorize", null, Request.Scheme);
@@ -144,7 +166,7 @@ namespace GradeHoraria.Controllers
             return Ok(accessToken);
         }
 
-        [HttpPost]
+        /*[HttpPost]
         [Route("/Authorize/RegisterAdminMaster/")]
         public async Task<IActionResult> RegisterAdminMaster([FromBody] RegisterModel model)
         {
@@ -232,7 +254,7 @@ namespace GradeHoraria.Controllers
                 //await _userManager.AddToRoleAsync(user, UserRoles.Professor);
             }
             return Ok(new Response { Status = "Success", Message = "Professor created successfully!" });
-        }
+        }*/
 
         [HttpPost]
         [Route("/Authorize/RegisterUser")]
