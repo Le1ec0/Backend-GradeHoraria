@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph;
 using System.Net.Http.Headers;
-using Microsoft.Identity.Web;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Identity.Client;
 
 namespace GradeHoraria.Controllers
@@ -18,6 +18,7 @@ namespace GradeHoraria.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -28,24 +29,33 @@ namespace GradeHoraria.Controllers
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
+            _serviceProvider = serviceProvider;
             _repository = repository;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+        }
+        private async Task<string> GetAppTokenAsync()
+        {
+            var clientId = _configuration.GetValue<string>("AzureAd:ClientId");
+            var clientSecret = _configuration.GetValue<string>("AzureAd:ClientSecret");
+            var tenantId = _configuration.GetValue<string>("AzureAd:TenantId");
+            var graphPath = _configuration.GetValue<string>("AzureAd:GraphPath");
+
+            var context = new AuthenticationContext($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}");
+            var result = await context.AcquireTokenAsync(graphPath, new Microsoft.IdentityModel.Clients.ActiveDirectory.ClientCredential(clientId, clientSecret));
+
+            return result.AccessToken;
         }
 
         [HttpGet("/Authorize/GetAllUsers")]
         public async Task<IActionResult> GetAllUsers()
         {
-            var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .Build();
-
-            var scopes = new string[] { configuration.GetValue<string>("AzureAd:GraphPath") };
+            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
 
             var confidentialClient = ConfidentialClientApplicationBuilder
-            .Create(configuration.GetValue<string>("AzureAd:ClientId"))
-            .WithAuthority($"{configuration.GetValue<string>("AzureAd:Instance")}{configuration.GetValue<string>("AzureAd:TenantId")}/v2.0")
-            .WithClientSecret(configuration.GetValue<string>("AzureAd:ClientSecret"))
+            .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
+            .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}")
+            .WithClientSecret(_configuration.GetValue<string>("AzureAd:ClientSecret"))
             .Build();
 
             GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
@@ -113,18 +123,14 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/UserLogin")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .Build();
-
             // Acquire the access token.
-            var scopes = new string[] { configuration.GetValue<string>("AzureAd:GraphPath") };
+            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
 
             var redirectUri = Url.Action(nameof(Login), "Authorize", null, Request.Scheme);
 
             var app = PublicClientApplicationBuilder
-            .Create(configuration.GetValue<string>("AzureAd:ClientId"))
-            .WithAuthority($"{configuration.GetValue<string>("AzureAd:Instance")}{configuration.GetValue<string>("AzureAd:TenantId")}/v2.0")
+            .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
+            .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}/v2.0")
             .WithRedirectUri(redirectUri)
             .Build();
 
@@ -142,7 +148,7 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/RegisterAdminMaster/")]
         public async Task<IActionResult> RegisterAdminMaster([FromBody] RegisterModel model)
         {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
+            var userExists = await _userManager.FindByNameAsync(model.displayName);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "AdminMaster already exists!" });
 
@@ -165,7 +171,7 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/RegisterAdmin/")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
         {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
+            var userExists = await _userManager.FindByNameAsync(model.displayName);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Admin already exists!" });
 
@@ -188,7 +194,7 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/RegisterCoordenador")]
         public async Task<IActionResult> RegisterCoordenador([FromBody] RegisterModel model)
         {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
+            var userExists = await _userManager.FindByNameAsync(model.displayName);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Coordenador already exists!" });
 
@@ -210,7 +216,7 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/RegisterProfessor")]
         public async Task<IActionResult> RegisterProfessor([FromBody] RegisterModel model)
         {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
+            var userExists = await _userManager.FindByNameAsync(model.displayName);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Professor already exists!" });
 
@@ -230,25 +236,34 @@ namespace GradeHoraria.Controllers
 
         [HttpPost]
         [Route("/Authorize/RegisterUser")]
-        public async Task<IActionResult> RegisterUser([FromBody] RegisterModel model)
+        public async Task<IActionResult> CreateUserAsync([FromBody] RegisterModel model)
         {
-            var userExists = await _userManager.FindByNameAsync(model.Username);
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User already exists!" });
+            AuthenticateController authController = new AuthenticateController(
+                _userManager, _roleManager, _configuration, _repository, _context, _httpContextAccessor, _serviceProvider
+                );
 
+            var graphClient = new GraphServiceClient(
+                new DelegateAuthenticationProvider(
+                    async (requestMessage) =>
+                    {
+                        var accessToken = await authController.GetAppTokenAsync();
+                        requestMessage.Headers.Authorization = new AuthenticationHeaderValue("bearer", accessToken);
+                    }));
 
-            //var result = await _userManager.CreateAsync(user, model.Password);
-            //if (!result.Succeeded)
-            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
-
-            if (!await _roleManager.RoleExistsAsync(UserRoles.Usuario))
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
-
-            if (await _roleManager.RoleExistsAsync(UserRoles.Usuario))
+            var newUser = new User
             {
-                //await _userManager.AddToRoleAsync(user, UserRoles.Usuario);
-            }
-            return Ok(new Response { Status = "Success", Message = "User created successfully!" });
+                DisplayName = model.displayName,
+                MailNickname = model.mailNickname,
+                PasswordProfile = new PasswordProfile
+                {
+                    ForceChangePasswordNextSignIn = false,
+                    Password = model.password
+                },
+                AccountEnabled = true
+            };
+            await graphClient.Users.Request().AddAsync(newUser);
+
+            return Ok();
         }
     }
 
@@ -486,6 +501,5 @@ namespace GradeHoraria.Controllers
             ? Ok("Matéria removida com sucesso.")
             : BadRequest("Erro ao remover Matéria.");
         }
-
     }
 }

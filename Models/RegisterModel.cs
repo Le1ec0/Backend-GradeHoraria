@@ -5,13 +5,13 @@ namespace GradeHoraria.Models
     public class RegisterModel
     {
         [Required(ErrorMessage = "User Name is required")]
-        public string? Username { get; set; }
+        public string? displayName { get; set; }
 
         [Required(ErrorMessage = "Password is required")]
-        public string? Password { get; set; }
+        public string? password { get; set; }
 
         [EmailAddress]
         [Required(ErrorMessage = "Email is required")]
-        public string? Email { get; set; }
+        public string? mailNickname { get; set; }
     }
 }
