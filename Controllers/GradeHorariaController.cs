@@ -148,7 +148,7 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/RegisterAdminMaster/")]
         public async Task<IActionResult> RegisterAdminMaster([FromBody] RegisterModel model)
         {
-            var userExists = await _userManager.FindByNameAsync(model.displayName);
+            var userExists = await _userManager.FindByNameAsync(model.userPrincipalName);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "AdminMaster already exists!" });
 
@@ -171,7 +171,7 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/RegisterAdmin/")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
         {
-            var userExists = await _userManager.FindByNameAsync(model.displayName);
+            var userExists = await _userManager.FindByNameAsync(model.userPrincipalName);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Admin already exists!" });
 
@@ -194,7 +194,7 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/RegisterCoordenador")]
         public async Task<IActionResult> RegisterCoordenador([FromBody] RegisterModel model)
         {
-            var userExists = await _userManager.FindByNameAsync(model.displayName);
+            var userExists = await _userManager.FindByNameAsync(model.userPrincipalName);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Coordenador already exists!" });
 
@@ -216,7 +216,7 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/RegisterProfessor")]
         public async Task<IActionResult> RegisterProfessor([FromBody] RegisterModel model)
         {
-            var userExists = await _userManager.FindByNameAsync(model.displayName);
+            var userExists = await _userManager.FindByNameAsync(model.userPrincipalName);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Professor already exists!" });
 
@@ -238,22 +238,31 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/RegisterUser")]
         public async Task<IActionResult> CreateUserAsync([FromBody] RegisterModel model)
         {
-            AuthenticateController authController = new AuthenticateController(
-                _userManager, _roleManager, _configuration, _repository, _context, _httpContextAccessor, _serviceProvider
-                );
+            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
 
-            var graphClient = new GraphServiceClient(
-                new DelegateAuthenticationProvider(
-                    async (requestMessage) =>
-                    {
-                        var accessToken = await authController.GetAppTokenAsync();
-                        requestMessage.Headers.Authorization = new AuthenticationHeaderValue("bearer", accessToken);
-                    }));
+            var confidentialClient = ConfidentialClientApplicationBuilder
+            .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
+            .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}")
+            .WithClientSecret(_configuration.GetValue<string>("AzureAd:ClientSecret"))
+            .Build();
+
+            GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
+            {
+
+                // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
+                var authResult = await confidentialClient.AcquireTokenForClient(scopes)
+                .ExecuteAsync();
+
+                // Add the access token in the Authorization header of the API
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+
+            }));
 
             var newUser = new User
             {
                 DisplayName = model.displayName,
                 MailNickname = model.mailNickname,
+                UserPrincipalName = model.userPrincipalName,
                 PasswordProfile = new PasswordProfile
                 {
                     ForceChangePasswordNextSignIn = false,
@@ -261,7 +270,7 @@ namespace GradeHoraria.Controllers
                 },
                 AccountEnabled = true
             };
-            await graphClient.Users.Request().AddAsync(newUser);
+            await graphServiceClient.Users.Request().AddAsync(newUser);
 
             return Ok();
         }
