@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph;
-using Microsoft.Identity.Client;
 using System.Net.Http.Headers;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Client;
 
 namespace GradeHoraria.Controllers
 {
@@ -18,18 +18,16 @@ namespace GradeHoraria.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
-        private readonly ITokenAcquisition _tokenAcquisition;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         public AuthenticateController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration,
-        ITokenAcquisition tokenAcquisition, IGradeRepository repository, ApplicationDbContext context, IHttpContextAccessor httpContextAccessor,
+        IGradeRepository repository, ApplicationDbContext context, IHttpContextAccessor httpContextAccessor,
         IServiceProvider serviceProvider)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
-            _tokenAcquisition = tokenAcquisition;
             _repository = repository;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
@@ -54,7 +52,8 @@ namespace GradeHoraria.Controllers
             {
 
                 // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
-                var authResult = await confidentialClient.AcquireTokenForClient(scopes).ExecuteAsync();
+                var authResult = await confidentialClient.AcquireTokenForClient(scopes)
+                .ExecuteAsync();
 
                 // Add the access token in the Authorization header of the API
                 requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
@@ -123,14 +122,14 @@ namespace GradeHoraria.Controllers
 
             var redirectUri = Url.Action(nameof(Login), "Authorize", null, Request.Scheme);
 
-            var confidentialClient = ConfidentialClientApplicationBuilder
+            var app = PublicClientApplicationBuilder
             .Create(configuration.GetValue<string>("AzureAd:ClientId"))
             .WithAuthority($"{configuration.GetValue<string>("AzureAd:Instance")}{configuration.GetValue<string>("AzureAd:TenantId")}/v2.0")
             .WithRedirectUri(redirectUri)
             .Build();
 
-            var result = await confidentialClient.AcquireTokenForClient(scopes)
-            .WithAuthority(model.Username, model.Password)
+            var result = await app
+            .AcquireTokenByUsernamePassword(scopes, model.Username, model.Password)
             .ExecuteAsync();
 
             var accessToken = result.AccessToken;
