@@ -2,7 +2,6 @@ using GradeHoraria.Context;
 using GradeHoraria.Models;
 using GradeHoraria.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph;
