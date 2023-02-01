@@ -10,18 +10,29 @@ namespace GradeHoraria.Context
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
+
+        public DbSet<IdentityUser> IdentityUsers { get; set; }
         public DbSet<Curso> Cursos { get; set; }
         public DbSet<Periodo> Periodos { get; set; }
         public DbSet<Materia> Materias { get; set; }
-        public DbSet<IdentityUser> IdentityUsers { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<IdentityUser>()
+
+            ;
+
             modelBuilder.Entity<IdentityUserLogin<string>>()
-            .HasNoKey();
+            //.HasKey(x => new { x.LoginProvider, x.ProviderKey });
+            .HasNoKey()
+            ;
             modelBuilder.Entity<IdentityUserRole<string>>()
-            .HasNoKey();
+            //.HasKey(x => new { x.RoleId });
+            .HasNoKey()
+            ;
             modelBuilder.Entity<IdentityUserToken<string>>()
-            .HasNoKey();
+            //.HasKey(x => new { x.LoginProvider });
+            .HasNoKey()
+            ;
 
             modelBuilder.Entity<Curso>()
                 .HasMany(c => c.Periodos)
