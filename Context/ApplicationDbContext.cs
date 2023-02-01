@@ -17,22 +17,19 @@ namespace GradeHoraria.Context
         public DbSet<Materia> Materias { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<IdentityUser>()
-
-            ;
+            modelBuilder.Entity<IdentityUser>();
 
             modelBuilder.Entity<IdentityUserLogin<string>>()
-            .HasKey(x => new { x.LoginProvider, x.ProviderKey });
-            //.HasNoKey()
-            //;
+            .HasKey(x => new { x.UserId });
+            //.HasNoKey();
+
             modelBuilder.Entity<IdentityUserRole<string>>()
-            .HasKey(x => new { x.RoleId });
-            //.HasNoKey()
-            //;
+            .HasKey(x => new { x.UserId });
+            //.HasNoKey();
+
             modelBuilder.Entity<IdentityUserToken<string>>()
-            .HasKey(x => new { x.LoginProvider });
-            //.HasNoKey()
-            //;
+            .HasKey(x => new { x.UserId });
+            //.HasNoKey();
 
             modelBuilder.Entity<Curso>()
                 .HasMany(c => c.Periodos)
