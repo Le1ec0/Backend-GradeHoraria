@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph;
 using System.Net.Http.Headers;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Identity.Client;
 
 namespace GradeHoraria.Controllers
@@ -32,18 +31,6 @@ namespace GradeHoraria.Controllers
             _repository = repository;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
-        }
-        private async Task<string> GetAppTokenAsync()
-        {
-            var clientId = _configuration.GetValue<string>("AzureAd:ClientId");
-            var clientSecret = _configuration.GetValue<string>("AzureAd:ClientSecret");
-            var tenantId = _configuration.GetValue<string>("AzureAd:TenantId");
-            var graphPath = _configuration.GetValue<string>("AzureAd:GraphPath");
-
-            var context = new AuthenticationContext($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}");
-            var result = await context.AcquireTokenAsync(graphPath, new Microsoft.IdentityModel.Clients.ActiveDirectory.ClientCredential(clientId, clientSecret));
-
-            return result.AccessToken;
         }
 
         [HttpGet("/Authorize/GetAllUsers")]
@@ -74,41 +61,6 @@ namespace GradeHoraria.Controllers
             .Request()
             .GetAsync();
             return Ok(users);
-        }
-
-        [HttpPost("/Authorize/GetLoggedUser")]
-        public async Task<IActionResult> GetCurrentUser([FromBody] LoginModel model)
-        {
-            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
-
-            var redirectUri = Url.Action(nameof(Login), "Authorize", null, Request.Scheme);
-
-            var confidentialClient = PublicClientApplicationBuilder
-            .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
-            .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}")
-            .WithRedirectUri(redirectUri)
-            .Build();
-
-            GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
-            {
-
-                // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
-                var authResult = await confidentialClient
-                .AcquireTokenByUsernamePassword(scopes, model.Username, model.Password)
-                .ExecuteAsync();
-
-                // Add the access token in the Authorization header of the API
-                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
-
-                var accessToken = authResult.AccessToken;
-
-            }));
-
-            // Make a Microsoft Graph API query
-            var user = await graphServiceClient.Me
-            .Request()
-            .GetAsync();
-            return Ok(user);
         }
 
         /*[HttpGet("/Authorize/GetUserById")]
@@ -149,111 +101,42 @@ namespace GradeHoraria.Controllers
 
             var redirectUri = Url.Action(nameof(Login), "Authorize", null, Request.Scheme);
 
-            var app = PublicClientApplicationBuilder
+            var publicClient = PublicClientApplicationBuilder
             .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
             .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}/v2.0")
             .WithRedirectUri(redirectUri)
             .Build();
 
-            var result = await app
-            .AcquireTokenByUsernamePassword(scopes, model.Username, model.Password)
-            .ExecuteAsync();
-
-            var accessToken = result.AccessToken;
-
-            // Do something with the access token, such as calling Microsoft Graph API
-            return Ok(accessToken);
-        }
-
-        /*[HttpPost]
-        [Route("/Authorize/RegisterAdminMaster/")]
-        public async Task<IActionResult> RegisterAdminMaster([FromBody] RegisterModel model)
-        {
-            var userExists = await _userManager.FindByNameAsync(model.userPrincipalName);
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "AdminMaster already exists!" });
-
-            //var result = await _userManager.CreateAsync(user, model.Password);
-            //if (!result.Succeeded)
-            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "AdminMaster creation failed! Please check user details and try again." });
-
-            if (!await _roleManager.RoleExistsAsync(UserRoles.AdminMaster))
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.AdminMaster));
-
-            if (await _roleManager.RoleExistsAsync(UserRoles.AdminMaster))
+            GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
             {
-                //await _userManager.AddToRoleAsync(user, UserRoles.AdminMaster);
-            }
+                // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
+                var authResult = await publicClient
+                .AcquireTokenByUsernamePassword(scopes, model.Username, model.Password)
+                .ExecuteAsync();
 
-            return Ok(new Response { Status = "Success", Message = "AdminMaster created successfully!" });
-        }
+                // Add the access token in the Authorization header of the API
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
-        [HttpPost]
-        [Route("/Authorize/RegisterAdmin/")]
-        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
-        {
-            var userExists = await _userManager.FindByNameAsync(model.userPrincipalName);
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Admin already exists!" });
+                var accessToken = authResult.AccessToken;
+            }));
 
-            //var result = await _userManager.CreateAsync(user, model.Password);
-            //if (!result.Succeeded)
-            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Admin creation failed! Please check user details and try again." });
+            // Make a Microsoft Graph API query
+            var user = await graphServiceClient.Me
+            .Request()
+            .GetAsync();
 
-            if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-
-            if (await _roleManager.RoleExistsAsync(UserRoles.Admin))
+            var newUser = new IdentityUser
             {
-                //await _userManager.AddToRoleAsync(user, UserRoles.Admin);
-            }
+                Id = user.Id,
+                UserName = user.DisplayName,
+                Email = user.Mail ?? user.UserPrincipalName
+            };
 
-            return Ok(new Response { Status = "Success", Message = "Admin created successfully!" });
+            await _userManager.CreateAsync(newUser);
+            await _repository.AddUser(newUser);
+
+            return Ok(user);
         }
-
-        [HttpPost]
-        [Route("/Authorize/RegisterCoordenador")]
-        public async Task<IActionResult> RegisterCoordenador([FromBody] RegisterModel model)
-        {
-            var userExists = await _userManager.FindByNameAsync(model.userPrincipalName);
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Coordenador already exists!" });
-
-            //var result = await _userManager.CreateAsync(user, model.Password);
-            //if (!result.Succeeded)
-            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Coordenador creation failed! Please check user details and try again." });
-
-            if (!await _roleManager.RoleExistsAsync(UserRoles.Coordenador))
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.Coordenador));
-
-            if (await _roleManager.RoleExistsAsync(UserRoles.Coordenador))
-            {
-                //await _userManager.AddToRoleAsync(user, UserRoles.Coordenador);
-            }
-            return Ok(new Response { Status = "Success", Message = "Coordenador created successfully!" });
-        }
-
-        [HttpPost]
-        [Route("/Authorize/RegisterProfessor")]
-        public async Task<IActionResult> RegisterProfessor([FromBody] RegisterModel model)
-        {
-            var userExists = await _userManager.FindByNameAsync(model.userPrincipalName);
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Professor already exists!" });
-
-            //var result = await _userManager.CreateAsync(user, model.Password);
-            //if (!result.Succeeded)
-            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Professor creation failed! Please check user details and try again." });
-
-            if (!await _roleManager.RoleExistsAsync(UserRoles.Professor))
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.Professor));
-
-            if (await _roleManager.RoleExistsAsync(UserRoles.Professor))
-            {
-                //await _userManager.AddToRoleAsync(user, UserRoles.Professor);
-            }
-            return Ok(new Response { Status = "Success", Message = "Professor created successfully!" });
-        }*/
 
         [HttpPost]
         [Route("/Authorize/RegisterUser")]

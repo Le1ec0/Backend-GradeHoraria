@@ -1,5 +1,5 @@
 using GradeHoraria.Models;
-using GradeHoraria.Context;
+using Microsoft.AspNetCore.Identity;
 
 namespace GradeHoraria.Repositories
 {
@@ -8,6 +8,7 @@ namespace GradeHoraria.Repositories
         Task<IEnumerable<Curso>> GetCurso();
         Task<Curso> GetCurso(int id);
         void AddCurso(Curso cursos);
+        Task AddUser(IdentityUser identityUsers);
         void UpdateCurso(Curso cursos);
         void DeleteCurso(Curso cursos);
         Task<IEnumerable<Materia>> GetMateria();

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using GradeHoraria.Models;
 using GradeHoraria.Context;
+using Microsoft.AspNetCore.Identity;
 
 namespace GradeHoraria.Repositories
 {
@@ -18,6 +19,10 @@ namespace GradeHoraria.Repositories
         public async Task<Curso> GetCurso(int id)
         {
             return await _context.Cursos.Where(x => x.Id == id).FirstOrDefaultAsync();
+        }
+        public async Task AddUser(IdentityUser identityUsers)
+        {
+            _context.IdentityUsers.Add(identityUsers);
         }
         public void AddCurso(Curso cursos)
         {
