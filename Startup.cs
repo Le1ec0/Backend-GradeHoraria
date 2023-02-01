@@ -76,7 +76,10 @@ public class Startup
 
         // Add Azure Active Directory Authentication
         services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-              .AddMicrosoftIdentityWebApp(Configuration);
+            .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
+            .EnableTokenAcquisitionToCallDownstreamApi(new string[] { Configuration[("AzureAd:GraphPath")] })
+            .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
+            .AddInMemoryTokenCaches();
 
         services.AddAuthentication(options =>
         {
@@ -96,7 +99,9 @@ public class Startup
         services.AddIdentity<IdentityUser, IdentityRole>()
         .AddUserManager<UserManager<IdentityUser>>()
         .AddEntityFrameworkStores<ApplicationDbContext>()
-        .AddDefaultTokenProviders();
+        .AddDefaultTokenProviders()
+        .AddRoles<IdentityRole>()
+        .AddEntityFrameworkStores<ApplicationDbContext>();
 
         services.AddScoped<UserManager<IdentityUser>>();
         services.AddScoped<RoleManager<IdentityRole>>();
