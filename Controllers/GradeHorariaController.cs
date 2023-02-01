@@ -107,17 +107,19 @@ namespace GradeHoraria.Controllers
             .WithRedirectUri(redirectUri)
             .Build();
 
-            GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
+            // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
+            var authResult = await publicClient
+            .AcquireTokenByUsernamePassword(scopes, model.Username, model.Password)
+            .ExecuteAsync();
+
+            var accessToken = authResult.AccessToken;
+
+            // Make a Microsoft Graph API query using the acquired token
+            GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(requestMessage =>
             {
-                // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
-                var authResult = await publicClient
-                .AcquireTokenByUsernamePassword(scopes, model.Username, model.Password)
-                .ExecuteAsync();
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-                // Add the access token in the Authorization header of the API
-                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
-
-                var accessToken = authResult.AccessToken;
+                return Task.FromResult(0);
             }));
 
             // Make a Microsoft Graph API query
@@ -135,7 +137,10 @@ namespace GradeHoraria.Controllers
             await _userManager.CreateAsync(newUser);
             await _repository.AddUser(newUser);
 
-            return Ok(user);
+            // Return the access token along with the user information
+            return user != null
+            ? Ok(new { Token = accessToken, User = user })
+            : NotFound("Usuário não encontrado.");
         }
 
         [HttpPost]
