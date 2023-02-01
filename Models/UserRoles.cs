@@ -1,6 +1,6 @@
 namespace GradeHoraria.Models
 {
-    public static class UserRoles
+    public class UserRoles
     {
         public const string AdminMaster = "AdminMaster";
         public const string Admin = "Admin";
