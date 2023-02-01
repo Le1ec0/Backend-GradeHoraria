@@ -20,9 +20,10 @@ namespace GradeHoraria.Controllers
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<AuthenticateController> _logger;
         public AuthenticateController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration,
         IGradeRepository repository, ApplicationDbContext context, IHttpContextAccessor httpContextAccessor,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider, ILogger<AuthenticateController> logger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -31,6 +32,7 @@ namespace GradeHoraria.Controllers
             _repository = repository;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
         }
 
         [HttpGet("/Authorize/GetAllUsers")]
@@ -127,15 +129,19 @@ namespace GradeHoraria.Controllers
             .Request()
             .GetAsync();
 
-            var newUser = new IdentityUser
+            var identityUser = await _userManager.FindByIdAsync(user.Id);
+            if (identityUser == null)
             {
-                Id = user.Id,
-                UserName = user.DisplayName,
-                Email = user.Mail ?? user.UserPrincipalName
-            };
+                identityUser = new IdentityUser
+                {
+                    Id = user.Id,
+                    UserName = user.DisplayName.Replace(" ", "_"),
+                    Email = user.Mail ?? user.UserPrincipalName
+                };
 
-            await _userManager.CreateAsync(newUser);
-            await _repository.AddUser(newUser);
+                await _userManager.CreateAsync(identityUser);
+                await _repository.AddUser(identityUser);
+            }
 
             // Return the access token along with the user information
             return user != null
