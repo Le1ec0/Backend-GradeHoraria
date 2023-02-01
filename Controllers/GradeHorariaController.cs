@@ -220,7 +220,7 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/AssignRoles")]
         public async Task<IActionResult> AssignRoles([FromBody] ChangeRoleModel model)
         {
-            var user = await _userManager.FindByNameAsync(model.UserName);
+            var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
                 return NotFound("Usuário não encontrado.");
