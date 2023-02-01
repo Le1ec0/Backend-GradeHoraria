@@ -215,6 +215,30 @@ namespace GradeHoraria.Controllers
 
             return Ok();
         }
+
+        [HttpPost]
+        [Route("/Authorize/AssignRoles")]
+        public async Task<IActionResult> AssignRoles([FromBody] ChangeRoleModel model)
+        {
+            var user = await _userManager.FindByNameAsync(model.UserName);
+            if (user == null)
+            {
+                return NotFound("Usuário não encontrado.");
+            }
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
+            var role = await _roleManager.FindByNameAsync(model.RoleName);
+            if (role == null)
+            {
+                return NotFound("Role não encontrada.");
+            }
+
+            await _userManager.AddToRoleAsync(user, model.RoleName);
+
+            return Ok();
+        }
     }
 
     [ApiController]
