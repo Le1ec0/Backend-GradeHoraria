@@ -19,11 +19,8 @@ namespace GradeHoraria.Controllers
         private readonly IServiceProvider _serviceProvider;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<AuthenticateController> _logger;
         public AuthenticateController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration,
-        IGradeRepository repository, ApplicationDbContext context, IHttpContextAccessor httpContextAccessor,
-        IServiceProvider serviceProvider, ILogger<AuthenticateController> logger)
+        IGradeRepository repository, ApplicationDbContext context, IServiceProvider serviceProvider)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -31,69 +28,97 @@ namespace GradeHoraria.Controllers
             _serviceProvider = serviceProvider;
             _repository = repository;
             _context = context;
-            _httpContextAccessor = httpContextAccessor;
-            _logger = logger;
         }
 
-        [HttpGet("/Authorize/GetAllUsers")]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
+        /*[HttpGet("/Authorize/GetAllUsers")]
+         public async Task<IActionResult> GetAllUsers()
+         {
+             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
 
-            var confidentialClient = ConfidentialClientApplicationBuilder
-            .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
-            .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}")
-            .WithClientSecret(_configuration.GetValue<string>("AzureAd:ClientSecret"))
-            .Build();
+             var confidentialClient = ConfidentialClientApplicationBuilder
+             .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
+             .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}")
+             .WithClientSecret(_configuration.GetValue<string>("AzureAd:ClientSecret"))
+             .Build();
 
-            GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
-            {
+             GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
+             {
 
-                // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
-                var authResult = await confidentialClient.AcquireTokenForClient(scopes)
-                .ExecuteAsync();
+                 // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
+                 var authResult = await confidentialClient.AcquireTokenForClient(scopes)
+                 .ExecuteAsync();
 
-                // Add the access token in the Authorization header of the API
-                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+                 // Add the access token in the Authorization header of the API
+                 requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
-            }));
+             }));
 
-            // Make a Microsoft Graph API query
-            var users = await graphServiceClient.Users
-            .Request()
-            .GetAsync();
-            return Ok(users);
-        }
+             // Make a Microsoft Graph API query
+             var users = await graphServiceClient.Users
+             .Request()
+             .GetAsync();
+             return Ok(users);
+         }
 
-        /*[HttpGet("/Authorize/GetUserById")]
-        public async Task<IActionResult> GetById(string id = null)
-        {
-            id = Request.Query["id"];
-            if (id == null)
-            {
-                return NotFound("Usuário não informado.");
-            }
-            var user = await _userManager.FindByIdAsync(id);
+         [HttpGet("/Authorize/GetUserById")]
+         public async Task<IActionResult> GetUserById()
+         {
+             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
 
-            return user != null
-                ? Ok(user)
-                : NotFound("Usuário não encontrado.");
-        }
+             var confidentialClient = ConfidentialClientApplicationBuilder
+             .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
+             .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}")
+             .WithClientSecret(_configuration.GetValue<string>("AzureAd:ClientSecret"))
+             .Build();
 
-        [HttpGet("/Authorize/GetUserByName")]
-        public async Task<IActionResult> GetByName(string name = null)
-        {
-            name = Request.Query["name"];
-            if (name == null)
-            {
-                return NotFound("Usuário não informado.");
-            }
-            var user = await _userManager.FindByNameAsync(name);
+             GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
+             {
 
-            return user != null
-            ? Ok(user)
-            : NotFound("Usuário não encontrado.");
-        }*/
+                 // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
+                 var authResult = await confidentialClient.AcquireTokenForClient(scopes)
+                 .ExecuteAsync();
+
+                 // Add the access token in the Authorization header of the API
+                 requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+
+             }));
+
+             // Make a Microsoft Graph API query
+             var users = await graphServiceClient.Users
+             .Request()
+             .GetAsync();
+             return Ok(users);
+         }
+
+         [HttpGet("/Authorize/GetUserByName")]
+         public async Task<IActionResult> GetUserByName()
+         {
+             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
+
+             var confidentialClient = ConfidentialClientApplicationBuilder
+             .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
+             .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}")
+             .WithClientSecret(_configuration.GetValue<string>("AzureAd:ClientSecret"))
+             .Build();
+
+             GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
+             {
+
+                 // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
+                 var authResult = await confidentialClient.AcquireTokenForClient(scopes)
+                 .ExecuteAsync();
+
+                 // Add the access token in the Authorization header of the API
+                 requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+
+             }));
+
+             // Make a Microsoft Graph API query
+             var users = await graphServiceClient.Users
+             .Request()
+             .GetAsync();
+             return Ok(users);
+         }*/
 
         [HttpPost]
         [Route("/Authorize/UserLogin")]
