@@ -155,18 +155,18 @@ namespace GradeHoraria.Controllers
             .Request()
             .GetAsync();
 
-            var identityUser = await _userManager.FindByIdAsync(user.Id);
-            if (identityUser == null)
+            var newUser = await _userManager.FindByIdAsync(user.Id);
+            if (newUser == null)
             {
-                identityUser = new IdentityUser
+                newUser = new IdentityUser
                 {
                     Id = user.Id,
-                    UserName = user.DisplayName.Replace(" ", "_"),
+                    UserName = user.DisplayName,
                     Email = user.Mail ?? user.UserPrincipalName
                 };
 
-                await _userManager.CreateAsync(identityUser);
-                await _repository.AddUser(identityUser);
+                await _userManager.CreateAsync(newUser);
+                await _repository.AddUser(newUser);
             }
 
             // Return the access token along with the user information

@@ -20,9 +20,9 @@ namespace GradeHoraria.Repositories
         {
             return await _context.Cursos.Where(x => x.Id == id).FirstOrDefaultAsync();
         }
-        public async Task AddUser(IdentityUser identityUser)
+        public async Task AddUser(IdentityUser users)
         {
-            _context.IdentityUser.Add(identityUser);
+            _context.IdentityUser.Add(users);
         }
         public void AddCurso(Curso cursos)
         {
