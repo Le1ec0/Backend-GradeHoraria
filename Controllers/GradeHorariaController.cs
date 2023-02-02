@@ -245,14 +245,16 @@ namespace GradeHoraria.Controllers
     [Route("api/[controller]")]
     public class CursoController : ControllerBase
     {
-        private readonly RoleManager<IdentityRole> roleManager;
-        private readonly IConfiguration _configuration;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
-        public CursoController(IGradeRepository repository, ApplicationDbContext context)
+        public CursoController(IGradeRepository repository, ApplicationDbContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _repository = repository;
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         [HttpGet("/Cursos/GetAllCursos")]
@@ -365,14 +367,16 @@ namespace GradeHoraria.Controllers
     [Route("api/[controller]")]
     public class MateriasController : ControllerBase
     {
-        private readonly RoleManager<IdentityRole> roleManager;
-        private readonly IConfiguration _configuration;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
-        public MateriasController(IGradeRepository repository, ApplicationDbContext context)
+        public MateriasController(IGradeRepository repository, ApplicationDbContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _repository = repository;
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         [HttpGet("/Materias/GetAllMaterias")]
