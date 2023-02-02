@@ -61,7 +61,7 @@ namespace GradeHoraria.Controllers
              return Ok(users);
          }*/
 
-        [HttpGet("/Authorize/ImportAllUsers")]
+        /*[HttpGet("/Authorize/ImportAllUsers")]
         public async Task<IActionResult> ImportAllUsers()
         {
             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
@@ -94,7 +94,8 @@ namespace GradeHoraria.Controllers
                 var newUser = new IdentityUser
                 {
                     Id = user.Id,
-                    UserName = user.UserPrincipalName,
+                    UserName = user.DisplayName,
+                    Email = user.Mail ?? user.UserPrincipalName
                 };
 
                 // Add the new User to the context using the AddUser method
@@ -106,7 +107,7 @@ namespace GradeHoraria.Controllers
             return await _repository.SaveChangesAsync()
             ? Ok("Usuários importados com sucesso!")
             : BadRequest("Erro ao importar usuários.");
-        }
+        }*/
 
 
         /*[HttpGet("/Authorize/GetUserById")]
@@ -199,51 +200,35 @@ namespace GradeHoraria.Controllers
             }));
 
             // Make a Microsoft Graph API query
-            var users = await graphServiceClient.Me
+            var user = await graphServiceClient.Me
             .Request()
             .GetAsync();
 
-            //foreach (var user in users)
-            //{
-            var newUser = new IdentityUser
-            {
-                Id = users.Id,
-                UserName = users.UserPrincipalName,
-            };
-
-            // Add the new User to the context using the AddUser method
-            await _userManager.CreateAsync(newUser);
-            await _repository.AddUser(newUser);
-            await _repository.SaveChangesAsync();
-            //}
-
-            // Return the access token along with the user information
-            return users != null
-            ? Ok(new { Token = accessToken, User = users })
-            : NotFound("Usuário não encontrado.");
-
-            /*var newUser = await _userManager.FindByIdAsync(user.Id);
+            var newUser = await _userManager.FindByIdAsync(user.Id);
             if (newUser == null)
             {
+
                 newUser = new IdentityUser
                 {
                     Id = user.Id,
-                    UserName = user.DisplayName.Replace(" ", "_"),
+                    UserName = user.DisplayName,
                     Email = user.Mail ?? user.UserPrincipalName
                 };
 
+                // Add the new User to the context using the AddUser method
                 await _userManager.CreateAsync(newUser);
                 await _repository.AddUser(newUser);
+                await _repository.SaveChangesAsync();
             }
 
             // Return the access token along with the user information
             return user != null
             ? Ok(new { Token = accessToken, User = user })
-            : NotFound("Usuário não encontrado.");*/
+            : NotFound("Usuário não encontrado.");
         }
 
         [HttpPost]
-        [Route("/Authorize/RegisterUser")]
+        [Route("/Authorize/RegisterUserAAD")]
         public async Task<IActionResult> CreateUserAsync([FromBody] RegisterModel model)
         {
             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
