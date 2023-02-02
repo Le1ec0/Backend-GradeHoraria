@@ -161,7 +161,7 @@ namespace GradeHoraria.Controllers
                 newUser = new IdentityUser
                 {
                     Id = user.Id,
-                    UserName = user.DisplayName,
+                    UserName = user.DisplayName.Replace(" ", "_"),
                     Email = user.Mail ?? user.UserPrincipalName
                 };
 
