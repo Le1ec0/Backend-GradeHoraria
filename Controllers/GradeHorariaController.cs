@@ -345,7 +345,8 @@ namespace GradeHoraria.Controllers
             : NotFound("Curso não encontrado.");
         }
 
-        [Authorize(Roles = "AdminMaster, Admin")]
+        [Authorize]
+        //[Authorize(Roles = "AdminMaster, Admin")]
         [HttpPost("/Cursos/PostCursos")]
         public async Task<IActionResult> Post([FromBody] CursosRequestModel request)
         {
@@ -383,7 +384,8 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao criar curso.");
         }
 
-        [Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
+        [Authorize]
+        //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
         [HttpPut("/Cursos/PutCursoById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CursosRequestModel cursosRequestModel)
         {
@@ -400,7 +402,8 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao atualizar curso.");
         }
 
-        [Authorize(Roles = "AdminMaster")]
+        [Authorize]
+        //[Authorize(Roles = "AdminMaster")]
         [HttpDelete("/Cursos/DeleteCursoById/{id}")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
@@ -467,7 +470,8 @@ namespace GradeHoraria.Controllers
             : NotFound("Matéria não encontrada.");
         }
 
-        [Authorize(Roles = "AdminMaster, Admin")]
+        [Authorize]
+        //[Authorize(Roles = "AdminMaster, Admin")]
         [HttpPost("/Materias/PostMateria")]
         public async Task<IActionResult> Post([FromBody] MateriasRequestModel request)
         {
@@ -494,7 +498,8 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao criar Matéria.");
         }
 
-        [Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
+        [Authorize]
+        //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
         [HttpPut("/Materias/PutMateriasById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] MateriasRequestModel materiasRequestModel)
         {
@@ -512,7 +517,8 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao atualizar Matéria.");
         }
 
-        [Authorize(Roles = "AdminMaster")]
+        [Authorize]
+        //[Authorize(Roles = "AdminMaster")]
         [HttpDelete("/Materias/DeleteMateriasById/{id}/")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
