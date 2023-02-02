@@ -75,11 +75,11 @@ public class Startup
         });
 
         // Add Azure Active Directory Authentication
-        services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+        /*services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
             .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
             .EnableTokenAcquisitionToCallDownstreamApi(new string[] { Configuration[("AzureAd:GraphPath")] })
             .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
-            .AddInMemoryTokenCaches();
+            .AddInMemoryTokenCaches();*/
 
         services.AddAuthentication(options =>
         {
@@ -88,7 +88,7 @@ public class Startup
         })
         .AddJwtBearer(options =>
         {
-            options.Authority = $"https://login.microsoftonline.com/{Configuration["AzureAd:TenantId"]}/v2.0";
+            options.Authority = $"{Configuration["AzureAd:Instance"]}/{Configuration["AzureAd:TenantId"]}/v2.0";
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = false,
