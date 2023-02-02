@@ -8,7 +8,7 @@ namespace GradeHoraria.Repositories
         Task<IEnumerable<Curso>> GetCurso();
         Task<Curso> GetCurso(int id);
         void AddCurso(Curso cursos);
-        Task AddUser(IdentityUser identityUsers);
+        Task AddUser(IdentityUser identityUser);
         void UpdateCurso(Curso cursos);
         void DeleteCurso(Curso cursos);
         Task<IEnumerable<Materia>> GetMateria();

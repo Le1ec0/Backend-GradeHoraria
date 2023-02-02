@@ -11,7 +11,7 @@ namespace GradeHoraria.Context
         {
         }
 
-        public DbSet<IdentityUser> IdentityUsers { get; set; }
+        public DbSet<IdentityUser> IdentityUser { get; set; }
         public DbSet<Curso> Cursos { get; set; }
         public DbSet<Periodo> Periodos { get; set; }
         public DbSet<Materia> Materias { get; set; }
