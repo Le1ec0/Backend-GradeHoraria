@@ -5,14 +5,51 @@ using GradeHoraria.Context;
 using GradeHoraria.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using GradeHoraria.Models;
 
 public class Startup
 {
-    //private readonly RoleManager<IdentityRole> _roleManager;
+    public IConfiguration Configuration { get; }
     public Startup(IConfiguration configuration, IServiceProvider serviceProvider)
     {
-        _configuration = configuration;
-        //_roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        Configuration = configuration;
+    }
+    private async Task CreateRoles(IServiceProvider serviceProvider)
+    {
+        var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var UserManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        string[] roleNames = { "AdminMaster", "Admin", "Coordenador", "Professor", "Usuário" };
+        IdentityResult roleResult;
+
+        foreach (var roleName in roleNames)
+        {
+            var roleExist = await RoleManager.RoleExistsAsync(roleName);
+            if (!roleExist)
+            {
+                //create the roles and seed them to the database: Question 1
+                roleResult = await RoleManager.CreateAsync(new IdentityRole(roleName));
+            }
+        }
+
+        //Here you could create a super user who will maintain the web app
+        var adminmaster = new ApplicationUser
+        {
+            UserName = Configuration["AdminMaster:UserName"],
+            Email = Configuration["AdminMaster:UserEmail"],
+        };
+        //Ensure you have these values in your appsettings.json file
+        string userPWD = Configuration["AdminMaster:UserPassword"];
+        var _user = await UserManager.FindByEmailAsync(Configuration["AdminMaster:AdminUserEmail"]);
+
+        if (_user == null)
+        {
+            var createAdminMaster = await UserManager.CreateAsync(adminmaster, userPWD);
+            if (createAdminMaster.Succeeded)
+            {
+                await UserManager.AddToRoleAsync(adminmaster, "AdminMaster");
+
+            }
+        }
     }
 
     /*private async Task CreateRoles()
@@ -32,8 +69,6 @@ public class Startup
             }
         }
     }*/
-
-    public IConfiguration _configuration { get; }
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -86,7 +121,7 @@ public class Startup
         // For Entity Framework
         services.AddDbContext<ApplicationDbContext>(options =>
         {
-            options.UseSqlServer(_configuration.GetConnectionString("SQLConnection"),
+            options.UseSqlServer(Configuration.GetConnectionString("SQLConnection"),
             sqlServerOptionsAction: sqlOptions =>
             {
                 sqlOptions.EnableRetryOnFailure();
@@ -107,11 +142,11 @@ public class Startup
         })
         .AddJwtBearer(options =>
         {
-            options.Authority = $"{_configuration["AzureAd:Instance"]}/{_configuration["AzureAd:TenantId"]}/v2.0";
+            options.Authority = $"{Configuration["AzureAd:Instance"]}/{Configuration["AzureAd:TenantId"]}/v2.0";
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = false,
-                ValidAudiences = new[] { _configuration["AzureAd:ClientId"] }
+                ValidAudiences = new[] { Configuration["AzureAd:ClientId"] }
             };
         });
 

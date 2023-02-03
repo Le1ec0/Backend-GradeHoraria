@@ -215,7 +215,7 @@ namespace GradeHoraria.Controllers
                     Email = user.Mail ?? user.UserPrincipalName
                 };
 
-                await _userManager.AddToRoleAsync(newUser, UserRoles.User);
+                await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
 
                 // Add the new User to the context using the AddUser method
                 await _userManager.CreateAsync(newUser);
@@ -270,6 +270,8 @@ namespace GradeHoraria.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "AdminMaster")]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         [Route("/Authorize/AssignRoles")]
         public async Task<IActionResult> AssignRoles([FromBody] ChangeRoleModel model)
@@ -312,6 +314,7 @@ namespace GradeHoraria.Controllers
         }
 
         [Authorize]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("/Cursos/GetAllCursos")]
         public async Task<IActionResult> Get()
         {

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace GradeHoraria.Context
 {
-    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -18,21 +18,20 @@ namespace GradeHoraria.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<IdentityRole>();
+            modelBuilder.Entity<IdentityRole>()
+            .HasKey(x => new { x.Id });
 
-            modelBuilder.Entity<IdentityUser>();
+            modelBuilder.Entity<IdentityUser>()
+            .HasKey(x => new { x.Id });
 
             modelBuilder.Entity<IdentityUserLogin<string>>()
             .HasKey(x => new { x.UserId });
-            //.HasNoKey();
 
             modelBuilder.Entity<IdentityUserRole<string>>()
             .HasKey(x => new { x.UserId });
-            //.HasNoKey();
 
             modelBuilder.Entity<IdentityUserToken<string>>()
             .HasKey(x => new { x.UserId });
-            //.HasNoKey();
 
             modelBuilder.Entity<Curso>()
                 .HasMany(c => c.Periodos)
