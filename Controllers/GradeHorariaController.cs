@@ -215,7 +215,7 @@ namespace GradeHoraria.Controllers
                     Email = user.Mail ?? user.UserPrincipalName
                 };
 
-                await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
+                await _userManager.AddToRoleAsync(newUser, UserRoles.User);
 
                 // Add the new User to the context using the AddUser method
                 await _userManager.CreateAsync(newUser);
@@ -311,6 +311,7 @@ namespace GradeHoraria.Controllers
             _roleManager = roleManager;
         }
 
+        [Authorize]
         [HttpGet("/Cursos/GetAllCursos")]
         public async Task<IActionResult> Get()
         {
