@@ -1,11 +1,10 @@
+using Microsoft.AspNetCore.Identity;
+
 namespace GradeHoraria.Models
 {
-    public class UserRoles
+    public class UserRoles : IdentityRole
     {
-        public const string AdminMaster = "AdminMaster";
         public const string Admin = "Admin";
-        public const string Coordenador = "Coordenador";
-        public const string Professor = "Professor";
-        public const string Usuario = "Usuário";
+        public const string User = "User";
     }
 }
