@@ -8,6 +8,10 @@ using Microsoft.Graph;
 using System.Net.Http.Headers;
 using Microsoft.Identity.Client;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace GradeHoraria.Controllers
 {
@@ -207,7 +211,6 @@ namespace GradeHoraria.Controllers
             var newUser = await _userManager.FindByIdAsync(user.Id);
             if (newUser == null)
             {
-
                 newUser = new IdentityUser
                 {
                     Id = user.Id,
@@ -215,18 +218,34 @@ namespace GradeHoraria.Controllers
                     Email = user.Mail ?? user.UserPrincipalName
                 };
 
-                await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
+                var userRoles = await _userManager.GetRolesAsync(newUser);
 
-                // Add the new User to the context using the AddUser method
-                await _userManager.CreateAsync(newUser);
-                await _repository.AddUser(newUser);
-                await _repository.SaveChangesAsync();
+                var authClaims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.DisplayName),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                };
+
+                foreach (var userRole in userRoles)
+                {
+                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                    await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
+
+                    // Add the new User to the context using the AddUser method
+                    await _userManager.CreateAsync(newUser);
+                    await _repository.AddUser(newUser);
+                    await _repository.SaveChangesAsync();
+                }
+
+                return user != null
+                ? Ok(new
+                {
+                    Token = accessToken,
+                    User = user
+                })
+                : NotFound("Usuário não encontrado.");
             }
-
-            // Return the access token along with the user information
-            return user != null
-            ? Ok(new { Token = accessToken, User = user })
-            : NotFound("Usuário não encontrado.");
+            return Unauthorized();
         }
 
         [HttpPost]
@@ -313,8 +332,8 @@ namespace GradeHoraria.Controllers
             _roleManager = roleManager;
         }
 
-        [Authorize]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize]
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("/Cursos/GetAllCursos")]
         public async Task<IActionResult> Get()
         {
@@ -351,8 +370,8 @@ namespace GradeHoraria.Controllers
             : NotFound("Curso não encontrado.");
         }
 
-        [Authorize(Roles = "AdminMaster, Admin")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(Roles = "AdminMaster, Admin")]
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("/Cursos/PostCursos")]
         public async Task<IActionResult> Post([FromBody] CursosRequestModel request)
         {
@@ -390,8 +409,8 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao criar curso.");
         }
 
-        [Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("/Cursos/PutCursoById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CursosRequestModel cursosRequestModel)
         {
@@ -408,8 +427,8 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao atualizar curso.");
         }
 
-        [Authorize(Roles = "AdminMaster")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(Roles = "AdminMaster")]
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("/Cursos/DeleteCursoById/{id}")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
@@ -476,8 +495,8 @@ namespace GradeHoraria.Controllers
             : NotFound("Matéria não encontrada.");
         }
 
-        [Authorize(Roles = "AdminMaster, Admin")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(Roles = "AdminMaster, Admin")]
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("/Materias/PostMateria")]
         public async Task<IActionResult> Post([FromBody] MateriasRequestModel request)
         {
@@ -504,8 +523,8 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao criar Matéria.");
         }
 
-        [Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("/Materias/PutMateriasById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] MateriasRequestModel materiasRequestModel)
         {
@@ -523,8 +542,8 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao atualizar Matéria.");
         }
 
-        [Authorize(Roles = "AdminMaster")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(Roles = "AdminMaster")]
+        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("/Materias/DeleteMateriasById/{id}/")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {

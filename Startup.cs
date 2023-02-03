@@ -18,7 +18,7 @@ public class Startup
     {
         var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var UserManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        string[] roleNames = { "AdminMaster", "Admin", "Coordenador", "Professor", "Usuário" };
+        List<string> roleNames = new List<string> { "AdminMaster", "Admin", "Coordenador", "Professor", "Usuario" };
         IdentityResult roleResult;
 
         foreach (var roleName in roleNames)
@@ -27,6 +27,9 @@ public class Startup
             if (!roleExist)
             {
                 //create the roles and seed them to the database: Question 1
+                var newRole = new IdentityRole(roleName);
+                await RoleManager.CreateAsync(newRole);
+
                 roleResult = await RoleManager.CreateAsync(new IdentityRole(roleName));
             }
         }
@@ -37,13 +40,14 @@ public class Startup
             UserName = Configuration["AdminMaster:UserName"],
             Email = Configuration["AdminMaster:UserEmail"],
         };
+
         //Ensure you have these values in your appsettings.json file
-        string userPWD = Configuration["AdminMaster:UserPassword"];
+        string UserPassword = Configuration["AdminMaster:UserPassword"];
         var _user = await UserManager.FindByEmailAsync(Configuration["AdminMaster:AdminUserEmail"]);
 
         if (_user == null)
         {
-            var createAdminMaster = await UserManager.CreateAsync(adminmaster, userPWD);
+            var createAdminMaster = await UserManager.CreateAsync(adminmaster, UserPassword);
             if (createAdminMaster.Succeeded)
             {
                 await UserManager.AddToRoleAsync(adminmaster, "AdminMaster");
@@ -51,24 +55,6 @@ public class Startup
             }
         }
     }
-
-    /*private async Task CreateRoles()
-    {
-        // List of roles from UserRoles.cs class
-        //List<string> roles = new List<string> { UserRoles.AdminMaster, UserRoles.Admin, UserRoles.Coordenador, UserRoles.Professor, UserRoles.Usuario };
-        List<string> roles = new List<string> { "AdminMaster", "Admin", "Coordenador", "Professor", "Usuario" };
-
-        foreach (var role in roles)
-        {
-            var roleExists = await _roleManager.RoleExistsAsync(role);
-            if (!roleExists)
-            {
-                // Create a new role using the role name from UserRoles.cs class
-                var newRole = new IdentityRole(role);
-                await _roleManager.CreateAsync(newRole);
-            }
-        }
-    }*/
 
     public void ConfigureServices(IServiceCollection services)
     {

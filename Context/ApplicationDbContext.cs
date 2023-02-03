@@ -19,19 +19,19 @@ namespace GradeHoraria.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<IdentityRole>()
-            .HasKey(x => new { x.Id });
+            .HasKey(x => x.Id);
 
             modelBuilder.Entity<IdentityUser>()
-            .HasKey(x => new { x.Id });
+            .HasKey(x => x.Id);
 
             modelBuilder.Entity<IdentityUserLogin<string>>()
-            .HasKey(x => new { x.UserId });
+            .HasKey(x => x.UserId);
 
             modelBuilder.Entity<IdentityUserRole<string>>()
-            .HasKey(x => new { x.UserId });
+            .HasKey(x => x.UserId);
 
             modelBuilder.Entity<IdentityUserToken<string>>()
-            .HasKey(x => new { x.UserId });
+            .HasKey(x => x.UserId);
 
             modelBuilder.Entity<Curso>()
                 .HasMany(c => c.Periodos)
