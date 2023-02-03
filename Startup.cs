@@ -3,18 +3,37 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
 using GradeHoraria.Context;
 using GradeHoraria.Repositories;
-using Microsoft.Identity.Web;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
 public class Startup
 {
-    public Startup(IConfiguration configuration)
+    //private readonly RoleManager<IdentityRole> _roleManager;
+    public Startup(IConfiguration configuration, IServiceProvider serviceProvider)
     {
-        Configuration = configuration;
+        _configuration = configuration;
+        //_roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     }
-    public IConfiguration Configuration { get; }
+
+    /*private async Task CreateRoles()
+    {
+        // List of roles from UserRoles.cs class
+        //List<string> roles = new List<string> { UserRoles.AdminMaster, UserRoles.Admin, UserRoles.Coordenador, UserRoles.Professor, UserRoles.Usuario };
+        List<string> roles = new List<string> { "AdminMaster", "Admin", "Coordenador", "Professor", "Usuario" };
+
+        foreach (var role in roles)
+        {
+            var roleExists = await _roleManager.RoleExistsAsync(role);
+            if (!roleExists)
+            {
+                // Create a new role using the role name from UserRoles.cs class
+                var newRole = new IdentityRole(role);
+                await _roleManager.CreateAsync(newRole);
+            }
+        }
+    }*/
+
+    public IConfiguration _configuration { get; }
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -67,7 +86,7 @@ public class Startup
         // For Entity Framework
         services.AddDbContext<ApplicationDbContext>(options =>
         {
-            options.UseSqlServer(Configuration.GetConnectionString("SQLConnection"),
+            options.UseSqlServer(_configuration.GetConnectionString("SQLConnection"),
             sqlServerOptionsAction: sqlOptions =>
             {
                 sqlOptions.EnableRetryOnFailure();
@@ -88,11 +107,11 @@ public class Startup
         })
         .AddJwtBearer(options =>
         {
-            options.Authority = $"{Configuration["AzureAd:Instance"]}/{Configuration["AzureAd:TenantId"]}/v2.0";
+            options.Authority = $"{_configuration["AzureAd:Instance"]}/{_configuration["AzureAd:TenantId"]}/v2.0";
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = false,
-                ValidAudiences = new[] { Configuration["AzureAd:ClientId"] }
+                ValidAudiences = new[] { _configuration["AzureAd:ClientId"] }
             };
         });
 
@@ -107,6 +126,7 @@ public class Startup
         services.AddScoped<RoleManager<IdentityRole>>();
         services.AddScoped<IGradeRepository, GradeRepository>();
     }
+
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
         if (env.IsDevelopment())
@@ -115,7 +135,7 @@ public class Startup
             app.UseSwagger();
             app.UseSwaggerUI();
             //Cors Policy
-            app.UseCors(options => options.WithOrigins("http://localhost:5500").AllowAnyHeader().AllowAnyMethod());
+            app.UseCors(options => options.WithOrigins("http://127.0.0.1:5500").AllowAnyHeader().AllowAnyMethod());
         }
         else
         {
@@ -131,5 +151,7 @@ public class Startup
         {
             endpoints.MapControllers();
         });
+
+        //CreateRoles().Wait();
     }
 }

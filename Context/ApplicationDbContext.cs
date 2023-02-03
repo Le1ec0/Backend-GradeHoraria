@@ -10,13 +10,16 @@ namespace GradeHoraria.Context
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
-
+        public DbSet<IdentityRole> IdentityRole { get; set; }
         public DbSet<IdentityUser> IdentityUser { get; set; }
         public DbSet<Curso> Cursos { get; set; }
         public DbSet<Periodo> Periodos { get; set; }
         public DbSet<Materia> Materias { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<IdentityRole>();
+
             modelBuilder.Entity<IdentityUser>();
 
             modelBuilder.Entity<IdentityUserLogin<string>>()

@@ -215,6 +215,8 @@ namespace GradeHoraria.Controllers
                     Email = user.Mail ?? user.UserPrincipalName
                 };
 
+                await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
+
                 // Add the new User to the context using the AddUser method
                 await _userManager.CreateAsync(newUser);
                 await _repository.AddUser(newUser);
