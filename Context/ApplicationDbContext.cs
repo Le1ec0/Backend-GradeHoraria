@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace GradeHoraria.Context
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -18,12 +18,6 @@ namespace GradeHoraria.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<IdentityRole>()
-            .HasKey(x => x.Id);
-
-            modelBuilder.Entity<IdentityUser>()
-            .HasKey(x => x.Id);
-
             modelBuilder.Entity<IdentityUserLogin<string>>()
             .HasKey(x => x.UserId);
 
@@ -34,34 +28,34 @@ namespace GradeHoraria.Context
             .HasKey(x => x.UserId);
 
             modelBuilder.Entity<Curso>()
-                .HasMany(c => c.Periodos)
-                .WithOne(p => p.Cursos)
-                .HasForeignKey(p => p.CursoId)
-                .OnDelete(DeleteBehavior.NoAction);
+            .HasMany(c => c.Periodos)
+            .WithOne(p => p.Cursos)
+            .HasForeignKey(p => p.CursoId)
+            .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Periodo>()
-                .HasMany(p => p.Materias)
-                .WithOne(m => m.Periodos)
-                .HasForeignKey(m => m.PeriodoId)
-                .OnDelete(DeleteBehavior.NoAction);
+            .HasMany(p => p.Materias)
+            .WithOne(m => m.Periodos)
+            .HasForeignKey(m => m.PeriodoId)
+            .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Periodo>()
-                .HasOne(p => p.Cursos)
-                .WithMany(c => c.Periodos)
-                .HasForeignKey(p => p.CursoId)
-                .OnDelete(DeleteBehavior.NoAction);
+            .HasOne(p => p.Cursos)
+            .WithMany(c => c.Periodos)
+            .HasForeignKey(p => p.CursoId)
+            .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Materia>()
-                .HasOne(m => m.Periodos)
-                .WithMany(c => c.Materias)
-                .HasForeignKey(m => m.PeriodoId)
-                .OnDelete(DeleteBehavior.NoAction);
+            .HasOne(m => m.Periodos)
+            .WithMany(c => c.Materias)
+            .HasForeignKey(m => m.PeriodoId)
+            .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Materia>()
-                .HasOne(m => m.Cursos)
-                .WithMany(c => c.Materias)
-                .HasForeignKey(m => m.CursoId)
-                .OnDelete(DeleteBehavior.NoAction);
+            .HasOne(m => m.Cursos)
+            .WithMany(c => c.Materias)
+            .HasForeignKey(m => m.CursoId)
+            .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

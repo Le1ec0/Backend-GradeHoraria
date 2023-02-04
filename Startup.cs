@@ -10,15 +10,16 @@ using GradeHoraria.Models;
 public class Startup
 {
     public IConfiguration Configuration { get; }
-    public Startup(IConfiguration configuration, IServiceProvider serviceProvider)
+    public Startup(IConfiguration configuration)
     {
         Configuration = configuration;
     }
-    private async Task CreateRoles(IServiceProvider serviceProvider)
+    public async Task CreateRoles(IServiceProvider serviceProvider)
     {
         var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var UserManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        List<string> roleNames = new List<string> { "AdminMaster", "Admin", "Coordenador", "Professor", "Usuario" };
+        var UserManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+        List<string> roleNames = new List<string> { UserRoles.AdminMaster, UserRoles.Admin, UserRoles.Coordenador, UserRoles.Professor, UserRoles.Usuario };
         IdentityResult roleResult;
 
         foreach (var roleName in roleNames)
@@ -26,16 +27,13 @@ public class Startup
             var roleExist = await RoleManager.RoleExistsAsync(roleName);
             if (!roleExist)
             {
-                //create the roles and seed them to the database: Question 1
                 var newRole = new IdentityRole(roleName);
-                await RoleManager.CreateAsync(newRole);
-
-                roleResult = await RoleManager.CreateAsync(new IdentityRole(roleName));
+                roleResult = await RoleManager.CreateAsync(newRole);
             }
         }
 
         //Here you could create a super user who will maintain the web app
-        var adminmaster = new ApplicationUser
+        var adminmaster = new IdentityUser
         {
             UserName = Configuration["AdminMaster:UserName"],
             Email = Configuration["AdminMaster:UserEmail"],
@@ -114,13 +112,6 @@ public class Startup
             });
         });
 
-        // Add Azure Active Directory Authentication
-        /*services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-            .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
-            .EnableTokenAcquisitionToCallDownstreamApi(new string[] { Configuration[("AzureAd:GraphPath")] })
-            .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
-            .AddInMemoryTokenCaches();*/
-
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -136,14 +127,14 @@ public class Startup
             };
         });
 
-        services.AddIdentity<IdentityUser, IdentityRole>()
+        /*services.AddIdentity<IdentityUser, IdentityRole>()
         .AddUserManager<UserManager<IdentityUser>>()
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders()
         .AddRoles<IdentityRole>()
-        .AddEntityFrameworkStores<ApplicationDbContext>();
+        .AddEntityFrameworkStores<ApplicationDbContext>();*/
 
-        services.AddScoped<UserManager<IdentityUser>>();
+        //services.AddScoped<UserManager<IdentityUser>>();
         services.AddScoped<RoleManager<IdentityRole>>();
         services.AddScoped<IGradeRepository, GradeRepository>();
     }
