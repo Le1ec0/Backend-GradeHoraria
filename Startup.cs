@@ -120,11 +120,11 @@ public class Startup
             options.Authority = $"{Configuration.GetValue<string>("AzureAd:Instance")}{Configuration.GetValue<string>("AzureAd:TenantId")}/v2.0";
             options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = true,
-                ValidIssuer = $"{Configuration.GetValue<string>("JWT:ValidIssuer")}",
-
                 ValidateAudience = true,
                 ValidAudience = $"{Configuration.GetValue<string>("JWT:ValidAudience")}",
+
+                ValidateIssuer = true,
+                ValidIssuer = $"{Configuration.GetValue<string>("JWT:ValidIssuer")}",
 
                 ValidateLifetime = true,
 
