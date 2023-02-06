@@ -6,6 +6,7 @@ using GradeHoraria.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using GradeHoraria.Models;
+using System.Text;
 
 public class Startup
 {
@@ -117,15 +118,23 @@ public class Startup
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         })
+
         .AddJwtBearer(options =>
         {
-            options.Authority = $"{Configuration["AzureAd:Instance"]}/{Configuration["AzureAd:TenantId"]}/v2.0";
+            options.Authority = $"{Configuration.GetSection("AzureAd")["Instance"]}{Configuration.GetSection("AzureAd")["TenantId"]}";
             options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateIssuer = false,
-                ValidAudiences = new[] { Configuration["AzureAd:ClientId"] }
+                ValidateAudience = true,
+                //ValidAudience = Configuration.GetSection("AzureAd")["Audience"],
+                ValidAudience = "https://graph.microsoft.com",
+
+                ValidateIssuer = true,
+                //ValidIssuer = Configuration.GetSection("AzureAd")["Issuer"]
+                ValidIssuer = "https://sts.windows.net/e182f34b-6958-474c-9143-88349addfba9/"
             };
         });
+
+        services.AddControllers();
 
         services.AddIdentity<IdentityUser, IdentityRole>()
         .AddUserManager<UserManager<IdentityUser>>()

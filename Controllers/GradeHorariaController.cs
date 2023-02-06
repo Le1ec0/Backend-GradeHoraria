@@ -245,6 +245,7 @@ namespace GradeHoraria.Controllers
                 })
                 : NotFound("Usuário não encontrado.");
             }
+
             return Unauthorized();
         }
 
@@ -332,7 +333,7 @@ namespace GradeHoraria.Controllers
             _roleManager = roleManager;
         }
 
-        //[Authorize]
+        [Authorize]
         //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("/Cursos/GetAllCursos")]
         public async Task<IActionResult> Get()
