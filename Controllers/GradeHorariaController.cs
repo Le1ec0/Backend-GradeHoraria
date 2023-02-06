@@ -8,10 +8,6 @@ using Microsoft.Graph;
 using System.Net.Http.Headers;
 using Microsoft.Identity.Client;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 namespace GradeHoraria.Controllers
 {
@@ -333,8 +329,7 @@ namespace GradeHoraria.Controllers
             _roleManager = roleManager;
         }
 
-        [Authorize]
-        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("/Cursos/GetAllCursos")]
         public async Task<IActionResult> Get()
         {
