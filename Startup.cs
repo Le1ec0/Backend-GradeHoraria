@@ -113,26 +113,45 @@ public class Startup
             });
         });
 
-        services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
         .AddJwtBearer(options =>
         {
-            options.Authority = $"{Configuration.GetSection("AzureAd")["Instance"]}{Configuration.GetSection("AzureAd")["TenantId"]}";
+            options.Authority = $"{Configuration.GetValue<string>("AzureAd:Instance")}{Configuration.GetValue<string>("AzureAd:TenantId")}/v2.0";
             options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidateAudience = true,
-                //ValidAudience = Configuration.GetSection("AzureAd")["Audience"],
-                ValidAudience = "https://graph.microsoft.com",
-
                 ValidateIssuer = true,
-                //ValidIssuer = Configuration.GetSection("AzureAd")["Issuer"]
-                ValidIssuer = "https://sts.windows.net/e182f34b-6958-474c-9143-88349addfba9/"
+                ValidIssuer = $"{Configuration.GetValue<string>("JWT:ValidIssuer")}",
+
+                ValidateAudience = true,
+                ValidAudience = $"{Configuration.GetValue<string>("JWT:ValidAudience")}",
+
+                ValidateLifetime = true,
+
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection("AzureAd:ClientSecret").Value))
+
             };
         });
+
+        /*.AddJwtBearer(options =>
+        {
+            options.Authority = $"{Configuration.GetValue<string>("AzureAd:Instance")}{Configuration.GetValue<string>("AzureAd:TenantId")}/v2.0";
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidIssuer = $"{Configuration.GetValue<string>("AzureAd:Instance")}{Configuration.GetValue<string>("AzureAd:TenantId")}/v2.0",
+
+                ValidateAudience = false,
+                ValidAudience = $"{Configuration.GetValue<string>("AzureAd:Audience")}",
+
+                ValidateLifetime = true,
+
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection("AzureAd:ClientSecret").Value))
+
+            };
+        });*/
 
         services.AddControllers();
 
@@ -164,10 +183,13 @@ public class Startup
         }
 
         app.UseRouting();
+
         app.UseAuthentication();
+
         app.UseAuthorization();
         app.UseHttpsRedirection();
         app.UseCors("AllowAllOrigins");
+
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
