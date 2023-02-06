@@ -127,14 +127,14 @@ public class Startup
             };
         });
 
-        /*services.AddIdentity<IdentityUser, IdentityRole>()
+        services.AddIdentity<IdentityUser, IdentityRole>()
         .AddUserManager<UserManager<IdentityUser>>()
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders()
         .AddRoles<IdentityRole>()
-        .AddEntityFrameworkStores<ApplicationDbContext>();*/
+        .AddEntityFrameworkStores<ApplicationDbContext>();
 
-        //services.AddScoped<UserManager<IdentityUser>>();
+        services.AddScoped<UserManager<IdentityUser>>();
         services.AddScoped<RoleManager<IdentityRole>>();
         services.AddScoped<IGradeRepository, GradeRepository>();
     }
