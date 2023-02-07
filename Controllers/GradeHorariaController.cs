@@ -9,6 +9,8 @@ using System.Net.Http.Headers;
 using Microsoft.Identity.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Security.Claims;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace GradeHoraria.Controllers
 {
@@ -217,33 +219,33 @@ namespace GradeHoraria.Controllers
 
                 var userRoles = await _userManager.GetRolesAsync(newUser);
 
-                /*var authClaims = new List<Claim>
+                var authClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.DisplayName),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                };*/
+                };
 
                 foreach (var userRole in userRoles)
                 {
-                    //authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
                     await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
-
-                    // Add the new User to the context using the AddUser method
-                    await _userManager.CreateAsync(newUser);
-                    await _repository.AddUser(newUser);
-                    await _repository.SaveChangesAsync();
                 }
 
-                return user != null
-                ? Ok(new
-                {
-                    Token = accessToken,
-                    User = user
-                })
-                : NotFound("Usuário não encontrado.");
+                // Add the new User to the context using the AddUser method
+                await _userManager.CreateAsync(newUser);
+                await _repository.AddUser(newUser);
+                await _repository.SaveChangesAsync();
             }
 
-            return Unauthorized();
+
+            return user != null
+            ? Ok(new
+            {
+                Token = accessToken,
+                User = user
+            })
+            : NotFound("Usuário não encontrado.");
         }
 
         [HttpPost]

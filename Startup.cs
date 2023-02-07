@@ -122,19 +122,19 @@ public class Startup
 
         .AddJwtBearer(options =>
         {
-            options.Authority = $"{Configuration.GetValue<string>("AzureAd:Instance")}{Configuration.GetValue<string>("AzureAd:TenantId")}/v2.0";
+            options.SaveToken = true;
+            options.RequireHttpsMetadata = false;
+            options.Authority = Configuration.GetValue<string>("AzureAd:Instance") + Configuration.GetValue<string>("AzureAd:TenantId") + "/v2.0";
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateAudience = true,
-                ValidAudience = Configuration.GetValue<string>("AzureAd:ValidateAudience"),
+                ValidAudience = Configuration.GetValue<string>("AzureAd:GraphPath"),
 
                 ValidateIssuer = true,
-                ValidIssuer = Configuration.GetValue<string>("AzureAd:ValidateIssuer"),
+                ValidIssuer = Configuration.GetValue<string>("AzureAd:Instance") + Configuration.GetValue<string>("AzureAd:TenantId") + "/v2.0",
 
                 ValidateLifetime = true,
-
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetValue<string>("AzureAd:ClientSecret")))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AzureAd:Secret"]))
             };
         });
 
