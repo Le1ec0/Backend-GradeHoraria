@@ -113,7 +113,12 @@ public class Startup
             });
         });
 
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
 
         .AddJwtBearer(options =>
         {
@@ -121,37 +126,17 @@ public class Startup
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateAudience = true,
-                ValidAudience = $"{Configuration.GetValue<string>("JWT:ValidAudience")}",
+                ValidAudience = Configuration.GetValue<string>("AzureAd:ValidateAudience"),
 
                 ValidateIssuer = true,
-                ValidIssuer = $"{Configuration.GetValue<string>("JWT:ValidIssuer")}",
+                ValidIssuer = Configuration.GetValue<string>("AzureAd:ValidateIssuer"),
 
                 ValidateLifetime = true,
 
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection("AzureAd:ClientSecret").Value))
-
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetValue<string>("AzureAd:ClientSecret")))
             };
         });
-
-        /*.AddJwtBearer(options =>
-        {
-            options.Authority = $"{Configuration.GetValue<string>("AzureAd:Instance")}{Configuration.GetValue<string>("AzureAd:TenantId")}/v2.0";
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = false,
-                ValidIssuer = $"{Configuration.GetValue<string>("AzureAd:Instance")}{Configuration.GetValue<string>("AzureAd:TenantId")}/v2.0",
-
-                ValidateAudience = false,
-                ValidAudience = $"{Configuration.GetValue<string>("AzureAd:Audience")}",
-
-                ValidateLifetime = true,
-
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection("AzureAd:ClientSecret").Value))
-
-            };
-        });*/
 
         services.AddControllers();
 
@@ -187,6 +172,7 @@ public class Startup
         app.UseAuthentication();
 
         app.UseAuthorization();
+
         app.UseHttpsRedirection();
         app.UseCors("AllowAllOrigins");
 

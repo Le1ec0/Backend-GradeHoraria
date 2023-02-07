@@ -8,6 +8,7 @@ using Microsoft.Graph;
 using System.Net.Http.Headers;
 using Microsoft.Identity.Client;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace GradeHoraria.Controllers
 {
@@ -287,7 +288,7 @@ namespace GradeHoraria.Controllers
         }
 
         [Authorize(Roles = "AdminMaster")]
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         [Route("/Authorize/AssignRoles")]
         public async Task<IActionResult> AssignRoles([FromBody] ChangeRoleModel model)
@@ -329,7 +330,7 @@ namespace GradeHoraria.Controllers
             _roleManager = roleManager;
         }
 
-        [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("/Cursos/GetAllCursos")]
         public async Task<IActionResult> Get()
         {
@@ -367,7 +368,7 @@ namespace GradeHoraria.Controllers
         }
 
         //[Authorize(Roles = "AdminMaster, Admin")]
-        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("/Cursos/PostCursos")]
         public async Task<IActionResult> Post([FromBody] CursosRequestModel request)
         {
@@ -406,7 +407,7 @@ namespace GradeHoraria.Controllers
         }
 
         //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
-        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("/Cursos/PutCursoById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CursosRequestModel cursosRequestModel)
         {
@@ -424,7 +425,7 @@ namespace GradeHoraria.Controllers
         }
 
         //[Authorize(Roles = "AdminMaster")]
-        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("/Cursos/DeleteCursoById/{id}")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
@@ -492,7 +493,7 @@ namespace GradeHoraria.Controllers
         }
 
         //[Authorize(Roles = "AdminMaster, Admin")]
-        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("/Materias/PostMateria")]
         public async Task<IActionResult> Post([FromBody] MateriasRequestModel request)
         {
@@ -520,7 +521,7 @@ namespace GradeHoraria.Controllers
         }
 
         //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
-        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("/Materias/PutMateriasById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] MateriasRequestModel materiasRequestModel)
         {
@@ -539,7 +540,7 @@ namespace GradeHoraria.Controllers
         }
 
         //[Authorize(Roles = "AdminMaster")]
-        //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("/Materias/DeleteMateriasById/{id}/")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
