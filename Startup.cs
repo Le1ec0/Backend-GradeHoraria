@@ -138,6 +138,8 @@ public class Startup
             };
         });
 
+        services.AddAuthorization();
+
         services.AddControllers();
 
         services.AddIdentity<IdentityUser, IdentityRole>()
