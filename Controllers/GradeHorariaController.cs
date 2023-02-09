@@ -37,7 +37,7 @@ namespace GradeHoraria.Controllers
         /*[HttpGet("/Authorize/GetAllUsers")]
          public async Task<IActionResult> GetAllUsers()
          {
-             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
+             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
 
              var confidentialClient = ConfidentialClientApplicationBuilder
              .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
@@ -67,7 +67,7 @@ namespace GradeHoraria.Controllers
         /*[HttpGet("/Authorize/ImportAllUsers")]
         public async Task<IActionResult> ImportAllUsers()
         {
-            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
+            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
 
             var confidentialClient = ConfidentialClientApplicationBuilder
             .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
@@ -116,7 +116,7 @@ namespace GradeHoraria.Controllers
         /*[HttpGet("/Authorize/GetUserById")]
         public async Task<IActionResult> GetUserById()
         {
-            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
+            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
 
             var confidentialClient = ConfidentialClientApplicationBuilder
             .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
@@ -146,7 +146,7 @@ namespace GradeHoraria.Controllers
         [HttpGet("/Authorize/GetUserByName")]
         public async Task<IActionResult> GetUserByName()
         {
-            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
+            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
 
             var confidentialClient = ConfidentialClientApplicationBuilder
             .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
@@ -177,7 +177,7 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/UserLogin")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
+            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
 
             var redirectUri = Url.Action(nameof(Login), "Authorize", null, Request.Scheme);
 
@@ -192,12 +192,13 @@ namespace GradeHoraria.Controllers
             .AcquireTokenByUsernamePassword(scopes, model.Username, model.Password)
             .ExecuteAsync();
 
+            var idToken = authResult.IdToken;
             var accessToken = authResult.AccessToken;
 
             // Make a Microsoft Graph API query using the acquired token
             GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(requestMessage =>
             {
-                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
                 return Task.FromResult(0);
             }));
@@ -242,7 +243,7 @@ namespace GradeHoraria.Controllers
             return user != null
             ? Ok(new
             {
-                Token = accessToken,
+                Token = idToken,
                 User = user
             })
             : NotFound("Usuário não encontrado.");
@@ -252,7 +253,7 @@ namespace GradeHoraria.Controllers
         [Route("/Authorize/RegisterUserAAD")]
         public async Task<IActionResult> CreateUserAsync([FromBody] RegisterModel model)
         {
-            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:GraphPath") };
+            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
 
             var confidentialClient = ConfidentialClientApplicationBuilder
             .Create(_configuration.GetValue<string>("AzureAd:ClientId"))

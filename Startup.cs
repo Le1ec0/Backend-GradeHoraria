@@ -128,13 +128,13 @@ public class Startup
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateAudience = true,
-                ValidAudience = Configuration.GetValue<string>("AzureAd:GraphPath"),
+                ValidAudience = Configuration.GetValue<string>("AzureAd:ClientId"),
 
                 ValidateIssuer = true,
                 ValidIssuer = Configuration.GetValue<string>("AzureAd:Instance") + Configuration.GetValue<string>("AzureAd:TenantId") + "/v2.0",
 
                 ValidateLifetime = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AzureAd:Secret"]))
+                //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AzureAd:Secret"]))
             };
         });
 
