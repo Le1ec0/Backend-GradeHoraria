@@ -14,8 +14,9 @@ using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace GradeHoraria.Controllers
 {
+    [ApiController]
     [Route("api/[controller]")]
-    public class AuthenticateController : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -23,7 +24,7 @@ namespace GradeHoraria.Controllers
         private readonly IServiceProvider _serviceProvider;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
-        public AuthenticateController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration,
+        public UserController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration,
         IGradeRepository repository, ApplicationDbContext context, IServiceProvider serviceProvider)
         {
             _userManager = userManager;
@@ -34,7 +35,7 @@ namespace GradeHoraria.Controllers
             _context = context;
         }
 
-        /*[HttpGet("/Authorize/GetAllUsers")]
+        /*[HttpGet("/User/GetAllUsers")]
          public async Task<IActionResult> GetAllUsers()
          {
              var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
@@ -64,7 +65,7 @@ namespace GradeHoraria.Controllers
              return Ok(users);
          }*/
 
-        /*[HttpGet("/Authorize/ImportAllUsers")]
+        /*[HttpGet("/User/ImportAllUsers")]
         public async Task<IActionResult> ImportAllUsers()
         {
             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
@@ -113,7 +114,7 @@ namespace GradeHoraria.Controllers
         }*/
 
 
-        /*[HttpGet("/Authorize/GetUserById")]
+        /*[HttpGet("/User/GetUserById")]
         public async Task<IActionResult> GetUserById()
         {
             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
@@ -143,7 +144,7 @@ namespace GradeHoraria.Controllers
             return Ok(users);
         }
 
-        [HttpGet("/Authorize/GetUserByName")]
+        [HttpGet("/User/GetUserByName")]
         public async Task<IActionResult> GetUserByName()
         {
             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
@@ -174,12 +175,13 @@ namespace GradeHoraria.Controllers
         }*/
 
         [HttpPost]
-        [Route("/Authorize/UserLogin")]
+        [Route("/User/UserLogin")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
+
             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
 
-            var redirectUri = Url.Action(nameof(Login), "Authorize", null, Request.Scheme);
+            var redirectUri = Url.Action(nameof(Login), "User", null, Request.Scheme);
 
             var publicClient = PublicClientApplicationBuilder
             .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
@@ -218,6 +220,17 @@ namespace GradeHoraria.Controllers
                     Email = user.Mail ?? user.UserPrincipalName
                 };
 
+                var result = await _userManager.CreateAsync(newUser);
+
+                if (result.Succeeded)
+                {
+                    var defaultrole = _roleManager.FindByNameAsync("Usuário").Result;
+
+                    if (defaultrole != null)
+                    {
+                        IdentityResult roleresult = await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
+                    }
+                }
                 var userRoles = await _userManager.GetRolesAsync(newUser);
 
                 var authClaims = new List<Claim>
@@ -250,7 +263,7 @@ namespace GradeHoraria.Controllers
         }
 
         [HttpPost]
-        [Route("/Authorize/RegisterUserAAD")]
+        [Route("/User/RegisterUserAAD")]
         public async Task<IActionResult> CreateUserAsync([FromBody] RegisterModel model)
         {
             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
@@ -293,7 +306,7 @@ namespace GradeHoraria.Controllers
         [Authorize(Roles = "AdminMaster")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
-        [Route("/Authorize/AssignRoles")]
+        [Route("/User/AssignRoles")]
         public async Task<IActionResult> AssignRoles([FromBody] ChangeRoleModel model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -317,15 +330,14 @@ namespace GradeHoraria.Controllers
         }
     }
 
-    [ApiController]
     [Route("api/[controller]")]
-    public class CursoController : ControllerBase
+    public class CursosController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
-        public CursoController(IGradeRepository repository, ApplicationDbContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        public CursosController(IGradeRepository repository, ApplicationDbContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _repository = repository;
             _context = context;
