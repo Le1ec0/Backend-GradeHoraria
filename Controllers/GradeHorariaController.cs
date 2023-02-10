@@ -142,43 +142,27 @@ namespace GradeHoraria.Controllers
             .Request()
             .GetAsync();
             return Ok(users);
-        }
+        }*/
 
         [HttpGet("/User/GetUserByName")]
-        public async Task<IActionResult> GetUserByName()
+        public async Task<IActionResult> GetUserByName(string UserName)
         {
-            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
+            var user = await _context.Users
+            .Where(u => u.UserName.Contains(UserName))
+            .FirstOrDefaultAsync();
 
-            var confidentialClient = ConfidentialClientApplicationBuilder
-            .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
-            .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}")
-            .WithClientSecret(_configuration.GetValue<string>("AzureAd:ClientSecret"))
-            .Build();
-
-            GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
+            if (user == null)
             {
+                return NotFound();
+            }
 
-                // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
-                var authResult = await confidentialClient.AcquireTokenForClient(scopes)
-                .ExecuteAsync();
-
-                // Add the access token in the Authorization header of the API
-                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
-
-            }));
-
-            // Make a Microsoft Graph API query
-            var users = await graphServiceClient.Users
-            .Request()
-            .GetAsync();
-            return Ok(users);
-        }*/
+            return Ok(user);
+        }
 
         [HttpPost]
         [Route("/User/UserLogin")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-
             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
 
             var redirectUri = Url.Action(nameof(Login), "User", null, Request.Scheme);
