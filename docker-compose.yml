@@ -1,0 +1,15 @@
+version: '3.4'
+services:
+  gradehoraria:
+    build:
+      context: .
+    ports:
+      - "7214:80"
+    environment:
+      ConnectionStrings__SQLConnection: "Server=.\\SQLEXPRESS;Database=GradeHoraria;Trusted_Connection=True;Trust Server Certificate=true"
+    depends_on:
+      - db
+  db:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    environment:
+      ACCEPT_EULA: "Y"
