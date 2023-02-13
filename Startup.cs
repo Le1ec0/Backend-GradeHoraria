@@ -6,7 +6,6 @@ using GradeHoraria.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using GradeHoraria.Models;
-using System.Text;
 
 public class Startup
 {
@@ -15,21 +14,19 @@ public class Startup
     {
         Configuration = configuration;
     }
-    public async Task CreateRoles(IServiceProvider serviceProvider)
+    public async Task CreateRoles(IServiceProvider serviceProvider, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
     {
-        var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var UserManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
-
         List<string> roleNames = new List<string> { UserRoles.AdminMaster, UserRoles.Admin, UserRoles.Coordenador, UserRoles.Professor, UserRoles.Usuario };
         IdentityResult roleResult;
 
         foreach (var roleName in roleNames)
         {
-            var roleExist = await RoleManager.RoleExistsAsync(roleName);
+            var roleExist = await roleManager.RoleExistsAsync(roleName);
             if (!roleExist)
             {
                 var newRole = new IdentityRole(roleName);
-                roleResult = await RoleManager.CreateAsync(newRole);
+                roleResult = await roleManager.CreateAsync(newRole);
+                Console.WriteLine($"Role creation result for role '{roleName}': {roleResult.Succeeded}");
             }
         }
 
@@ -40,17 +37,17 @@ public class Startup
             Email = Configuration["AdminMaster:UserEmail"],
         };
 
-        //Ensure you have these values in your appsettings.json file
         string UserPassword = Configuration["AdminMaster:UserPassword"];
-        var _user = await UserManager.FindByEmailAsync(Configuration["AdminMaster:AdminUserEmail"]);
+        var _user = await userManager.FindByEmailAsync(Configuration["AdminMaster:AdminUserEmail"]);
 
         if (_user == null)
         {
-            var createAdminMaster = await UserManager.CreateAsync(adminmaster, UserPassword);
+            var createAdminMaster = await userManager.CreateAsync(adminmaster, UserPassword);
+            Console.WriteLine($"User creation result: {createAdminMaster.Succeeded}");
             if (createAdminMaster.Succeeded)
             {
-                await UserManager.AddToRoleAsync(adminmaster, "AdminMaster");
-
+                var addToRoleResult = await userManager.AddToRoleAsync(adminmaster, "AdminMaster");
+                Console.WriteLine($"Add to role result: {addToRoleResult.Succeeded}");
             }
         }
     }
