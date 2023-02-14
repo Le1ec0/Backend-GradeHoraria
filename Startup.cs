@@ -14,43 +14,6 @@ public class Startup
     {
         Configuration = configuration;
     }
-    public async Task CreateRoles(IServiceProvider serviceProvider, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
-    {
-        List<string> roleNames = new List<string> { UserRoles.AdminMaster, UserRoles.Admin, UserRoles.Coordenador, UserRoles.Professor, UserRoles.Usuario };
-        IdentityResult roleResult;
-
-        foreach (var roleName in roleNames)
-        {
-            var roleExist = await roleManager.RoleExistsAsync(roleName);
-            if (!roleExist)
-            {
-                var newRole = new IdentityRole(roleName);
-                roleResult = await roleManager.CreateAsync(newRole);
-                Console.WriteLine($"Role creation result for role '{roleName}': {roleResult.Succeeded}");
-            }
-        }
-
-        //Here you could create a super user who will maintain the web app
-        var adminmaster = new IdentityUser
-        {
-            UserName = Configuration["AdminMaster:UserName"],
-            Email = Configuration["AdminMaster:UserEmail"],
-        };
-
-        string UserPassword = Configuration["AdminMaster:UserPassword"];
-        var _user = await userManager.FindByEmailAsync(Configuration["AdminMaster:AdminUserEmail"]);
-
-        if (_user == null)
-        {
-            var createAdminMaster = await userManager.CreateAsync(adminmaster, UserPassword);
-            Console.WriteLine($"User creation result: {createAdminMaster.Succeeded}");
-            if (createAdminMaster.Succeeded)
-            {
-                var addToRoleResult = await userManager.AddToRoleAsync(adminmaster, "AdminMaster");
-                Console.WriteLine($"Add to role result: {addToRoleResult.Succeeded}");
-            }
-        }
-    }
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -139,15 +102,12 @@ public class Startup
 
         services.AddControllers();
 
-        services.AddIdentity<IdentityUser, IdentityRole>()
-        .AddUserManager<UserManager<IdentityUser>>()
+        services.AddIdentity<ApplicationUser, IdentityRole>()
+        .AddUserManager<UserManager<ApplicationUser>>()
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders()
-        .AddRoles<IdentityRole>()
         .AddEntityFrameworkStores<ApplicationDbContext>();
 
-        services.AddScoped<UserManager<IdentityUser>>();
-        services.AddScoped<RoleManager<IdentityRole>>();
         services.AddScoped<IGradeRepository, GradeRepository>();
     }
 
@@ -179,7 +139,33 @@ public class Startup
         {
             endpoints.MapControllers();
         });
+    }
+    public async Task CreateRoles(IServiceProvider serviceProvider, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+    {
 
-        //CreateRoles().Wait();
+        //Here you could create a super user who will maintain the web app
+        var adminmaster = new ApplicationUser
+        {
+            UserName = Configuration["AdminMaster:UserName"],
+            Email = Configuration["AdminMaster:UserEmail"],
+        };
+
+        string UserPassword = Configuration["AdminMaster:UserPassword"];
+        var _user = await userManager.FindByEmailAsync(Configuration["AdminMaster:AdminUserEmail"]);
+
+        if (_user == null)
+        {
+            var createAdminMaster = await userManager.CreateAsync(adminmaster, UserPassword);
+            if (createAdminMaster.Succeeded)
+            {
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.AdminMaster));
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.Coordenador));
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.Professor));
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
+                await userManager.AddToRoleAsync(adminmaster, UserRoles.AdminMaster);
+                var addToRoleResult = await userManager.AddToRoleAsync(adminmaster, "AdminMaster");
+            }
+        }
     }
 }
