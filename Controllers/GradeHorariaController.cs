@@ -291,6 +291,51 @@ namespace GradeHoraria.Controllers
             return Ok();
         }
 
+        [HttpPost]
+        [Route("/User/CreateAdminUserandRoles")]
+        public async Task<IActionResult> CreateAdminUserandRoles()
+        {
+            //Here you could create a super user who will maintain the web app
+            var adminmaster = new ApplicationUser
+            {
+                UserName = _configuration["AdminMaster:UserName"],
+                Email = _configuration["AdminMaster:UserEmail"],
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+
+            var createAdminMaster = await _userManager.CreateAsync(adminmaster, "Teste08022802!@#");
+            if (createAdminMaster.Succeeded)
+            {
+                // Check if the role already exists
+                if (!await _roleManager.RoleExistsAsync(UserRoles.AdminMaster))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.AdminMaster));
+                }
+                if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+                }
+                if (!await _roleManager.RoleExistsAsync(UserRoles.Coordenador))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Coordenador));
+                }
+                if (!await _roleManager.RoleExistsAsync(UserRoles.Professor))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Professor));
+                }
+                if (!await _roleManager.RoleExistsAsync(UserRoles.Usuario))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
+                }
+                await _userManager.AddToRoleAsync(adminmaster, UserRoles.AdminMaster);
+                var addToRoleResult = await _userManager.AddToRoleAsync(adminmaster, "AdminMaster");
+            }
+            await _userManager.CreateAsync(adminmaster);
+            await _repository.AddUser((ApplicationUser)adminmaster);
+            await _repository.SaveChangesAsync();
+            return Ok();
+        }
+
         [Authorize(Roles = "AdminMaster")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]

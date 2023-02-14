@@ -140,32 +140,4 @@ public class Startup
             endpoints.MapControllers();
         });
     }
-    public async Task CreateRoles(IServiceProvider serviceProvider, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
-    {
-
-        //Here you could create a super user who will maintain the web app
-        var adminmaster = new ApplicationUser
-        {
-            UserName = Configuration["AdminMaster:UserName"],
-            Email = Configuration["AdminMaster:UserEmail"],
-        };
-
-        string UserPassword = Configuration["AdminMaster:UserPassword"];
-        var _user = await userManager.FindByEmailAsync(Configuration["AdminMaster:AdminUserEmail"]);
-
-        if (_user == null)
-        {
-            var createAdminMaster = await userManager.CreateAsync(adminmaster, UserPassword);
-            if (createAdminMaster.Succeeded)
-            {
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.AdminMaster));
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.Coordenador));
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.Professor));
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
-                await userManager.AddToRoleAsync(adminmaster, UserRoles.AdminMaster);
-                var addToRoleResult = await userManager.AddToRoleAsync(adminmaster, "AdminMaster");
-            }
-        }
-    }
 }
