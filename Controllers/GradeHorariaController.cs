@@ -209,7 +209,7 @@ namespace GradeHoraria.Controllers
 
                 if (result.Succeeded)
                 {
-                    var defaultrole = _roleManager.FindByNameAsync("Usuário").Result;
+                    var defaultrole = _roleManager.FindByNameAsync(UserRoles.Usuario).Result;
 
                     await _roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
 
@@ -306,27 +306,7 @@ namespace GradeHoraria.Controllers
             var createAdminMaster = await _userManager.CreateAsync(adminmaster, "Teste08022802!@#");
             if (createAdminMaster.Succeeded)
             {
-                // Check if the role already exists
-                if (!await _roleManager.RoleExistsAsync(UserRoles.AdminMaster))
-                {
-                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.AdminMaster));
-                }
-                if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
-                {
-                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-                }
-                if (!await _roleManager.RoleExistsAsync(UserRoles.Coordenador))
-                {
-                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Coordenador));
-                }
-                if (!await _roleManager.RoleExistsAsync(UserRoles.Professor))
-                {
-                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Professor));
-                }
-                if (!await _roleManager.RoleExistsAsync(UserRoles.Usuario))
-                {
-                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
-                }
+
                 await _userManager.AddToRoleAsync(adminmaster, UserRoles.AdminMaster);
                 var addToRoleResult = await _userManager.AddToRoleAsync(adminmaster, UserRoles.AdminMaster);
             }
