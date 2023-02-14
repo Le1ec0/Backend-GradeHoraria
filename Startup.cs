@@ -106,9 +106,11 @@ public class Startup
         .AddUserManager<UserManager<ApplicationUser>>()
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders()
-        .AddEntityFrameworkStores<ApplicationDbContext>();
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddRoles<IdentityRole>();
 
         services.AddScoped<IGradeRepository, GradeRepository>();
+        services.AddScoped<RoleManager<IdentityRole>>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
