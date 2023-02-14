@@ -18,13 +18,13 @@ namespace GradeHoraria.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
         private readonly IServiceProvider _serviceProvider;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
-        public UserController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration,
+        public UserController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration,
         IGradeRepository repository, ApplicationDbContext context, IServiceProvider serviceProvider)
         {
             _userManager = userManager;
@@ -95,7 +95,7 @@ namespace GradeHoraria.Controllers
 
             foreach (var user in users)
             {
-                var newUser = new IdentityUser
+                var newUser = new ApplicationUser
                 {
                     Id = user.Id,
                     UserName = user.DisplayName,
@@ -197,11 +197,12 @@ namespace GradeHoraria.Controllers
             var newUser = await _userManager.FindByIdAsync(user.Id);
             if (newUser == null)
             {
-                newUser = new IdentityUser
+                newUser = new ApplicationUser
                 {
                     Id = user.Id,
                     UserName = user.DisplayName,
-                    Email = user.Mail ?? user.UserPrincipalName
+                    Email = user.Mail ?? user.UserPrincipalName,
+                    SecurityStamp = Guid.NewGuid().ToString()
                 };
 
                 var result = await _userManager.CreateAsync(newUser);
@@ -210,29 +211,32 @@ namespace GradeHoraria.Controllers
                 {
                     var defaultrole = _roleManager.FindByNameAsync("Usuário").Result;
 
+                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
+
                     if (defaultrole != null)
                     {
                         IdentityResult roleresult = await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
-                    }
-                }
-                var userRoles = await _userManager.GetRolesAsync(newUser);
 
-                var authClaims = new List<Claim>
-                {
+                        await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
+                    }
+
+                    var userRoles = await _userManager.GetRolesAsync(newUser);
+
+                    var authClaims = new List<Claim>
+                    {
                     new Claim(ClaimTypes.Name, user.DisplayName),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                };
+                    };
 
-                foreach (var userRole in userRoles)
-                {
-                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
-                    await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
+                    foreach (var userRole in userRoles)
+                    {
+                        authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                    }
                 }
 
                 // Add the new User to the context using the AddUser method
                 await _userManager.CreateAsync(newUser);
-                await _repository.AddUser(newUser);
+                await _repository.AddUser((ApplicationUser)newUser);
                 await _repository.SaveChangesAsync();
             }
 
@@ -317,11 +321,11 @@ namespace GradeHoraria.Controllers
     [Route("api/[controller]")]
     public class CursosController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
-        public CursosController(IGradeRepository repository, ApplicationDbContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        public CursosController(IGradeRepository repository, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _repository = repository;
             _context = context;
@@ -443,11 +447,11 @@ namespace GradeHoraria.Controllers
     [Route("api/[controller]")]
     public class MateriasController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
-        public MateriasController(IGradeRepository repository, ApplicationDbContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        public MateriasController(IGradeRepository repository, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _repository = repository;
             _context = context;
