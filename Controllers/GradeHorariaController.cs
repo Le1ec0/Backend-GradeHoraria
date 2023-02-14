@@ -328,7 +328,7 @@ namespace GradeHoraria.Controllers
                     await _roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
                 }
                 await _userManager.AddToRoleAsync(adminmaster, UserRoles.AdminMaster);
-                var addToRoleResult = await _userManager.AddToRoleAsync(adminmaster, "AdminMaster");
+                var addToRoleResult = await _userManager.AddToRoleAsync(adminmaster, UserRoles.AdminMaster);
             }
             await _userManager.CreateAsync(adminmaster);
             await _repository.AddUser((ApplicationUser)adminmaster);
