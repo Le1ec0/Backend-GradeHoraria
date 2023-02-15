@@ -106,7 +106,6 @@ public class Startup
         .AddUserManager<UserManager<ApplicationUser>>()
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders()
-        .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddRoles<IdentityRole>();
 
         services.AddScoped<IGradeRepository, GradeRepository>();
