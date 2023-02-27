@@ -110,6 +110,33 @@ public class Startup
 
         services.AddScoped<IGradeRepository, GradeRepository>();
         services.AddScoped<RoleManager<IdentityRole>>();
+
+        var roleManager = services.BuildServiceProvider().GetRequiredService<RoleManager<IdentityRole>>();
+        CreateRoles(roleManager).Wait();
+    }
+    public async Task CreateRoles(RoleManager<IdentityRole> roleManager)
+    {
+        // Check if the role already exists
+        if (!await roleManager.RoleExistsAsync(UserRoles.AdminMaster))
+        {
+            await roleManager.CreateAsync(new IdentityRole(UserRoles.AdminMaster));
+        }
+        if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
+        {
+            await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+        }
+        if (!await roleManager.RoleExistsAsync(UserRoles.Coordenador))
+        {
+            await roleManager.CreateAsync(new IdentityRole(UserRoles.Coordenador));
+        }
+        if (!await roleManager.RoleExistsAsync(UserRoles.Professor))
+        {
+            await roleManager.CreateAsync(new IdentityRole(UserRoles.Professor));
+        }
+        if (!await roleManager.RoleExistsAsync(UserRoles.Usuario))
+        {
+            await roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
+        }
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

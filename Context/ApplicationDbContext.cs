@@ -10,7 +10,7 @@ namespace GradeHoraria.Context
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
-        public DbSet<IdentityRole> IdentityRole { get; set; }
+        //public DbSet<IdentityRole> IdentityRole { get; set; }
         public DbSet<ApplicationUser> ApplicationUser { get; set; }
         public DbSet<Curso> Cursos { get; set; }
         public DbSet<Periodo> Periodos { get; set; }
