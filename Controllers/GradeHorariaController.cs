@@ -238,6 +238,7 @@ namespace GradeHoraria.Controllers
                 await _userManager.CreateAsync(newUser);
                 await _repository.AddUser((ApplicationUser)newUser);
                 await _repository.SaveChangesAsync();
+                await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
             }
 
 

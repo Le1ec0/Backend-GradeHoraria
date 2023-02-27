@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
+using GradeHoraria.Models;
 using GradeHoraria.Context;
 using GradeHoraria.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using GradeHoraria.Models;
+
 
 public class Startup
 {
@@ -111,12 +112,13 @@ public class Startup
         services.AddScoped<IGradeRepository, GradeRepository>();
         services.AddScoped<RoleManager<IdentityRole>>();
 
-        var roleManager = services.BuildServiceProvider().GetRequiredService<RoleManager<IdentityRole>>();
-        CreateRoles(roleManager).Wait();
+        services.AddHostedService<SeedRoles>();
+
+        /*var roleManager = services.BuildServiceProvider().GetRequiredService<RoleManager<IdentityRole>>();
+        CreateRoles(roleManager).Wait();*/
     }
-    public async Task CreateRoles(RoleManager<IdentityRole> roleManager)
+    /*public async Task CreateRoles(RoleManager<IdentityRole> roleManager)
     {
-        // Check if the role already exists
         if (!await roleManager.RoleExistsAsync(UserRoles.AdminMaster))
         {
             await roleManager.CreateAsync(new IdentityRole(UserRoles.AdminMaster));
@@ -137,7 +139,7 @@ public class Startup
         {
             await roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
         }
-    }
+    }*/
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
