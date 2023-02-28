@@ -13,6 +13,7 @@ namespace GradeHoraria.Helpers
         public TokenMiddleware(RequestDelegate next, IConfiguration configuration)
         {
             _next = next;
+            Configuration = configuration;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -47,8 +48,6 @@ namespace GradeHoraria.Helpers
             await _next(context);
             {
                 Console.WriteLine("Token middleware executing...");
-                // rest of the code
-                await _next(context);
             }
         }
     }
