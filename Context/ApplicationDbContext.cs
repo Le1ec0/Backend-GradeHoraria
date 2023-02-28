@@ -22,7 +22,7 @@ namespace GradeHoraria.Context
             .HasKey(x => x.UserId);
 
             modelBuilder.Entity<IdentityUserRole<string>>()
-            .HasKey(x => x.UserId);
+            .HasKey(r => new { r.UserId, r.RoleId });
 
             modelBuilder.Entity<IdentityUserToken<string>>()
             .HasKey(x => x.UserId);
