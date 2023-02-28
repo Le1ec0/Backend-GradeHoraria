@@ -297,28 +297,39 @@ namespace GradeHoraria.Controllers
                 SecurityStamp = Guid.NewGuid().ToString()
             };
 
-            var result = await _userManager.CreateAsync(adminmaster, _configuration["AdminMaster:UserPassword"]);
+            /*var result = await _userManager.CreateAsync(adminmaster, _configuration["AdminMaster:UserPassword"]);
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(adminmaster, UserRoles.AdminMaster);
                 await _repository.AddUser((ApplicationUser)adminmaster);
                 await _repository.SaveChangesAsync();
-                return Ok();
-            }
-            else
-            {
-                // Handle the error case
-                return BadRequest(result.Errors);
-            }
+            }*/
 
+            await _userManager.CreateAsync(adminmaster, _configuration["AdminMaster:UserPassword"]);
+            await _userManager.AddToRoleAsync(adminmaster, UserRoles.AdminMaster);
+            await _repository.AddUser((ApplicationUser)adminmaster);
+            await _repository.SaveChangesAsync();
+
+            return Ok();
         }
 
-        //[Authorize(Roles = UserRoles.AdminMaster)]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         [Route("AssignRoles")]
         public async Task<IActionResult> AssignRoles([FromBody] ChangeRoleModel model)
         {
+            var loggedInUser = await _userManager.GetUserAsync(User);
+            if (loggedInUser == null)
+            {
+                return NotFound("Usuário não logado.");
+            }
+
+            var loggedInUserRoles = await _userManager.GetRolesAsync(loggedInUser);
+            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster))
+            {
+                return Forbid();
+            }
+
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
@@ -394,7 +405,7 @@ namespace GradeHoraria.Controllers
         }
 
         //[Authorize(Roles = "AdminMaster, Admin")]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("PostCursos")]
         public async Task<IActionResult> Post([FromBody] CursosRequestModel request)
         {
@@ -433,7 +444,7 @@ namespace GradeHoraria.Controllers
         }
 
         //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("PutCursoById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CursosRequestModel cursosRequestModel)
         {
@@ -451,7 +462,7 @@ namespace GradeHoraria.Controllers
         }
 
         //[Authorize(Roles = "AdminMaster")]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("DeleteCursoById/{id}")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
@@ -519,7 +530,7 @@ namespace GradeHoraria.Controllers
         }
 
         //[Authorize(Roles = "AdminMaster, Admin")]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("PostMateria")]
         public async Task<IActionResult> Post([FromBody] MateriasRequestModel request)
         {
@@ -547,7 +558,7 @@ namespace GradeHoraria.Controllers
         }
 
         //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("PutMateriasById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] MateriasRequestModel materiasRequestModel)
         {
@@ -566,7 +577,7 @@ namespace GradeHoraria.Controllers
         }
 
         //[Authorize(Roles = "AdminMaster")]
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("DeleteMateriasById/{id}/")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
