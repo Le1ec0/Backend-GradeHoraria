@@ -161,11 +161,11 @@ namespace GradeHoraria.Controllers
 
         [HttpPost]
         [Route("/User/UserLogin")]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        public async Task<IActionResult> UserLogin([FromBody] LoginModel model)
         {
             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
 
-            var redirectUri = Url.Action(nameof(Login), "User", null, Request.Scheme);
+            var redirectUri = Url.Action(nameof(UserLogin), "User", null, Request.Scheme);
 
             var publicClient = PublicClientApplicationBuilder
             .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
@@ -207,13 +207,15 @@ namespace GradeHoraria.Controllers
                     SecurityStamp = Guid.NewGuid().ToString()
                 };
 
-                var result = await _userManager.CreateAsync(newUser);
-                if (result.Succeeded)
-                {
-                    await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
-                }
+                await _userManager.CreateAsync(newUser);
 
                 var userRoles = await _userManager.GetRolesAsync(newUser);
+
+                if (userRoles.Count == 0)
+                {
+                    // If the user doesn't have any roles, add them to the default user role
+                    await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
+                }
 
                 var authClaims = new List<Claim>
                 {
@@ -299,11 +301,16 @@ namespace GradeHoraria.Controllers
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(adminmaster, UserRoles.AdminMaster);
+                await _repository.AddUser((ApplicationUser)adminmaster);
+                await _repository.SaveChangesAsync();
+                return Ok();
+            }
+            else
+            {
+                // Handle the error case
+                return BadRequest(result.Errors);
             }
 
-            await _repository.AddUser((ApplicationUser)adminmaster);
-            await _repository.SaveChangesAsync();
-            return Ok();
         }
 
         [Authorize(Roles = "AdminMaster")]
