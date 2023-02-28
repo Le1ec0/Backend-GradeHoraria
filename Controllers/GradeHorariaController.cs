@@ -208,23 +208,22 @@ namespace GradeHoraria.Controllers
                 };
 
                 var result = await _userManager.CreateAsync(newUser);
-
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
+                }
 
-                    var userRoles = await _userManager.GetRolesAsync(newUser);
+                var userRoles = await _userManager.GetRolesAsync(newUser);
 
-                    var authClaims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, user.DisplayName),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    };
+                var authClaims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.DisplayName),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                };
 
-                    foreach (var userRole in userRoles)
-                    {
-                        authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-                    }
+                foreach (var userRole in userRoles)
+                {
+                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
                 }
 
                 // Add the new User to the context using the AddUser method
