@@ -35,7 +35,7 @@ namespace GradeHoraria.Controllers
             _context = context;
         }
 
-        /*[HttpGet("/User/GetAllUsers")]
+        /*[HttpGet("GetAllUsers")]
          public async Task<IActionResult> GetAllUsers()
          {
              var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
@@ -65,7 +65,7 @@ namespace GradeHoraria.Controllers
              return Ok(users);
          }*/
 
-        /*[HttpGet("/User/ImportAllUsers")]
+        /*[HttpGet("ImportAllUsers")]
         public async Task<IActionResult> ImportAllUsers()
         {
             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
@@ -114,7 +114,7 @@ namespace GradeHoraria.Controllers
         }*/
 
 
-        /*[HttpGet("/User/GetUserById")]
+        /*[HttpGet("GetUserById")]
         public async Task<IActionResult> GetUserById()
         {
             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
@@ -144,7 +144,7 @@ namespace GradeHoraria.Controllers
             return Ok(users);
         }*/
 
-        [HttpGet("/User/GetUserByName")]
+        [HttpGet("GetUserByName")]
         public async Task<IActionResult> GetUserByName(string UserName)
         {
             var user = await _context.Users
@@ -160,7 +160,7 @@ namespace GradeHoraria.Controllers
         }
 
         [HttpPost]
-        [Route("/User/UserLogin")]
+        [Route("UserLogin")]
         public async Task<IActionResult> UserLogin([FromBody] LoginModel model)
         {
             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
@@ -194,7 +194,7 @@ namespace GradeHoraria.Controllers
             .Request()
             .GetAsync();
 
-            var newUser = await _userManager.FindByIdAsync(user.Id);
+            var newUser = await _userManager.FindByNameAsync(user.DisplayName);
             if (newUser == null)
             {
                 newUser = new ApplicationUser
@@ -244,7 +244,7 @@ namespace GradeHoraria.Controllers
         }
 
         [HttpPost]
-        [Route("/User/RegisterUserAAD")]
+        [Route("RegisterUserAAD")]
         public async Task<IActionResult> CreateUserAsync([FromBody] RegisterModel model)
         {
             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
@@ -285,7 +285,7 @@ namespace GradeHoraria.Controllers
         }
 
         [HttpPost]
-        [Route("/User/CreateAdminUser")]
+        [Route("CreateAdminUser")]
         public async Task<IActionResult> CreateAdminUser()
         {
             var adminmaster = new ApplicationUser
@@ -313,10 +313,10 @@ namespace GradeHoraria.Controllers
 
         }
 
-        [Authorize(Roles = "AdminMaster")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(Roles = UserRoles.AdminMaster)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
-        [Route("/User/AssignRoles")]
+        [Route("AssignRoles")]
         public async Task<IActionResult> AssignRoles([FromBody] ChangeRoleModel model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -357,7 +357,7 @@ namespace GradeHoraria.Controllers
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpGet("/Cursos/GetAllCursos")]
+        [HttpGet("GetAllCursos")]
         public async Task<IActionResult> Get()
         {
             var curso = await _context.Cursos
@@ -369,7 +369,7 @@ namespace GradeHoraria.Controllers
             : NoContent();
         }
 
-        [HttpGet("/Cursos/GetCursoById/{id}")]
+        [HttpGet("GetCursoById/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var curso = await _context.Cursos
@@ -381,7 +381,7 @@ namespace GradeHoraria.Controllers
             : NotFound("Curso não encontrado.");
         }
 
-        [HttpGet("/Cursos/GetCursoByName/{name}")]
+        [HttpGet("GetCursoByName/{name}")]
         public async Task<IActionResult> GetByName(string name)
         {
             var curso = await _context.Cursos
@@ -395,7 +395,7 @@ namespace GradeHoraria.Controllers
 
         //[Authorize(Roles = "AdminMaster, Admin")]
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost("/Cursos/PostCursos")]
+        [HttpPost("PostCursos")]
         public async Task<IActionResult> Post([FromBody] CursosRequestModel request)
         {
             // Create new Curso object and set its properties
@@ -434,7 +434,7 @@ namespace GradeHoraria.Controllers
 
         //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPut("/Cursos/PutCursoById/{id}")]
+        [HttpPut("PutCursoById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CursosRequestModel cursosRequestModel)
         {
             var dbCursos = await _repository.GetCurso(id);
@@ -452,7 +452,7 @@ namespace GradeHoraria.Controllers
 
         //[Authorize(Roles = "AdminMaster")]
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpDelete("/Cursos/DeleteCursoById/{id}")]
+        [HttpDelete("DeleteCursoById/{id}")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
             var cursos = await _repository.GetCurso(id);
@@ -482,7 +482,7 @@ namespace GradeHoraria.Controllers
             _roleManager = roleManager;
         }
 
-        [HttpGet("/Materias/GetAllMaterias")]
+        [HttpGet("GetAllMaterias")]
         public async Task<IActionResult> Get()
         {
             var materia = await _context.Materias
@@ -494,7 +494,7 @@ namespace GradeHoraria.Controllers
             : NoContent();
         }
 
-        [HttpGet("/Materias/GetMateriasById/{id}")]
+        [HttpGet("GetMateriasById/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var materia = await _context.Materias
@@ -506,7 +506,7 @@ namespace GradeHoraria.Controllers
             : NotFound("Matéria não encontrada.");
         }
 
-        [HttpGet("/Materias/GetMateriasByName/{name}")]
+        [HttpGet("GetMateriasByName/{name}")]
         public async Task<IActionResult> GetByName(string name)
         {
             var materia = await _context.Materias
@@ -520,7 +520,7 @@ namespace GradeHoraria.Controllers
 
         //[Authorize(Roles = "AdminMaster, Admin")]
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost("/Materias/PostMateria")]
+        [HttpPost("PostMateria")]
         public async Task<IActionResult> Post([FromBody] MateriasRequestModel request)
         {
             // Create new Materia object and set its properties
@@ -548,7 +548,7 @@ namespace GradeHoraria.Controllers
 
         //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPut("/Materias/PutMateriasById/{id}")]
+        [HttpPut("PutMateriasById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] MateriasRequestModel materiasRequestModel)
         {
             var dbMaterias = await _repository.GetMateria(id);
@@ -567,7 +567,7 @@ namespace GradeHoraria.Controllers
 
         //[Authorize(Roles = "AdminMaster")]
         //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpDelete("/Materias/DeleteMateriasById/{id}/")]
+        [HttpDelete("DeleteMateriasById/{id}/")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
             var materias = await _repository.GetMateria(id);
