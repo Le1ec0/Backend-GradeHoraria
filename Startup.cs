@@ -6,7 +6,7 @@ using GradeHoraria.Context;
 using GradeHoraria.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-
+using System.Text;
 
 public class Startup
 {
@@ -86,6 +86,8 @@ public class Startup
             options.SaveToken = true;
             options.RequireHttpsMetadata = false;
             options.Authority = Configuration.GetValue<string>("AzureAd:Instance") + Configuration.GetValue<string>("AzureAd:TenantId") + "/v2.0";
+            options.Audience = Configuration.GetValue<string>("AzureAd:ClientId");
+            options.ClaimsIssuer = Configuration.GetValue<string>("AzureAd:Instance") + Configuration.GetValue<string>("AzureAd:TenantId") + "/v2.0";
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateAudience = true,
@@ -95,7 +97,7 @@ public class Startup
                 ValidIssuer = Configuration.GetValue<string>("AzureAd:Instance") + Configuration.GetValue<string>("AzureAd:TenantId") + "/v2.0",
 
                 ValidateLifetime = true,
-                //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AzureAd:Secret"]))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:SecretKey"]))
             };
         });
 
@@ -113,33 +115,7 @@ public class Startup
         services.AddScoped<RoleManager<IdentityRole>>();
 
         services.AddHostedService<SeedRoles>();
-
-        /*var roleManager = services.BuildServiceProvider().GetRequiredService<RoleManager<IdentityRole>>();
-        CreateRoles(roleManager).Wait();*/
     }
-    /*public async Task CreateRoles(RoleManager<IdentityRole> roleManager)
-    {
-        if (!await roleManager.RoleExistsAsync(UserRoles.AdminMaster))
-        {
-            await roleManager.CreateAsync(new IdentityRole(UserRoles.AdminMaster));
-        }
-        if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
-        {
-            await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-        }
-        if (!await roleManager.RoleExistsAsync(UserRoles.Coordenador))
-        {
-            await roleManager.CreateAsync(new IdentityRole(UserRoles.Coordenador));
-        }
-        if (!await roleManager.RoleExistsAsync(UserRoles.Professor))
-        {
-            await roleManager.CreateAsync(new IdentityRole(UserRoles.Professor));
-        }
-        if (!await roleManager.RoleExistsAsync(UserRoles.Usuario))
-        {
-            await roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
-        }
-    }*/
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
