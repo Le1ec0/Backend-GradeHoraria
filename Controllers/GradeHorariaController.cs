@@ -202,6 +202,8 @@ namespace GradeHoraria.Controllers
                     Id = user.Id,
                     UserName = user.DisplayName,
                     Email = user.Mail ?? user.UserPrincipalName,
+                    NormalizedUserName = user.DisplayName.ToUpperInvariant(),
+                    NormalizedEmail = (user.Mail ?? user.UserPrincipalName).ToUpperInvariant(),
                     SecurityStamp = Guid.NewGuid().ToString()
                 };
 
@@ -209,23 +211,14 @@ namespace GradeHoraria.Controllers
 
                 if (result.Succeeded)
                 {
-                    var defaultrole = _roleManager.FindByNameAsync(UserRoles.Usuario).Result;
-
-                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
-
-                    if (defaultrole != null)
-                    {
-                        IdentityResult roleresult = await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
-
-                        await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
-                    }
+                    await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
 
                     var userRoles = await _userManager.GetRolesAsync(newUser);
 
                     var authClaims = new List<Claim>
                     {
-                    new Claim(ClaimTypes.Name, user.DisplayName),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                        new Claim(ClaimTypes.Name, user.DisplayName),
+                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     };
 
                     foreach (var userRole in userRoles)
@@ -235,12 +228,10 @@ namespace GradeHoraria.Controllers
                 }
 
                 // Add the new User to the context using the AddUser method
-                await _userManager.CreateAsync(newUser);
                 await _repository.AddUser((ApplicationUser)newUser);
                 await _repository.SaveChangesAsync();
-                await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
-            }
 
+            }
 
             return user != null
             ? Ok(new
@@ -293,25 +284,24 @@ namespace GradeHoraria.Controllers
         }
 
         [HttpPost]
-        [Route("/User/CreateAdminUserandRoles")]
-        public async Task<IActionResult> CreateAdminUserandRoles()
+        [Route("/User/CreateAdminUser")]
+        public async Task<IActionResult> CreateAdminUser()
         {
-            //Here you could create a super user who will maintain the web app
             var adminmaster = new ApplicationUser
             {
                 UserName = _configuration["AdminMaster:UserName"],
+                NormalizedUserName = _configuration["AdminMaster:UserName"].ToUpperInvariant(),
                 Email = _configuration["AdminMaster:UserEmail"],
+                NormalizedEmail = _configuration["AdminMaster:UserEmail"].ToUpperInvariant(),
                 SecurityStamp = Guid.NewGuid().ToString()
             };
 
-            var createAdminMaster = await _userManager.CreateAsync(adminmaster, "Teste08022802!@#");
-            if (createAdminMaster.Succeeded)
+            var result = await _userManager.CreateAsync(adminmaster, _configuration["AdminMaster:UserPassword"]);
+            if (result.Succeeded)
             {
-
                 await _userManager.AddToRoleAsync(adminmaster, UserRoles.AdminMaster);
-                var addToRoleResult = await _userManager.AddToRoleAsync(adminmaster, UserRoles.AdminMaster);
             }
-            await _userManager.CreateAsync(adminmaster);
+
             await _repository.AddUser((ApplicationUser)adminmaster);
             await _repository.SaveChangesAsync();
             return Ok();
@@ -339,6 +329,7 @@ namespace GradeHoraria.Controllers
             }
 
             await _userManager.AddToRoleAsync(user, model.RoleName);
+            await _repository.SaveChangesAsync();
 
             return Ok();
         }
