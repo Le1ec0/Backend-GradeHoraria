@@ -322,6 +322,10 @@ namespace GradeHoraria.Controllers
             var user = await _userManager.FindByNameAsync(userName);
 
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
+            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster))
+            {
+                return Forbid("Usuário não é AdminMaster");
+            }
 
             var userToUpdate = await _userManager.FindByEmailAsync(model.Email);
             if (userToUpdate == null)
