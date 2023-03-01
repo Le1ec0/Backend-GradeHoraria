@@ -95,7 +95,7 @@ The "Logging" section defines the default log level as "Information" and sets th
 
 The "AllowedHosts" value is set to "*" which means that any host can access the application.
 
-The "AzureAd" section contains settings for Azure Active Directory authentication. It includes the tenant ID, client ID, client secret, and callback paths for signing in and signing out.
+The "AzureAD" section contains settings for Azure Active Directory authentication. It includes the tenant ID, client ID, client secret, and callback paths for signing in and signing out.
 
 # Some potential issues
 The "SQLConnection" in the appsettings.json file is using a trusted connection and a hardcoded server name, which could be a security vulnerability if the application is deployed to a production environment.
