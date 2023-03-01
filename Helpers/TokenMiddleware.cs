@@ -26,14 +26,14 @@ namespace GradeHoraria.Helpers
                 var validationParameters = new TokenValidationParameters
                 {
                     ValidateAudience = true,
-                    ValidAudience = Configuration.GetValue<string>("AzureAd:ClientId"),
+                    ValidAudience = Configuration.GetValue<string>("AzureAD:ClientId"),
 
                     ValidateIssuer = true,
-                    ValidIssuer = Configuration.GetValue<string>("AzureAd:Instance") + Configuration.GetValue<string>("AzureAd:TenantId") + "/v2.0",
+                    ValidIssuer = Configuration.GetValue<string>("AzureAD:Instance") + Configuration.GetValue<string>("AzureAD:TenantId") + "/v2.0",
 
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:SecretKey"]))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AzureAD:ClientSecret"]))
                 };
                 try
                 {
