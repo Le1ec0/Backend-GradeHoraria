@@ -324,7 +324,7 @@ namespace GradeHoraria.Controllers
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
             if (!loggedInUserRoles.Contains(UserRoles.AdminMaster))
             {
-                return Forbid("Usuário não é AdminMaster");
+                return Forbid("Usuário não é AdminMaster.");
             }
 
             var userToUpdate = await _userManager.FindByEmailAsync(model.Email);
@@ -364,7 +364,6 @@ namespace GradeHoraria.Controllers
             _roleManager = roleManager;
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("GetAllCursos")]
         public async Task<IActionResult> Get()
         {
@@ -401,11 +400,18 @@ namespace GradeHoraria.Controllers
             : NotFound("Curso não encontrado.");
         }
 
-        //[Authorize(Roles = "AdminMaster, Admin")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("PostCursos")]
         public async Task<IActionResult> Post([FromBody] CursosRequestModel request)
         {
+            var userName = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+            var user = await _userManager.FindByNameAsync(userName);
+
+            var loggedInUserRoles = await _userManager.GetRolesAsync(user);
+            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster) || !loggedInUserRoles.Contains(UserRoles.Admin))
+            {
+                return Forbid("Usuário não é AdminMaster/Admin.");
+            }
             // Create new Curso object and set its properties
             var curso = new Curso
             {
@@ -440,11 +446,18 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao criar curso.");
         }
 
-        //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("PutCursoById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CursosRequestModel cursosRequestModel)
         {
+            var userName = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+            var user = await _userManager.FindByNameAsync(userName);
+
+            var loggedInUserRoles = await _userManager.GetRolesAsync(user);
+            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster) || !loggedInUserRoles.Contains(UserRoles.Admin) || !loggedInUserRoles.Contains(UserRoles.Coordenador))
+            {
+                return Forbid("Usuário não é AdminMaster/Admin/Coordenador.");
+            }
             var dbCursos = await _repository.GetCurso(id);
             if (dbCursos == null) return NotFound("Curso não encontrado.");
 
@@ -458,11 +471,18 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao atualizar curso.");
         }
 
-        //[Authorize(Roles = "AdminMaster")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("DeleteCursoById/{id}")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
+            var userName = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+            var user = await _userManager.FindByNameAsync(userName);
+
+            var loggedInUserRoles = await _userManager.GetRolesAsync(user);
+            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster))
+            {
+                return Forbid("Usuário não é Admin.");
+            }
             var cursos = await _repository.GetCurso(id);
             if (cursos == null) return NotFound("Curso não encontrado.");
 
@@ -526,11 +546,18 @@ namespace GradeHoraria.Controllers
             : NotFound("Matéria não encontrada.");
         }
 
-        //[Authorize(Roles = "AdminMaster, Admin")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("PostMateria")]
         public async Task<IActionResult> Post([FromBody] MateriasRequestModel request)
         {
+            var userName = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+            var user = await _userManager.FindByNameAsync(userName);
+
+            var loggedInUserRoles = await _userManager.GetRolesAsync(user);
+            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster) || !loggedInUserRoles.Contains(UserRoles.Admin))
+            {
+                return Forbid("Usuário não é AdminMaster/Admin.");
+            }
             // Create new Materia object and set its properties
             var materia = new Materia
             {
@@ -554,11 +581,18 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao criar Matéria.");
         }
 
-        //[Authorize(Roles = "AdminMaster, Admin, Coordenador, Professor")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("PutMateriasById/{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] MateriasRequestModel materiasRequestModel)
         {
+            var userName = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+            var user = await _userManager.FindByNameAsync(userName);
+
+            var loggedInUserRoles = await _userManager.GetRolesAsync(user);
+            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster) || !loggedInUserRoles.Contains(UserRoles.Admin) || !loggedInUserRoles.Contains(UserRoles.Coordenador))
+            {
+                return Forbid("Usuário não é AdminMaster/Admin/Coordenador.");
+            }
             var dbMaterias = await _repository.GetMateria(id);
             if (dbMaterias == null) return NotFound("Matéria não encontrada.");
 
@@ -573,11 +607,18 @@ namespace GradeHoraria.Controllers
             : BadRequest("Erro ao atualizar Matéria.");
         }
 
-        //[Authorize(Roles = "AdminMaster")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("DeleteMateriasById/{id}/")]
         public async Task<IActionResult> Delete([FromBody] int id)
         {
+            var userName = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+            var user = await _userManager.FindByNameAsync(userName);
+
+            var loggedInUserRoles = await _userManager.GetRolesAsync(user);
+            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster) || !loggedInUserRoles.Contains(UserRoles.Admin))
+            {
+                return Forbid("Usuário não é AdminMaster/Admin.");
+            }
             var materias = await _repository.GetMateria(id);
             if (materias == null) return NotFound("Matéria não encontrada.");
 
