@@ -85,19 +85,20 @@ public class Startup
         {
             options.SaveToken = true;
             options.RequireHttpsMetadata = false;
-            options.Authority = Configuration.GetValue<string>("AzureAd:Instance") + Configuration.GetValue<string>("AzureAd:TenantId") + "/v2.0";
-            options.Audience = Configuration.GetValue<string>("AzureAd:ClientId");
-            options.ClaimsIssuer = Configuration.GetValue<string>("AzureAd:Instance") + Configuration.GetValue<string>("AzureAd:TenantId") + "/v2.0";
+            options.Authority = Configuration.GetValue<string>("AzureAD:Instance") + Configuration.GetValue<string>("AzureAD:TenantId") + "/v2.0";
+            options.Audience = Configuration.GetValue<string>("AzureAD:ClientId");
+            options.ClaimsIssuer = Configuration.GetValue<string>("AzureAD:Instance") + Configuration.GetValue<string>("AzureAD:TenantId") + "/v2.0";
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateAudience = true,
-                ValidAudience = Configuration.GetValue<string>("AzureAd:ClientId"),
+                ValidAudience = Configuration.GetValue<string>("AzureAD:ClientId"),
 
                 ValidateIssuer = true,
-                ValidIssuer = Configuration.GetValue<string>("AzureAd:Instance") + Configuration.GetValue<string>("AzureAd:TenantId") + "/v2.0",
+                ValidIssuer = Configuration.GetValue<string>("AzureAD:Instance") + Configuration.GetValue<string>("AzureAD:TenantId") + "/v2.0",
 
                 ValidateLifetime = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:SecretKey"]))
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AzureAD:ClientSecret"]))
             };
         });
 
@@ -115,6 +116,12 @@ public class Startup
         services.AddScoped<RoleManager<IdentityRole>>();
 
         services.AddHostedService<SeedRoles>();
+
+        // Set the UserIdClaimType to the name of the claim that contains the user id
+        services.Configure<IdentityOptions>(options =>
+        {
+            options.ClaimsIdentity.UserNameClaimType = "name";
+        });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
