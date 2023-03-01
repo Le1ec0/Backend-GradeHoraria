@@ -38,12 +38,12 @@ namespace GradeHoraria.Controllers
         /*[HttpGet("GetAllUsers")]
          public async Task<IActionResult> GetAllUsers()
          {
-             var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
+             var scopes = new string[] { _configuration.GetValue<string>("AzureAD:Scope") };
 
              var confidentialClient = ConfidentialClientApplicationBuilder
-             .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
-             .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}")
-             .WithClientSecret(_configuration.GetValue<string>("AzureAd:ClientSecret"))
+             .Create(_configuration.GetValue<string>("AzureAD:ClientId"))
+             .WithAuthority($"{_configuration.GetValue<string>("AzureAD:Instance")}{_configuration.GetValue<string>("AzureAD:TenantId")}")
+             .WithClientSecret(_configuration.GetValue<string>("AzureAD:ClientSecret"))
              .Build();
 
              GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
@@ -68,12 +68,12 @@ namespace GradeHoraria.Controllers
         /*[HttpGet("ImportAllUsers")]
         public async Task<IActionResult> ImportAllUsers()
         {
-            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
+            var scopes = new string[] { _configuration.GetValue<string>("AzureAD:Scope") };
 
             var confidentialClient = ConfidentialClientApplicationBuilder
-            .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
-            .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}")
-            .WithClientSecret(_configuration.GetValue<string>("AzureAd:ClientSecret"))
+            .Create(_configuration.GetValue<string>("AzureAD:ClientId"))
+            .WithAuthority($"{_configuration.GetValue<string>("AzureAD:Instance")}{_configuration.GetValue<string>("AzureAD:TenantId")}")
+            .WithClientSecret(_configuration.GetValue<string>("AzureAD:ClientSecret"))
             .Build();
 
             GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
@@ -117,12 +117,12 @@ namespace GradeHoraria.Controllers
         /*[HttpGet("GetUserById")]
         public async Task<IActionResult> GetUserById()
         {
-            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
+            var scopes = new string[] { _configuration.GetValue<string>("AzureAD:Scope") };
 
             var confidentialClient = ConfidentialClientApplicationBuilder
-            .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
-            .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}")
-            .WithClientSecret(_configuration.GetValue<string>("AzureAd:ClientSecret"))
+            .Create(_configuration.GetValue<string>("AzureAD:ClientId"))
+            .WithAuthority($"{_configuration.GetValue<string>("AzureAD:Instance")}{_configuration.GetValue<string>("AzureAD:TenantId")}")
+            .WithClientSecret(_configuration.GetValue<string>("AzureAD:ClientSecret"))
             .Build();
 
             GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
@@ -163,13 +163,13 @@ namespace GradeHoraria.Controllers
         [Route("UserLogin")]
         public async Task<IActionResult> UserLogin([FromBody] LoginModel model)
         {
-            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
+            var scopes = new string[] { _configuration.GetValue<string>("AzureAD:Scope") };
 
             var redirectUri = Url.Action(nameof(UserLogin), "User", null, Request.Scheme);
 
             var publicClient = PublicClientApplicationBuilder
-            .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
-            .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}/v2.0")
+            .Create(_configuration.GetValue<string>("AzureAD:ClientId"))
+            .WithAuthority($"{_configuration.GetValue<string>("AzureAD:Instance")}{_configuration.GetValue<string>("AzureAD:TenantId")}/v2.0")
             .WithRedirectUri(redirectUri)
             .Build();
 
@@ -247,12 +247,12 @@ namespace GradeHoraria.Controllers
         [Route("RegisterUserAAD")]
         public async Task<IActionResult> CreateUserAsync([FromBody] RegisterModel model)
         {
-            var scopes = new string[] { _configuration.GetValue<string>("AzureAd:Scope") };
+            var scopes = new string[] { _configuration.GetValue<string>("AzureAD:Scope") };
 
             var confidentialClient = ConfidentialClientApplicationBuilder
-            .Create(_configuration.GetValue<string>("AzureAd:ClientId"))
-            .WithAuthority($"{_configuration.GetValue<string>("AzureAd:Instance")}{_configuration.GetValue<string>("AzureAd:TenantId")}")
-            .WithClientSecret(_configuration.GetValue<string>("AzureAd:ClientSecret"))
+            .Create(_configuration.GetValue<string>("AzureAD:ClientId"))
+            .WithAuthority($"{_configuration.GetValue<string>("AzureAD:Instance")}{_configuration.GetValue<string>("AzureAD:TenantId")}")
+            .WithClientSecret(_configuration.GetValue<string>("AzureAD:ClientSecret"))
             .Build();
 
             GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
@@ -318,26 +318,19 @@ namespace GradeHoraria.Controllers
         [Route("AssignRoles")]
         public async Task<IActionResult> AssignRoles([FromBody] ChangeRoleModel model)
         {
-            var loggedInUser = await _userManager.GetUserAsync(User);
-            if (loggedInUser == null)
-            {
-                return NotFound("Usuário não logado.");
-            }
+            var userName = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+            var user = await _userManager.FindByNameAsync(userName);
 
-            var loggedInUserRoles = await _userManager.GetRolesAsync(loggedInUser);
-            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster))
-            {
-                return Forbid();
-            }
+            var loggedInUserRoles = await _userManager.GetRolesAsync(user);
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
+            var userToUpdate = await _userManager.FindByEmailAsync(model.Email);
+            if (userToUpdate == null)
             {
                 return NotFound("Usuário não encontrado.");
             }
 
-            var currentRoles = await _userManager.GetRolesAsync(user);
-            await _userManager.RemoveFromRolesAsync(user, currentRoles);
+            var currentRoles = await _userManager.GetRolesAsync(userToUpdate);
+            await _userManager.RemoveFromRolesAsync(userToUpdate, currentRoles);
 
             var role = await _roleManager.FindByNameAsync(model.RoleName);
             if (role == null)
@@ -345,7 +338,7 @@ namespace GradeHoraria.Controllers
                 return NotFound("Role não encontrada.");
             }
 
-            await _userManager.AddToRoleAsync(user, model.RoleName);
+            await _userManager.AddToRoleAsync(userToUpdate, model.RoleName);
             await _repository.SaveChangesAsync();
 
             return Ok();
