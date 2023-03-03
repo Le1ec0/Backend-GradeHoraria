@@ -159,6 +159,21 @@ namespace GradeHoraria.Controllers
             return Ok(user);
         }
 
+        [HttpGet("GetUserByEmail")]
+        public async Task<IActionResult> GetUserByEmail(string UserEmail)
+        {
+            var user = await _context.Users
+            .Where(u => u.Email.Contains(UserEmail))
+            .FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                return NotFound("Nenhum usuário encontrado com esse e-mail.");
+            }
+
+            return Ok(user);
+        }
+
         [HttpPost]
         [Route("UserLogin")]
         public async Task<IActionResult> UserLogin([FromBody] LoginModel model)
