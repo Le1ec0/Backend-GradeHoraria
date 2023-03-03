@@ -35,15 +35,8 @@ namespace GradeHoraria.Helpers
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AzureAD:ClientSecret"]))
                 };
-                try
-                {
-                    var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out var rawToken);
-                    context.User = claimsPrincipal;
-                }
-                catch (Exception)
-                {
-                    // Handle token validation errors
-                }
+                var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out var rawToken);
+                context.User = claimsPrincipal;
             }
             await _next(context);
             {
