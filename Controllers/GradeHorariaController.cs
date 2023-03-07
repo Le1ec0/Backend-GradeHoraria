@@ -1,6 +1,7 @@
 using GradeHoraria.Context;
 using GradeHoraria.Models;
 using GradeHoraria.Repositories;
+using GradeHoraria.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,8 @@ using Microsoft.Identity.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Security.Claims;
-using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.AspNetCore.Authentication;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace GradeHoraria.Controllers
 {
@@ -24,8 +26,9 @@ namespace GradeHoraria.Controllers
         private readonly IServiceProvider _serviceProvider;
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         public UserController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration,
-        IGradeRepository repository, ApplicationDbContext context, IServiceProvider serviceProvider)
+        IGradeRepository repository, ApplicationDbContext context, IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -33,6 +36,7 @@ namespace GradeHoraria.Controllers
             _serviceProvider = serviceProvider;
             _repository = repository;
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         /*[HttpGet("GetAllUsers")]
@@ -144,6 +148,18 @@ namespace GradeHoraria.Controllers
             return Ok(users);
         }*/
 
+        [HttpPost]
+        [Route("GetLoggedUser")]
+        public async Task<IActionResult> GetLoggedUser()
+        {
+            var name = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+            var preferredUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "preferred_username")?.Value;
+
+            var userClaims = new { Name = name, PreferredUsername = preferredUsername };
+
+            return Ok(userClaims);
+        }
+
         [HttpGet("GetUserByName")]
         public async Task<IActionResult> GetUserByName(string UserName)
         {
@@ -235,7 +251,7 @@ namespace GradeHoraria.Controllers
                 var authClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.DisplayName),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
 
                 foreach (var userRole in userRoles)
