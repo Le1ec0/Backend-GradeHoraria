@@ -4,18 +4,19 @@ using Microsoft.AspNetCore.Identity;
 using GradeHoraria.Models;
 using GradeHoraria.Context;
 using GradeHoraria.Repositories;
+using GradeHoraria.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 public class Startup
 {
+    private readonly ICollection<SecurityKey> _signingKeys;
     public IConfiguration Configuration { get; }
     public Startup(IConfiguration configuration)
     {
         Configuration = configuration;
+        _signingKeys = GradeHoraria.Helpers.TokenMiddleware.GetSigningKeys().Result;
     }
-
     public void ConfigureServices(IServiceCollection services)
     {
         // Add services to the container.
@@ -98,7 +99,7 @@ public class Startup
 
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AzureAD:ClientSecret"]))
+                IssuerSigningKey = (SecurityKey)_signingKeys.First(),
             };
         });
 
@@ -114,6 +115,8 @@ public class Startup
 
         services.AddScoped<IGradeRepository, GradeRepository>();
         services.AddScoped<RoleManager<IdentityRole>>();
+        services.AddTransient<TokenMiddleware>();
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
         services.AddHostedService<SeedRoles>();
 
@@ -138,6 +141,8 @@ public class Startup
         {
             app.UseHsts();
         }
+
+        app.UseMiddleware<TokenMiddleware>();
 
         app.UseRouting();
 
