@@ -49,6 +49,7 @@ namespace GradeHoraria.Helpers
                     context.User = claimsPrincipal;
                     var jwtToken = new JwtSecurityToken(token);
                     var userClaims = jwtToken.Claims.Where(c => c.Type == "userClaimType").ToList();
+                    context.Items["AccessToken"] = token; // Add token to context items
                 }
                 catch (Exception)
                 {
