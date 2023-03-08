@@ -43,17 +43,12 @@ namespace GradeHoraria.Helpers
                     IssuerSigningKeys = openidConfig.SigningKeys,
                     TokenDecryptionKey = openidConfig.JsonWebKeySet.Keys.FirstOrDefault(k => k.Kid == tokenHandler.ReadJwtToken(token).Header.Kid)
                 };
-                try
-                {
-                    var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out var rawToken);
-                    context.User = claimsPrincipal;
-                    var jwtToken = new JwtSecurityToken(token);
-                    var userClaims = jwtToken.Claims.Where(c => c.Type == "userClaimType").ToList();
-                    context.Items["AccessToken"] = token; // Add token to context items
-                }
-                catch (Exception)
-                {
-                }
+
+                var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out var rawToken);
+                context.User = claimsPrincipal;
+                var jwtToken = new JwtSecurityToken(token);
+                var userClaims = jwtToken.Claims.Where(c => c.Type == "userClaimType").ToList();
+                context.Items["AccessToken"] = token;
             }
             try
             {
