@@ -1,18 +1,19 @@
 using GradeHoraria.Context;
 using GradeHoraria.Models;
 using GradeHoraria.Repositories;
-using GradeHoraria.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Graph;
-using System.Net.Http.Headers;
-using Microsoft.Identity.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Client;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 
 namespace GradeHoraria.Controllers
 {
@@ -27,6 +28,7 @@ namespace GradeHoraria.Controllers
         private readonly IGradeRepository _repository;
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ConfigurationManager<OpenIdConnectConfiguration> _configManager;
         public UserController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration,
         IGradeRepository repository, ApplicationDbContext context, IServiceProvider serviceProvider, IHttpContextAccessor httpContextAccessor)
         {
@@ -37,6 +39,9 @@ namespace GradeHoraria.Controllers
             _repository = repository;
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            _configManager = new ConfigurationManager<OpenIdConnectConfiguration>(
+        $"{_configuration.GetValue<string>("AzureAD:Instance") + _configuration.GetValue<string>("AzureAD:TenantId") + "/v2.0"}/.well-known/openid-configuration",
+        new OpenIdConnectConfigurationRetriever());
         }
 
         /*[HttpGet("GetAllUsers")]
@@ -152,12 +157,58 @@ namespace GradeHoraria.Controllers
         [Route("GetLoggedUser")]
         public async Task<IActionResult> GetLoggedUser()
         {
-            var name = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
-            var preferredUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "preferred_username")?.Value;
+            try
+            {
+                var openidConfig = await _configManager.GetConfigurationAsync();
+                var scopes = new string[] { _configuration.GetValue<string>("AzureAD:Scope") };
 
-            var userClaims = new { Name = name, PreferredUsername = preferredUsername };
+                var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+                var graphClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
+                {
+                    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                }));
 
-            return Ok(userClaims);
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateAudience = true,
+                    ValidAudience = _configuration.GetValue<string>("AzureAD:ClientId"),
+                    //ValidAudience = _configuration.GetValue<string>("AzureAD:Scope"),
+
+                    ValidateIssuer = true,
+                    ValidIssuer = _configuration.GetValue<string>("AzureAD:Instance") + _configuration.GetValue<string>("AzureAD:TenantId") + "/v2.0",
+
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKeys = openidConfig.SigningKeys,
+                    TokenDecryptionKey = openidConfig.JsonWebKeySet.Keys.FirstOrDefault(k => k.Kid == tokenHandler.ReadJwtToken(token).Header.Kid)
+                };
+
+                var user = await graphClient.Me
+                    .Request()
+                    .Select(u => new
+                    {
+                        u.DisplayName,
+                        u.UserPrincipalName,
+                        u.Photo,
+                    })
+                    .GetAsync();
+
+                var userClaims = new
+                {
+                    Name = user.DisplayName,
+                    PreferredUsername = user.UserPrincipalName,
+                    PhotoUrl = user.Photo
+                };
+                return Ok(userClaims);
+            }
+            catch (Exception ex)
+            {
+                // Handle any errors that occur during the request
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("GetUserByName")]
