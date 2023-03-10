@@ -8,16 +8,16 @@ namespace GradeHoraria.Helpers
 {
     public class TokenMiddleware
     {
-        public IConfiguration Configuration { get; }
+        public IConfiguration _configuration { get; }
         private readonly RequestDelegate _next;
         private readonly ConfigurationManager<OpenIdConnectConfiguration> _configManager;
 
         public TokenMiddleware(RequestDelegate next, IConfiguration configuration)
         {
             _next = next;
-            Configuration = configuration;
+            _configuration = configuration;
             _configManager = new ConfigurationManager<OpenIdConnectConfiguration>(
-        $"{Configuration.GetValue<string>("AzureAD:Instance") + Configuration.GetValue<string>("AzureAD:TenantId") + "/v2.0"}/.well-known/openid-configuration",
+        $"{_configuration.GetValue<string>("AzureAD:Instance") + _configuration.GetValue<string>("AzureAD:TenantId") + "/v2.0"}/.well-known/openid-configuration",
         new OpenIdConnectConfigurationRetriever());
         }
 
@@ -33,10 +33,10 @@ namespace GradeHoraria.Helpers
                 var validationParameters = new TokenValidationParameters
                 {
                     ValidateAudience = true,
-                    ValidAudience = Configuration.GetValue<string>("AzureAD:ClientId"),
+                    ValidAudience = _configuration.GetValue<string>("AzureAD:ClientId"),
 
                     ValidateIssuer = true,
-                    ValidIssuer = Configuration.GetValue<string>("AzureAD:Instance") + Configuration.GetValue<string>("AzureAD:TenantId") + "/v2.0",
+                    ValidIssuer = _configuration.GetValue<string>("AzureAD:Instance") + _configuration.GetValue<string>("AzureAD:TenantId") + "/v2.0",
 
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
