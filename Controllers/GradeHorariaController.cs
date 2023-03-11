@@ -163,29 +163,21 @@ namespace GradeHoraria.Controllers
                 var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
                 var accessToken = authHeader.Substring("Bearer ".Length).Trim();
 
-                // Initialize the GraphServiceClient with the access token
-                GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
-                {
-                    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                }));
+                var userName = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+                var user = await _userManager.FindByNameAsync(userName);
 
-                // Make the /me request using the GraphServiceClient
-                var user = await graphServiceClient.Me
-                    .Request()
-                    .Select(u => new
-                    {
-                        u.DisplayName,
-                        u.UserPrincipalName,
-                        u.Photo,
-                    })
-                    .GetAsync();
+                if (user == null)
+                {
+                    return NotFound("Usuário não encontrado.");
+                }
 
                 var userClaims = new
                 {
-                    Name = user.DisplayName,
-                    PreferredUsername = user.UserPrincipalName,
-                    PhotoUrl = user.Photo
+                    Name = userName,
+                    Email = user.Email,
+                    PhotoUrl = $"data:image/png;base64,{Convert.ToBase64String(user.PhotoBytes)}"
                 };
+
                 return Ok(userClaims);
             }
             catch (Exception ex)
@@ -260,6 +252,17 @@ namespace GradeHoraria.Controllers
             .Request()
             .GetAsync();
 
+            // Make a Microsoft Graph API query to get the profile photo
+            var photoStream = await graphServiceClient.Me.Photo.Content.Request().GetAsync();
+
+            // Convert the photoStream to a byte array
+            byte[] photoBytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                await photoStream.CopyToAsync(memoryStream);
+                photoBytes = memoryStream.ToArray();
+            }
+
             var newUser = await _userManager.FindByNameAsync(user.DisplayName);
             if (newUser == null)
             {
@@ -270,7 +273,8 @@ namespace GradeHoraria.Controllers
                     Email = user.Mail ?? user.UserPrincipalName,
                     NormalizedUserName = user.DisplayName.ToUpperInvariant(),
                     NormalizedEmail = (user.Mail ?? user.UserPrincipalName).ToUpperInvariant(),
-                    SecurityStamp = Guid.NewGuid().ToString()
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    PhotoBytes = photoBytes
                 };
 
                 await _userManager.CreateAsync(newUser);
