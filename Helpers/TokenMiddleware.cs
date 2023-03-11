@@ -33,7 +33,10 @@ namespace GradeHoraria.Helpers
                 var validationParameters = new TokenValidationParameters
                 {
                     ValidateAudience = true,
-                    ValidAudience = _configuration.GetValue<string>("AzureAD:ClientId"),
+                    ValidAudiences = new[] {
+                    _configuration.GetValue<string>("AzureAD:ClientId"),
+                    _configuration.GetValue<string>("AzureAD:ClientAPI"),
+                    },
 
                     ValidateIssuer = true,
                     ValidIssuer = _configuration.GetValue<string>("AzureAD:Instance") + _configuration.GetValue<string>("AzureAD:TenantId") + "/v2.0",

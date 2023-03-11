@@ -92,7 +92,10 @@ public class Startup
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateAudience = true,
-                ValidAudience = Configuration.GetValue<string>("AzureAD:ClientId"),
+                ValidAudiences = new[] {
+                    Configuration.GetValue<string>("AzureAD:ClientId"),
+                    Configuration.GetValue<string>("AzureAD:ClientAPI"),
+                    },
 
                 ValidateIssuer = true,
                 ValidIssuer = Configuration.GetValue<string>("AzureAD:Instance") + Configuration.GetValue<string>("AzureAD:TenantId") + "/v2.0",
