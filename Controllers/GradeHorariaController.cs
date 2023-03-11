@@ -44,35 +44,36 @@ namespace GradeHoraria.Controllers
         new OpenIdConnectConfigurationRetriever());
         }
 
-        /*[HttpGet("GetAllUsers")]
-         public async Task<IActionResult> GetAllUsers()
-         {
-             var scopes = new string[] { _configuration.GetValue<string>("AzureAD:Scope") };
+        /*[HttpPost]
+        [Route("GetAllUsers")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var scopes = new string[] { _configuration.GetValue<string>("AzureAD:Scope") };
 
-             var confidentialClient = ConfidentialClientApplicationBuilder
-             .Create(_configuration.GetValue<string>("AzureAD:ClientId"))
-             .WithAuthority($"{_configuration.GetValue<string>("AzureAD:Instance")}{_configuration.GetValue<string>("AzureAD:TenantId")}")
-             .WithClientSecret(_configuration.GetValue<string>("AzureAD:ClientSecret"))
-             .Build();
+            var confidentialClient = ConfidentialClientApplicationBuilder
+            .Create(_configuration.GetValue<string>("AzureAD:ClientId"))
+            .WithAuthority($"{_configuration.GetValue<string>("AzureAD:Instance")}{_configuration.GetValue<string>("AzureAD:TenantId")}")
+            .WithClientSecret(_configuration.GetValue<string>("AzureAD:ClientSecret"))
+            .Build();
 
-             GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
-             {
+            GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
+            {
 
-                 // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
-                 var authResult = await confidentialClient.AcquireTokenForClient(scopes)
-                 .ExecuteAsync();
+                // Retrieve an access token for Microsoft Graph (gets a fresh token if needed).
+                var authResult = await confidentialClient.AcquireTokenForClient(scopes)
+                .ExecuteAsync();
 
-                 // Add the access token in the Authorization header of the API
-                 requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+                // Add the access token in the Authorization header of the API
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
 
-             }));
+            }));
 
-             // Make a Microsoft Graph API query
-             var users = await graphServiceClient.Users
-             .Request()
-             .GetAsync();
-             return Ok(users);
-         }*/
+            // Make a Microsoft Graph API query
+            var users = await graphServiceClient.Users
+            .Request()
+            .GetAsync();
+            return Ok(users);
+        }*/
 
         /*[HttpGet("ImportAllUsers")]
         public async Task<IActionResult> ImportAllUsers()
@@ -159,34 +160,17 @@ namespace GradeHoraria.Controllers
         {
             try
             {
-                var openidConfig = await _configManager.GetConfigurationAsync();
-                var scopes = new string[] { _configuration.GetValue<string>("AzureAD:Scope") };
-
                 var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-                var token = authHeader.Substring("Bearer ".Length).Trim();
-                var graphClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
+                var accessToken = authHeader.Substring("Bearer ".Length).Trim();
+
+                // Initialize the GraphServiceClient with the access token
+                GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
                 {
-                    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
                 }));
 
-
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var validationParameters = new TokenValidationParameters
-                {
-                    ValidateAudience = true,
-                    ValidAudience = _configuration.GetValue<string>("AzureAD:ClientId"),
-                    //ValidAudience = _configuration.GetValue<string>("AzureAD:Scope"),
-
-                    ValidateIssuer = true,
-                    ValidIssuer = _configuration.GetValue<string>("AzureAD:Instance") + _configuration.GetValue<string>("AzureAD:TenantId") + "/v2.0",
-
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKeys = openidConfig.SigningKeys,
-                    TokenDecryptionKey = openidConfig.JsonWebKeySet.Keys.FirstOrDefault(k => k.Kid == tokenHandler.ReadJwtToken(token).Header.Kid)
-                };
-
-                var user = await graphClient.Me
+                // Make the /me request using the GraphServiceClient
+                var user = await graphServiceClient.Me
                     .Request()
                     .Select(u => new
                     {
