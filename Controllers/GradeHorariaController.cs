@@ -171,11 +171,18 @@ namespace GradeHoraria.Controllers
                     return NotFound("Usuário não encontrado.");
                 }
 
+                string? photoBytes = user.PhotoBytes != null
+                ? $"data:image/png;base64,{Convert.ToBase64String(user.PhotoBytes)}"
+                : null;
+
+                var roles = await _userManager.GetRolesAsync(user);
+
                 var userClaims = new
                 {
                     Name = userName,
                     Email = user.Email,
-                    PhotoUrl = $"data:image/png;base64,{Convert.ToBase64String(user.PhotoBytes)}"
+                    Role = roles.FirstOrDefault(),
+                    PhotoBytes = photoBytes
                 };
 
                 return Ok(userClaims);
@@ -253,14 +260,24 @@ namespace GradeHoraria.Controllers
             .GetAsync();
 
             // Make a Microsoft Graph API query to get the profile photo
-            var photoStream = await graphServiceClient.Me.Photo.Content.Request().GetAsync();
-
-            // Convert the photoStream to a byte array
-            byte[] photoBytes;
-            using (var memoryStream = new MemoryStream())
+            byte[]? photoBytes = null;
+            try
             {
-                await photoStream.CopyToAsync(memoryStream);
-                photoBytes = memoryStream.ToArray();
+                var photoStream = await graphServiceClient.Me.Photo.Content.Request().GetAsync();
+
+                // Convert the photoStream to a byte array
+                using (var memoryStream = new MemoryStream())
+                {
+                    await photoStream.CopyToAsync(memoryStream);
+                    photoBytes = memoryStream.ToArray();
+                }
+            }
+            catch (ServiceException ex)
+            {
+                if (ex.StatusCode != System.Net.HttpStatusCode.NotFound)
+                {
+                    throw; // re-throw if it's not a "photo not found" exception
+                }
             }
 
             var newUser = await _userManager.FindByNameAsync(user.DisplayName);
