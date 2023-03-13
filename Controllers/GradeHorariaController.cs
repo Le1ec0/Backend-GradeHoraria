@@ -409,7 +409,7 @@ namespace GradeHoraria.Controllers
             var user = await _userManager.FindByNameAsync(userName);
 
             var loggedInUserRole = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRole.Contains(UserRoles.AdminMaster))
+            if (!loggedInUserRole.Any(r => r == UserRoles.AdminMaster))
             {
                 return Unauthorized("Usuário não é AdminMaster.");
             }
@@ -495,7 +495,7 @@ namespace GradeHoraria.Controllers
             var user = await _userManager.FindByNameAsync(userName);
 
             var loggedInUserRole = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRole.Contains(UserRoles.AdminMaster) || !loggedInUserRole.Contains(UserRoles.Admin))
+            if (!loggedInUserRole.Any(r => r == UserRoles.AdminMaster || r == UserRoles.Admin))
             {
                 return Unauthorized("Usuário não é AdminMaster/Admin.");
             }
@@ -541,7 +541,7 @@ namespace GradeHoraria.Controllers
             var user = await _userManager.FindByNameAsync(userName);
 
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster) || !loggedInUserRoles.Contains(UserRoles.Admin) || !loggedInUserRoles.Contains(UserRoles.Coordenador))
+            if (!loggedInUserRoles.Any(r => r == UserRoles.AdminMaster) || !loggedInUserRoles.Any(r => r == UserRoles.Admin) || !loggedInUserRoles.Any(r => r == UserRoles.Coordenador))
             {
                 return Unauthorized("Usuário não é AdminMaster/Admin/Coordenador.");
             }
@@ -566,7 +566,7 @@ namespace GradeHoraria.Controllers
             var user = await _userManager.FindByNameAsync(userName);
 
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster))
+            if (!loggedInUserRoles.Any(r => r == UserRoles.AdminMaster))
             {
                 return Unauthorized("Usuário não é Admin.");
             }
@@ -641,7 +641,7 @@ namespace GradeHoraria.Controllers
             var user = await _userManager.FindByNameAsync(userName);
 
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster) || !loggedInUserRoles.Contains(UserRoles.Admin))
+            if (!loggedInUserRoles.Any(r => r == UserRoles.AdminMaster) || !loggedInUserRoles.Any(r => r == UserRoles.Admin))
             {
                 return Unauthorized("Usuário não é AdminMaster/Admin.");
             }
@@ -676,7 +676,7 @@ namespace GradeHoraria.Controllers
             var user = await _userManager.FindByNameAsync(userName);
 
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster) || !loggedInUserRoles.Contains(UserRoles.Admin) || !loggedInUserRoles.Contains(UserRoles.Coordenador))
+            if (!loggedInUserRoles.Any(r => r == UserRoles.AdminMaster) || !loggedInUserRoles.Any(r => r == UserRoles.Admin) || !loggedInUserRoles.Any(r => r == UserRoles.Coordenador))
             {
                 return Unauthorized("Usuário não é AdminMaster/Admin/Coordenador.");
             }
@@ -702,7 +702,7 @@ namespace GradeHoraria.Controllers
             var user = await _userManager.FindByNameAsync(userName);
 
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster) || !loggedInUserRoles.Contains(UserRoles.Admin))
+            if (!loggedInUserRoles.Any(r => r == UserRoles.AdminMaster) || !loggedInUserRoles.Any(r => r == UserRoles.Admin))
             {
                 return Unauthorized("Usuário não é AdminMaster/Admin.");
             }
