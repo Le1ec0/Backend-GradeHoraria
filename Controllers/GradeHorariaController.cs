@@ -375,26 +375,26 @@ namespace GradeHoraria.Controllers
         [Route("CreateAdminUser")]
         public async Task<IActionResult> CreateAdminUser()
         {
-            var adminmaster = new ApplicationUser
+            var admin = new ApplicationUser
             {
-                UserName = _configuration["AdminMaster:UserName"],
-                NormalizedUserName = _configuration["AdminMaster:UserName"].ToUpperInvariant(),
-                Email = _configuration["AdminMaster:UserEmail"],
-                NormalizedEmail = _configuration["AdminMaster:UserEmail"].ToUpperInvariant(),
+                UserName = _configuration["Admin:UserName"],
+                NormalizedUserName = _configuration["Admin:UserName"].ToUpperInvariant(),
+                Email = _configuration["Admin:UserEmail"],
+                NormalizedEmail = _configuration["Admin:UserEmail"].ToUpperInvariant(),
                 SecurityStamp = Guid.NewGuid().ToString()
             };
 
-            /*var result = await _userManager.CreateAsync(adminmaster, _configuration["AdminMaster:UserPassword"]);
+            /*var result = await _userManager.CreateAsync(admin, _configuration["Admin:UserPassword"]);
             if (result.Succeeded)
             {
-                await _userManager.AddToRoleAsync(adminmaster, UserRoles.AdminMaster);
-                await _repository.AddUser((ApplicationUser)adminmaster);
+                await _userManager.AddToRoleAsync(admin, UserRoles.Admin);
+                await _repository.AddUser((ApplicationUser)admin);
                 await _repository.SaveChangesAsync();
             }*/
 
-            await _userManager.CreateAsync(adminmaster, _configuration["AdminMaster:UserPassword"]);
-            await _userManager.AddToRoleAsync(adminmaster, UserRoles.AdminMaster);
-            await _repository.AddUser((ApplicationUser)adminmaster);
+            await _userManager.CreateAsync(admin, _configuration["Admin:UserPassword"]);
+            await _userManager.AddToRoleAsync(admin, UserRoles.Admin);
+            await _repository.AddUser((ApplicationUser)admin);
             await _repository.SaveChangesAsync();
 
             return Ok();
@@ -409,9 +409,9 @@ namespace GradeHoraria.Controllers
             var user = await _userManager.FindByNameAsync(userName);
 
             var loggedInUserRole = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRole.Any(r => r == UserRoles.AdminMaster))
+            if (!loggedInUserRole.Any(r => r == UserRoles.Admin))
             {
-                return Unauthorized("Usuário não é AdminMaster.");
+                return Unauthorized("Usuário não é Admin.");
             }
 
             var userToUpdate = await _userManager.FindByEmailAsync(model.Email);
@@ -495,9 +495,9 @@ namespace GradeHoraria.Controllers
             var user = await _userManager.FindByNameAsync(userName);
 
             var loggedInUserRole = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRole.Any(r => r == UserRoles.AdminMaster || r == UserRoles.Admin))
+            if (!loggedInUserRole.Any(r => r == UserRoles.Admin))
             {
-                return Unauthorized("Usuário não é AdminMaster/Admin.");
+                return Unauthorized("Usuário não é Admin.");
             }
             // Create new Curso object and set its properties
             var curso = new Curso
@@ -541,9 +541,9 @@ namespace GradeHoraria.Controllers
             var user = await _userManager.FindByNameAsync(userName);
 
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRoles.Any(r => r == UserRoles.AdminMaster) || !loggedInUserRoles.Any(r => r == UserRoles.Admin) || !loggedInUserRoles.Any(r => r == UserRoles.Coordenador))
+            if (!loggedInUserRoles.Any(r => r == UserRoles.Admin || r == UserRoles.Coordenador))
             {
-                return Unauthorized("Usuário não é AdminMaster/Admin/Coordenador.");
+                return Unauthorized("Usuário não é Admin/Coordenador.");
             }
             var dbCursos = await _repository.GetCurso(id);
             if (dbCursos == null) return NotFound("Curso não encontrado.");
@@ -566,7 +566,7 @@ namespace GradeHoraria.Controllers
             var user = await _userManager.FindByNameAsync(userName);
 
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRoles.Any(r => r == UserRoles.AdminMaster))
+            if (!loggedInUserRoles.Any(r => r == UserRoles.Admin))
             {
                 return Unauthorized("Usuário não é Admin.");
             }
@@ -641,9 +641,9 @@ namespace GradeHoraria.Controllers
             var user = await _userManager.FindByNameAsync(userName);
 
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRoles.Any(r => r == UserRoles.AdminMaster) || !loggedInUserRoles.Any(r => r == UserRoles.Admin))
+            if (!loggedInUserRoles.Any(r => r == UserRoles.Admin))
             {
-                return Unauthorized("Usuário não é AdminMaster/Admin.");
+                return Unauthorized("Usuário não é Admin.");
             }
             // Create new Materia object and set its properties
             var materia = new Materia
@@ -676,9 +676,9 @@ namespace GradeHoraria.Controllers
             var user = await _userManager.FindByNameAsync(userName);
 
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRoles.Any(r => r == UserRoles.AdminMaster) || !loggedInUserRoles.Any(r => r == UserRoles.Admin) || !loggedInUserRoles.Any(r => r == UserRoles.Coordenador))
+            if (!loggedInUserRoles.Any(r => r == UserRoles.Admin || r == UserRoles.Coordenador))
             {
-                return Unauthorized("Usuário não é AdminMaster/Admin/Coordenador.");
+                return Unauthorized("Usuário não é Admin/Coordenador.");
             }
             var dbMaterias = await _repository.GetMateria(id);
             if (dbMaterias == null) return NotFound("Matéria não encontrada.");
@@ -702,9 +702,9 @@ namespace GradeHoraria.Controllers
             var user = await _userManager.FindByNameAsync(userName);
 
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRoles.Any(r => r == UserRoles.AdminMaster) || !loggedInUserRoles.Any(r => r == UserRoles.Admin))
+            if (!loggedInUserRoles.Any(r => r == UserRoles.Admin))
             {
-                return Unauthorized("Usuário não é AdminMaster/Admin.");
+                return Unauthorized("Usuário não é Admin.");
             }
             var materias = await _repository.GetMateria(id);
             if (materias == null) return NotFound("Matéria não encontrada.");

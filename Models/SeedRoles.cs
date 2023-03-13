@@ -17,7 +17,6 @@ namespace GradeHoraria.Models
             {
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-                await CreateRoleAsync(roleManager, UserRoles.AdminMaster);
                 await CreateRoleAsync(roleManager, UserRoles.Admin);
                 await CreateRoleAsync(roleManager, UserRoles.Coordenador);
                 await CreateRoleAsync(roleManager, UserRoles.Professor);
