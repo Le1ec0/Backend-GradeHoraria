@@ -408,10 +408,10 @@ namespace GradeHoraria.Controllers
             var userName = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
             var user = await _userManager.FindByNameAsync(userName);
 
-            var loggedInUserRoles = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster))
+            var loggedInUserRole = await _userManager.GetRolesAsync(user);
+            if (!loggedInUserRole.Contains(UserRoles.AdminMaster))
             {
-                return Forbid("Usuário não é AdminMaster.");
+                return Unauthorized("Usuário não é AdminMaster.");
             }
 
             var userToUpdate = await _userManager.FindByEmailAsync(model.Email);
@@ -494,10 +494,10 @@ namespace GradeHoraria.Controllers
             var userName = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
             var user = await _userManager.FindByNameAsync(userName);
 
-            var loggedInUserRoles = await _userManager.GetRolesAsync(user);
-            if (!loggedInUserRoles.Contains(UserRoles.AdminMaster) || !loggedInUserRoles.Contains(UserRoles.Admin))
+            var loggedInUserRole = await _userManager.GetRolesAsync(user);
+            if (!loggedInUserRole.Contains(UserRoles.AdminMaster) || !loggedInUserRole.Contains(UserRoles.Admin))
             {
-                return Forbid("Usuário não é AdminMaster/Admin.");
+                return Unauthorized("Usuário não é AdminMaster/Admin.");
             }
             // Create new Curso object and set its properties
             var curso = new Curso
@@ -543,7 +543,7 @@ namespace GradeHoraria.Controllers
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
             if (!loggedInUserRoles.Contains(UserRoles.AdminMaster) || !loggedInUserRoles.Contains(UserRoles.Admin) || !loggedInUserRoles.Contains(UserRoles.Coordenador))
             {
-                return Forbid("Usuário não é AdminMaster/Admin/Coordenador.");
+                return Unauthorized("Usuário não é AdminMaster/Admin/Coordenador.");
             }
             var dbCursos = await _repository.GetCurso(id);
             if (dbCursos == null) return NotFound("Curso não encontrado.");
@@ -568,7 +568,7 @@ namespace GradeHoraria.Controllers
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
             if (!loggedInUserRoles.Contains(UserRoles.AdminMaster))
             {
-                return Forbid("Usuário não é Admin.");
+                return Unauthorized("Usuário não é Admin.");
             }
             var cursos = await _repository.GetCurso(id);
             if (cursos == null) return NotFound("Curso não encontrado.");
@@ -643,7 +643,7 @@ namespace GradeHoraria.Controllers
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
             if (!loggedInUserRoles.Contains(UserRoles.AdminMaster) || !loggedInUserRoles.Contains(UserRoles.Admin))
             {
-                return Forbid("Usuário não é AdminMaster/Admin.");
+                return Unauthorized("Usuário não é AdminMaster/Admin.");
             }
             // Create new Materia object and set its properties
             var materia = new Materia
@@ -678,7 +678,7 @@ namespace GradeHoraria.Controllers
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
             if (!loggedInUserRoles.Contains(UserRoles.AdminMaster) || !loggedInUserRoles.Contains(UserRoles.Admin) || !loggedInUserRoles.Contains(UserRoles.Coordenador))
             {
-                return Forbid("Usuário não é AdminMaster/Admin/Coordenador.");
+                return Unauthorized("Usuário não é AdminMaster/Admin/Coordenador.");
             }
             var dbMaterias = await _repository.GetMateria(id);
             if (dbMaterias == null) return NotFound("Matéria não encontrada.");
@@ -704,7 +704,7 @@ namespace GradeHoraria.Controllers
             var loggedInUserRoles = await _userManager.GetRolesAsync(user);
             if (!loggedInUserRoles.Contains(UserRoles.AdminMaster) || !loggedInUserRoles.Contains(UserRoles.Admin))
             {
-                return Forbid("Usuário não é AdminMaster/Admin.");
+                return Unauthorized("Usuário não é AdminMaster/Admin.");
             }
             var materias = await _repository.GetMateria(id);
             if (materias == null) return NotFound("Matéria não encontrada.");
