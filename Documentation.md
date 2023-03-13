@@ -48,7 +48,7 @@ The Periodo class represents a period, with properties for the period's ID, Peri
 
 The Response class is a simple class that represents a response, with properties for the response's status and message.
 
-The UserRoles class is a static class that contains constants for various user roles, such as "AdminMaster", "Admin", "Coordenador", "Professor", and "Usuario". These constants are probably used to assign roles to users in the application.
+The UserRoles class is a static class that contains constants for various user roles, such as "Admin", "Coordenador", "Professor", and "Usuario". These constants are probably used to assign roles to users in the application.
 
 # Repositories
 The GradeRepository class is an implementation of the IGradeRepository interface. It uses the ApplicationDbContext class to interact with a database using Entity Framework Core, an ORM (Object-Relational Mapping) framework for .NET.
