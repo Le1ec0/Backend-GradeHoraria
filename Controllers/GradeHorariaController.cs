@@ -163,29 +163,28 @@ namespace GradeHoraria.Controllers
                 var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
                 var accessToken = authHeader.Substring("Bearer ".Length).Trim();
 
-                // Initialize the GraphServiceClient with the access token
-                GraphServiceClient graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
-                {
-                    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                }));
+                var userName = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+                var user = await _userManager.FindByNameAsync(userName);
 
-                // Make the /me request using the GraphServiceClient
-                var user = await graphServiceClient.Me
-                    .Request()
-                    .Select(u => new
-                    {
-                        u.DisplayName,
-                        u.UserPrincipalName,
-                        u.Photo,
-                    })
-                    .GetAsync();
+                if (user == null)
+                {
+                    return NotFound("Usuário não encontrado.");
+                }
+
+                string? photoBytes = user.PhotoBytes != null
+                ? $"data:image/png;base64,{Convert.ToBase64String(user.PhotoBytes)}"
+                : null;
+
+                var roles = await _userManager.GetRolesAsync(user);
 
                 var userClaims = new
                 {
-                    Name = user.DisplayName,
-                    PreferredUsername = user.UserPrincipalName,
-                    PhotoUrl = user.Photo
+                    Name = userName,
+                    Email = user.Email,
+                    Role = roles.FirstOrDefault(),
+                    PhotoBytes = photoBytes
                 };
+
                 return Ok(userClaims);
             }
             catch (Exception ex)
@@ -260,6 +259,27 @@ namespace GradeHoraria.Controllers
             .Request()
             .GetAsync();
 
+            // Make a Microsoft Graph API query to get the profile photo
+            byte[]? photoBytes = null;
+            try
+            {
+                var photoStream = await graphServiceClient.Me.Photo.Content.Request().GetAsync();
+
+                // Convert the photoStream to a byte array
+                using (var memoryStream = new MemoryStream())
+                {
+                    await photoStream.CopyToAsync(memoryStream);
+                    photoBytes = memoryStream.ToArray();
+                }
+            }
+            catch (ServiceException ex)
+            {
+                if (ex.StatusCode != System.Net.HttpStatusCode.NotFound)
+                {
+                    throw; // re-throw if it's not a "photo not found" exception
+                }
+            }
+
             var newUser = await _userManager.FindByNameAsync(user.DisplayName);
             if (newUser == null)
             {
@@ -270,7 +290,8 @@ namespace GradeHoraria.Controllers
                     Email = user.Mail ?? user.UserPrincipalName,
                     NormalizedUserName = user.DisplayName.ToUpperInvariant(),
                     NormalizedEmail = (user.Mail ?? user.UserPrincipalName).ToUpperInvariant(),
-                    SecurityStamp = Guid.NewGuid().ToString()
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    PhotoBytes = photoBytes
                 };
 
                 await _userManager.CreateAsync(newUser);
