@@ -171,8 +171,8 @@ namespace GradeHoraria.Controllers
                     return NotFound("Usuário não encontrado.");
                 }
 
-                var photoBytes = user.PhotoBytes != null
-                ? $"data:image/png;base64,{user.PhotoBytes}"
+                var photoBase64String = user.PhotoBytes != null
+                ? Convert.ToBase64String(user.PhotoBytes)
                 : null;
 
                 var roles = await _userManager.GetRolesAsync(user);
@@ -182,7 +182,7 @@ namespace GradeHoraria.Controllers
                     Name = userName,
                     Email = user.Email,
                     Role = roles.FirstOrDefault(),
-                    PhotoBytes = photoBytes
+                    photoBase64String = photoBase64String
                 };
 
                 return Ok(userClaims);
@@ -281,9 +281,6 @@ namespace GradeHoraria.Controllers
                 }
             }
 
-            // Convert the byte array to a base64 string
-            var photoBase64String = Convert.ToBase64String(photoBytes);
-
             var newUser = await _userManager.FindByNameAsync(user.DisplayName);
             if (newUser == null)
             {
@@ -295,7 +292,7 @@ namespace GradeHoraria.Controllers
                     NormalizedUserName = user.DisplayName.ToUpperInvariant(),
                     NormalizedEmail = (user.Mail ?? user.UserPrincipalName).ToUpperInvariant(),
                     SecurityStamp = Guid.NewGuid().ToString(),
-                    PhotoBytes = photoBase64String
+                    PhotoBytes = photoBytes
                 };
 
                 await _userManager.CreateAsync(newUser);
