@@ -171,8 +171,8 @@ namespace GradeHoraria.Controllers
                     return NotFound("Usuário não encontrado.");
                 }
 
-                string? photoBytes = user.PhotoBytes != null
-                ? $"data:image/png;base64,{Convert.ToBase64String(user.PhotoBytes)}"
+                var photoBytes = user.PhotoBytes != null
+                ? $"data:image/png;base64,{user.PhotoBytes}"
                 : null;
 
                 var roles = await _userManager.GetRolesAsync(user);
@@ -261,6 +261,7 @@ namespace GradeHoraria.Controllers
 
             // Make a Microsoft Graph API query to get the profile photo
             byte[]? photoBytes = null;
+
             try
             {
                 var photoStream = await graphServiceClient.Me.Photo.Content.Request().GetAsync();
@@ -280,6 +281,9 @@ namespace GradeHoraria.Controllers
                 }
             }
 
+            // Convert the byte array to a base64 string
+            var photoBase64String = Convert.ToBase64String(photoBytes);
+
             var newUser = await _userManager.FindByNameAsync(user.DisplayName);
             if (newUser == null)
             {
@@ -291,7 +295,7 @@ namespace GradeHoraria.Controllers
                     NormalizedUserName = user.DisplayName.ToUpperInvariant(),
                     NormalizedEmail = (user.Mail ?? user.UserPrincipalName).ToUpperInvariant(),
                     SecurityStamp = Guid.NewGuid().ToString(),
-                    PhotoBytes = photoBytes
+                    PhotoBytes = photoBase64String
                 };
 
                 await _userManager.CreateAsync(newUser);
