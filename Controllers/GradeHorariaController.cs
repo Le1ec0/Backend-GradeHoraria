@@ -154,7 +154,7 @@ namespace GradeHoraria.Controllers
             return Ok(users);
         }*/
 
-        [HttpGet]
+        [HttpPost]
         [Route("GetLoggedUser")]
         public async Task<IActionResult> GetLoggedUser()
         {
