@@ -254,10 +254,17 @@ namespace GradeHoraria.Controllers
                 return Task.FromResult(0);
             }));
 
-            // Make a Microsoft Graph API query
-            var user = await graphServiceClient.Me
+            // Make a Microsoft Graph API query to check if the user exists in AAD
+            var user = await graphServiceClient.Users
             .Request()
+            .Filter($"mail eq '{model.Username}' or userPrincipalName eq '{model.Username}'")
+            .Select("displayName,mail,userPrincipalName")
             .GetAsync();
+
+            if (user.Count == 0)
+            {
+                return NotFound("Usuário não encontrado.");
+            }
 
             // Make a Microsoft Graph API query to get the profile photo
             byte[]? photoBytes = null;
@@ -281,16 +288,16 @@ namespace GradeHoraria.Controllers
                 }
             }
 
-            var newUser = await _userManager.FindByNameAsync(user.DisplayName);
+            var newUser = await _userManager.FindByNameAsync(user[0].DisplayName);
             if (newUser == null)
             {
                 newUser = new ApplicationUser
                 {
-                    Id = user.Id,
-                    UserName = user.DisplayName,
-                    Email = user.Mail ?? user.UserPrincipalName,
-                    NormalizedUserName = user.DisplayName.ToUpperInvariant(),
-                    NormalizedEmail = (user.Mail ?? user.UserPrincipalName).ToUpperInvariant(),
+                    Id = user[0].Id,
+                    UserName = user[0].DisplayName,
+                    Email = user[0].Mail ?? user[0].UserPrincipalName,
+                    NormalizedUserName = user[0].DisplayName.ToUpperInvariant(),
+                    NormalizedEmail = (user[0].Mail ?? user[0].UserPrincipalName).ToUpperInvariant(),
                     SecurityStamp = Guid.NewGuid().ToString(),
                     PhotoBytes = photoBytes
                 };
@@ -307,7 +314,7 @@ namespace GradeHoraria.Controllers
 
                 var authClaims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, user.DisplayName),
+                    new Claim(ClaimTypes.Name, user[0].DisplayName),
                     new Claim(Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
 
