@@ -14,6 +14,7 @@ using Microsoft.Graph;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
+using System.Text;
 
 namespace GradeHoraria.Controllers
 {
@@ -339,8 +340,62 @@ namespace GradeHoraria.Controllers
         }
 
         [HttpPost]
-        [Route("RegisterUserAAD")]
+        [Route("RegisterUser")]
         public async Task<IActionResult> CreateUserAsync([FromBody] RegisterModel model)
+        {
+            var newUser = await _userManager.FindByNameAsync(model.displayName);
+            if (newUser != null)
+            {
+                return BadRequest("User already exists");
+            }
+
+            if (newUser == null)
+            {
+                newUser = new ApplicationUser
+                {
+                    UserName = model.displayName,
+                    Email = model.userPrincipalName,
+                    NormalizedUserName = model.displayName.ToUpperInvariant(),
+                    NormalizedEmail = model.userPrincipalName.ToUpperInvariant(),
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    PhotoBytes = model.photoBytes
+                };
+
+                await _userManager.CreateAsync(newUser);
+                var userRoles = await _userManager.GetRolesAsync(newUser);
+
+                var result = await _userManager.CreateAsync(newUser, model.password);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result.Errors);
+                }
+
+                if (!await _roleManager.RoleExistsAsync(UserRoles.Usuario))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Usuario));
+                }
+
+                await _userManager.AddToRoleAsync(newUser, UserRoles.Usuario);
+
+                var authClaims = new List<Claim>
+                {
+                new Claim(ClaimTypes.Name, newUser.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                };
+
+                authClaims.AddRange(await _userManager.GetClaimsAsync(newUser));
+                authClaims.AddRange((await _userManager.GetRolesAsync(newUser)).Select(r => new Claim(ClaimTypes.Role, r)));
+
+                // Add the new User to the context using the AddUser method
+                await _repository.AddUser(newUser);
+                await _repository.SaveChangesAsync();
+            }
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("RegisterUserAAD")]
+        public async Task<IActionResult> CreateAADUserAsync([FromBody] RegisterModel model)
         {
             var scopes = new string[] { _configuration.GetValue<string>("AzureAD:Scope") };
 
