@@ -15,5 +15,6 @@ namespace GradeHoraria.Models
 
         [Required(ErrorMessage = "Insira a senha do usuário.")]
         public string? password { get; set; }
+        public byte[]? photoBytes { get; set; }
     }
 }
